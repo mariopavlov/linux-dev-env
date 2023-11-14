@@ -20,6 +20,40 @@ update_system() {
     echo "$distro update complete."
 }
 
+# Install Curl
+install_curl() {
+    local distro=$1
+    echo "Installing Curl on $distro..."
+
+    if [ "$distro" == "ubuntu" ]; then
+        sudo apt install curl -y
+    elif [ "$distro" == "fedora" ]; then
+        sudo dnf install curl -y
+    else
+        echo "Unsupported distribution for Curl installation: $distro"
+        return 1
+    fi
+
+    echo "Curl installation complete."
+}
+
+# Install Git
+install_git() {
+    local distro=$1
+    echo "Installing Git on $distro..."
+
+    if [ "$distro" == "ubuntu" ]; then
+        sudo apt install git -y
+    elif [ "$distro" == "fedora" ]; then
+        sudo dnf install git -y
+    else
+        echo "Unsupported distribution for Git installation: $distro"
+        return 1
+    fi
+
+    echo "Git installation complete."
+}
+
 # Function to install Zsh and set it as the default shell
 install_zsh() {
     local distro=$1
@@ -42,6 +76,12 @@ install_zsh() {
     echo "Zsh is now the default shell."
 }
 
+install_oh_my_zsh() {
+    echo "Installing Oh My Zsh..."
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    echo "Oh My Zsh installation complete."
+}
+
 
 # Determine the distribution
 if [ -f /etc/os-release ]; then
@@ -54,8 +94,13 @@ fi
 
 # Update the system
 update_system $distro
+install_curl $distro
+install_git $distro
 
 # Install Zsh
 install_zsh $distro
+
+# Install OhMyZsh
+install_oh_my_zsh
 
 # Add additional setup steps here
