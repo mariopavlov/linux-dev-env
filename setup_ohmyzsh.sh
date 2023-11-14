@@ -45,6 +45,32 @@ install_oh_my_zsh() {
     echo "Oh My Zsh installation and configuration complete."
 }
 
+install_meslo_lg_font() {
+    echo "Installing Meslo LG font for Powerline..."
+
+    # Define the font source and target directories
+    font_source_dir="fonts/Meslo Dotted"
+    font_target_dir="$HOME/.local/share/fonts"
+
+    # Create target directory if it doesn't exist
+    mkdir -p "$font_target_dir"
+
+    # Copy fonts from the source to the target directory
+    cp "$font_source_dir"/Meslo\ LG\ * "$font_target_dir"
+
+    if [ $? -ne 0 ]; then
+        echo "Error: Failed to copy Meslo LG fonts."
+        return 1
+    fi
+
+    # Update font cache
+    fc-cache -f -v
+
+    echo "Meslo LG font installation complete."
+}
+
+
+# TODO Requires fix, not working as expected
 install_fonts() {
     echo "Installing Powerline fonts..."
 
@@ -74,6 +100,28 @@ install_fonts() {
     fc-cache -f -v
 
     echo "Font installation complete."
+}
+
+# Function to install Zsh and set it as the default shell
+install_zsh() {
+    local distro=$1
+    echo "Installing Zsh on $distro..."
+
+    if [ "$distro" == "ubuntu" ]; then
+        sudo apt install zsh -y
+    elif [ "$distro" == "fedora" ]; then
+        sudo dnf install zsh -y
+    else
+        echo "Unsupported distribution for Zsh installation: $distro"
+        return 1
+    fi
+
+    echo "Zsh installation complete."
+
+    # Set Zsh as the default shell
+    echo "Setting Zsh as the default shell..."
+    chsh -s $(which zsh)
+    echo "Zsh is now the default shell."
 }
 
 # Powerlevel10k theme for ZSH
@@ -111,7 +159,7 @@ fi
 
 # Update the system
 update_system $distro
-install_fonts
+install_meslo_lg_font
 
 # Install Zsh
 install_zsh $distro
