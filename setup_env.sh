@@ -100,6 +100,37 @@ install_oh_my_zsh() {
     echo "Oh My Zsh installation and configuration complete."
 }
 
+install_fonts() {
+    echo "Installing Powerline fonts..."
+
+    # Define the font source directory and target directory
+    font_source_dir="fonts"
+    font_target_dir="$HOME/.local/share/fonts"
+
+    # Create target directory if it doesn't exist
+    mkdir -p "$font_target_dir"
+
+    # List of font directories to install
+    font_dirs=("FiraMono" "GoMono" "Hack" "Meslo Dotted" "Meslo Slashed" "SourceCodePro")
+
+    # Copy fonts from each source subdirectory to the target directory
+    for font_dir in "${font_dirs[@]}"; do
+        echo "Copying $font_dir..."
+        cp "$font_source_dir/$font_dir"/*.ttf "$font_target_dir"
+        cp "$font_source_dir/$font_dir"/*.otf "$font_target_dir"
+
+        if [ $? -ne 0 ]; then
+            echo "Error: Failed to copy $font_dir fonts."
+            return 1
+        fi
+    done
+
+    # Update font cache
+    fc-cache -f -v
+
+    echo "Font installation complete."
+}
+
 # Powerlevel10k theme for ZSH
 install_powerlevel10k() {
     echo "Installing Powerlevel10k theme for Oh My Zsh..."
@@ -186,13 +217,12 @@ fi
 update_system $distro
 install_curl $distro
 install_git $distro
+install_fonts
 
 # Install Zsh
 install_zsh $distro
 # Install OhMyZsh
 install_oh_my_zsh
-# Install Powerlevel10k theme
-install_powerlevel10k
 
 while true; do
     echo "Select the feature to install:"
@@ -211,7 +241,9 @@ while true; do
     esac
 done
 
-
+# Install Powerlevel10k theme
+# Should be last as it terminated the script, I may need to find a way to improve the setup in future
+install_powerlevel10k
 
 
 # Add additional setup steps here
