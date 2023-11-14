@@ -20,6 +20,22 @@ update_system() {
     echo "$distro update complete."
 }
 
+# Install Curl
+install_curl() {
+    local distro=$1
+    echo "Installing Curl on $distro..."
+
+    if [ "$distro" == "ubuntu" ]; then
+        sudo apt install curl -y
+    elif [ "$distro" == "fedora" ]; then
+        sudo dnf install curl -y
+    else
+        echo "Unsupported distribution for Curl installation: $distro"
+        return 1
+    fi
+
+    echo "Curl installation complete."
+}
 
 # Install OhMyZsh
 install_oh_my_zsh() {
@@ -159,6 +175,7 @@ fi
 
 # Update the system
 update_system $distro
+install_curl $distro
 install_meslo_lg_font
 
 # Install Zsh

@@ -54,55 +54,61 @@ install_git() {
     echo "Git installation complete."
 }
 
-# Install Vue
-install_vue() {
-    echo "Installing NVM (Node Version Manager)..."
+setup_git_config() {
+    echo "Setting up Git configuration..."
 
-    if ! curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash; then
-        echo "Error: Failed to install NVM."
+    # Read and set the Git username
+    read -p "Enter your Git username: " git_username
+    git config --global user.name "$git_username"
+
+    # Read and set the Git email
+    read -p "Enter your Git email: " git_email
+    git config --global user.email "$git_email"
+
+    # Additional configurations can be added here
+    # For example, setting up default branch name, editor, etc.
+
+    echo "Git configuration set successfully."
+    echo "Username: $git_username"
+    echo "Email: $git_email"
+
+    # Optionally, display the current global Git configuration
+    echo "Current global Git configuration:"
+    git config --global --list
+}
+
+# Install VIM
+install_vim() {
+    local distro=$1
+    echo "Installing VIM on $distro..."
+
+    if [ "$distro" == "ubuntu" ]; then
+        sudo apt install vim -y
+    elif [ "$distro" == "fedora" ]; then
+        sudo dnf install vim -y
+    else
+        echo "Unsupported distribution for VIM installation: $distro"
         return 1
     fi
 
-    # Load NVM into the current session for Zsh
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    # If using Zsh, also source the zshrc file
-    [ -s "$HOME/.zshrc" ] && \. "$HOME/.zshrc"
+    echo "VIM installation complete."
+}
 
-    # Ask for Node.js version
-    echo "Which version of Node.js would you like to install?"
-    echo "0) Latest"
-    echo "1) 18.10.0"
-    read -p "Enter your choice (1 for 18.10.0, 0 for Latest): " node_choice
+# Install Neovim
+install_nvim() {
+    local distro=$1
+    echo "Installing VIM on $distro..."
 
-    if [ "$node_choice" == "0" ]; then
-        nvm install node || { echo "Error: Failed to install the latest version of Node.js."; return 1; }
-        nvm use node
-    elif [ "$node_choice" == "1" ]; then
-        nvm install 18.10.0 || { echo "Error: Failed to install Node.js version 18.10.0."; return 1; }
-        nvm use 18.10.0
+    if [ "$distro" == "ubuntu" ]; then
+        sudo apt install neovim -y
+    elif [ "$distro" == "fedora" ]; then
+        sudo dnf install neovim -y
     else
-        echo "Invalid choice. Installing the latest version of Node.js."
-        nvm install node || { echo "Error: Failed to install the latest version of Node.js."; return 1; }
-        nvm use node
+        echo "Unsupported distribution for Neovim installation: $distro"
+        return 1
     fi
 
-    # Ask for Vue CLI version
-    echo "Which version of Vue CLI would you like to install?"
-    echo "0) Latest"
-    echo "1) 5.0.8"
-    read -p "Enter your choice (1 for 5.0.8, 0 for Latest): " vue_cli_choice
-
-    if [ "$vue_cli_choice" == "0" ]; then
-        npm install -g @vue/cli || { echo "Error: Failed to install the latest version of Vue CLI."; return 1; }
-    elif [ "$vue_cli_choice" == "1" ]; then
-        npm install -g @vue/cli@5.0.8 || { echo "Error: Failed to install Vue CLI version 5.0.8."; return 1; }
-    else
-        echo "Invalid choice. Installing the latest version of Vue CLI."
-        npm install -g @vue/cli || { echo "Error: Failed to install the latest version of Vue CLI."; return 1; }
-    fi
-
-    echo "Vue.js environment setup complete."
+    echo "Neovim installation complete."
 }
 
 # Determine the distribution
@@ -117,24 +123,11 @@ fi
 # Update the system
 update_system $distro
 install_curl $distro
+
 install_git $distro
+setup_git_config
+
+install_vim $distro
+install_nvim $distro
 
 
-while true; do
-    echo "Select the feature to install:"
-    echo "0) Exit"
-    echo "1) JDK"
-    echo "2) Vue.js"
-    echo "3) Python"
-    read -p "Enter your choice [1-4]: " choice
-
-    case $choice in
-        0) break ;;
-        1) install_jdk ;;
-        2) install_vue ;;
-        3) install_python ;;
-        *) echo "Invalid option $choice." ;;
-    esac
-done
-
-# Add additional setup steps here
