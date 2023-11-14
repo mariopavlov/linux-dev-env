@@ -20,7 +20,7 @@ update_system() {
     echo "$distro update complete."
 }
 
-# Function to install Zsh
+# Function to install Zsh and set it as the default shell
 install_zsh() {
     local distro=$1
     echo "Installing Zsh on $distro..."
@@ -35,7 +35,13 @@ install_zsh() {
     fi
 
     echo "Zsh installation complete."
+
+    # Set Zsh as the default shell
+    echo "Setting Zsh as the default shell..."
+    chsh -s $(which zsh)
+    echo "Zsh is now the default shell."
 }
+
 
 # Determine the distribution
 if [ -f /etc/os-release ]; then
