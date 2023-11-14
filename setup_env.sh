@@ -63,9 +63,11 @@ install_vue() {
         return 1
     fi
 
-    # Load NVM into the current session
+    # Load NVM into the current session for Zsh
     export NVM_DIR="$HOME/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    # If using Zsh, also source the zshrc file
+    [ -s "$HOME/.zshrc" ] && \. "$HOME/.zshrc"
 
     # Ask for Node.js version
     echo "Which version of Node.js would you like to install?"
@@ -102,7 +104,6 @@ install_vue() {
 
     echo "Vue.js environment setup complete."
 }
-
 
 # Determine the distribution
 if [ -f /etc/os-release ]; then
