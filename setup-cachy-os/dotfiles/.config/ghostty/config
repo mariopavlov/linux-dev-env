@@ -1,0 +1,49 @@
+# Ghostty terminal configuration
+# https://ghostty.org/docs/config
+
+# ── Font ──────────────────────────────────────────────────────────────────────
+font-family = JetBrainsMonoNL Nerd Font Mono
+font-size = 13
+font-feature = -liga   # disable ligatures (set to +liga to enable)
+adjust-cell-height = 2
+
+# ── Theme ─────────────────────────────────────────────────────────────────────
+theme = catppuccin-mocha
+
+# ── Transparency ──────────────────────────────────────────────────────────────
+background-opacity = 0.95
+background-blur-radius = 20
+
+# ── Shell integration ─────────────────────────────────────────────────────────
+shell-integration = fish
+shell-integration-features = cursor,sudo,title
+
+# ── Window ────────────────────────────────────────────────────────────────────
+window-decoration = false
+window-padding-x = 8
+window-padding-y = 6
+
+# ── Cursor ────────────────────────────────────────────────────────────────────
+cursor-style = block
+cursor-style-blink = false
+
+# ── Scrollback ────────────────────────────────────────────────────────────────
+scrollback-limit = 10000
+
+# ── Copy/paste ────────────────────────────────────────────────────────────────
+copy-on-select = clipboard
+
+# ── Keybinds ──────────────────────────────────────────────────────────────────
+# New tab / window
+keybind = ctrl+t=new_tab
+keybind = ctrl+shift+t=new_window
+
+# Split panes
+keybind = ctrl+d=new_split:right
+keybind = ctrl+shift+d=new_split:down
+
+# Navigate splits
+keybind = ctrl+shift+h=goto_split:left
+keybind = ctrl+shift+l=goto_split:right
+keybind = ctrl+shift+k=goto_split:up
+keybind = ctrl+shift+j=goto_split:down
