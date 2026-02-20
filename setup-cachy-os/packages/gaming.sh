@@ -33,10 +33,10 @@ log_step "NVIDIA 32-bit & Vulkan libraries"
 
 paru_install \
     lib32-nvidia-utils \
-    vulkan-nvidia \
-    lib32-vulkan-nvidia \
     vulkan-icd-loader \
     lib32-vulkan-icd-loader
+# Note: vulkan-nvidia / lib32-vulkan-nvidia are bundled inside
+# nvidia-utils / lib32-nvidia-utils — no separate package exists on CachyOS.
 
 log_success "NVIDIA Vulkan libraries installed"
 

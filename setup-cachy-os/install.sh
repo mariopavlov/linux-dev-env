@@ -76,26 +76,16 @@ if $RUN_GAMING; then
 fi
 
 if $RUN_DOTFILES; then
-    run_step "Dotfiles (Chezmoi)" bash -c "
-        source '$SCRIPT_DIR/lib/utils.sh'
+    if ! is_installed chezmoi; then
+        log_error "chezmoi not found — run --base first"
+        exit 1
+    fi
 
-        if ! is_installed chezmoi; then
-            log_error 'chezmoi not found — run --base first'
-            exit 1
-        fi
-
-        DOTFILES_SRC='$SCRIPT_DIR/dotfiles'
-
-        if chezmoi status &>/dev/null; then
-            log_info 'Chezmoi already initialised — applying'
-        else
-            log_info 'Initialising chezmoi from \$DOTFILES_SRC'
-            chezmoi init --source=\"\$DOTFILES_SRC\"
-        fi
-
-        chezmoi apply --verbose
-        log_success 'Dotfiles applied'
-    "
+    DOTFILES_SRC="$SCRIPT_DIR/dotfiles"
+    log_step "Dotfiles (Chezmoi)"
+    log_info "Applying dotfiles from $DOTFILES_SRC"
+    chezmoi apply --source="$DOTFILES_SRC" --verbose
+    log_success "Dotfiles applied"
 fi
 
 # ── Summary ───────────────────────────────────────────────────────────────────

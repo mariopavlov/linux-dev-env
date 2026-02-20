@@ -15,9 +15,18 @@ if command -q zoxide
     zoxide init fish | source
 end
 
-# ── SDKMan via bass ───────────────────────────────────────────────────────────
-# Allows using `sdk` commands from Fish shell
-# Requires: bass (Fisher plugin), SDKMan installed at ~/.sdkman
+# ── SDKMan ────────────────────────────────────────────────────────────────────
+# Add all installed SDKMan candidates (java, maven, gradle, …) to PATH.
+# This makes `java`, `mvn`, `gradle` etc. available without any extra step.
+if test -d "$HOME/.sdkman/candidates"
+    for candidate_bin in $HOME/.sdkman/candidates/*/current/bin
+        if test -d "$candidate_bin"
+            fish_add_path "$candidate_bin"
+        end
+    end
+end
+
+# `sdk` command wrapper via bass (install, use, list, etc.)
 if functions -q bass; and test -s "$HOME/.sdkman/bin/sdkman-init.sh"
     function sdk
         bass source "$HOME/.sdkman/bin/sdkman-init.sh" ';' sdk $argv

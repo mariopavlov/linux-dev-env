@@ -91,13 +91,19 @@ log_info "To install a JDK, open a new shell and run: sdk install java"
 log_step "Node (nvm.fish)"
 
 if fish -c "type -q nvm" 2>/dev/null; then
-    if fish -c "nvm current" 2>/dev/null | grep -qv "none"; then
-        log_skip "Node ($(fish -c 'node --version' 2>/dev/null || echo 'version check failed'))"
-    else
+    # Install LTS if not already present
+    if ! fish -c "nvm list" 2>/dev/null | grep -q "lts/"; then
         log_info "Installing Node LTS via nvm.fish"
-        fish -c "nvm install lts && nvm use lts"
+        fish -c "nvm install lts"
         log_success "Node LTS installed: $(fish -c 'node --version' 2>/dev/null)"
+    else
+        log_skip "Node LTS ($(fish -c 'nvm list' 2>/dev/null | grep lts | awk '{print $1}'))"
     fi
+
+    # Set LTS as the default so nvm.fish uses it instead of the system node.
+    # nvm_default_version is a universal variable read by nvm.fish on every shell start.
+    fish -c "set --universal nvm_default_version lts"
+    log_success "nvm default set to lts"
 else
     log_warn "nvm.fish not found in Fish — run --base first to install Fisher plugins"
 fi
@@ -105,10 +111,8 @@ fi
 # ── Anaconda (optional — large ~1 GB) ────────────────────────────────────────
 log_step "Anaconda (optional)"
 
-CONDA_PATH="$HOME/anaconda3/bin/conda"
-
-if [[ -x "$CONDA_PATH" ]] || is_installed conda; then
-    log_skip "Anaconda ($(conda --version 2>/dev/null || echo 'already installed'))"
+if pkg_installed anaconda; then
+    log_skip "Anaconda"
 elif [[ "${SKIP_ANACONDA:-}" == "1" ]]; then
     log_warn "Anaconda skipped (SKIP_ANACONDA=1)"
 elif confirm "Install Anaconda? (~1 GB download, takes a while)"; then
