@@ -10,7 +10,7 @@ adjust-cell-height = 2
 theme = Catppuccin Mocha
 
 # ── Transparency ──────────────────────────────────────────────────────────────
-background-opacity = 0.95
+background-opacity = 0.75
 background-blur-radius = 20
 
 # ── Shell integration ─────────────────────────────────────────────────────────
