@@ -2,9 +2,8 @@
 # https://ghostty.org/docs/config
 
 # ── Font ──────────────────────────────────────────────────────────────────────
-font-family = JetBrainsMonoNL Nerd Font Mono
+font-family = JetBrainsMono Nerd Font Mono
 font-size = 13
-font-feature = -liga   # disable ligatures (set to +liga to enable)
 adjust-cell-height = 2
 
 # ── Theme ─────────────────────────────────────────────────────────────────────
