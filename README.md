@@ -1,4 +1,16 @@
 # Linux Development Environment
+
+
+## Manual Install
+
+### Claude Code
+
+```shell
+curl -fsSL https://claude.ai/install.sh | bash
+```
+## Automatic
+
+
 A bunch of scripts and files to prepare quick and easy Linux Development Environment 
 
 Steps:
