@@ -62,7 +62,7 @@ log_step "Installing Fisher plugins"
 install_fisher_plugin() {
     local plugin="$1"
     local name="${plugin##*/}"
-    if fish -c "fisher list | grep -q '$plugin'" 2>/dev/null; then
+    if fish -c "fisher list | grep -qi '$plugin'" 2>/dev/null; then
         log_skip "Fisher plugin: $name"
     else
         fish -c "fisher install $plugin"
@@ -85,7 +85,7 @@ else
     if ! grep -qF "$FISH_PATH" /etc/shells; then
         echo "$FISH_PATH" | sudo tee -a /etc/shells
     fi
-    chsh -s "$FISH_PATH"
+    sudo usermod -s "$FISH_PATH" "$USER"
     log_success "Default shell set to Fish (takes effect on next login)"
 fi
 
@@ -108,18 +108,24 @@ fi
 # Or set manually:       GIT_USER_NAME="..." GIT_USER_EMAIL="..." bash install.sh --base
 log_step "Configuring Git"
 
-prompt_value GIT_USER_NAME  "Git user name"
-prompt_value GIT_USER_EMAIL "Git user email"
+EXISTING_NAME="$(git config --global user.name 2>/dev/null || true)"
+EXISTING_EMAIL="$(git config --global user.email 2>/dev/null || true)"
 
-git config --global user.name  "$GIT_USER_NAME"
-git config --global user.email "$GIT_USER_EMAIL"
+if [[ -n "$EXISTING_NAME" && -n "$EXISTING_EMAIL" ]]; then
+    log_skip "Git already configured ($EXISTING_NAME <$EXISTING_EMAIL>)"
+else
+    prompt_value GIT_USER_NAME  "Git user name"
+    prompt_value GIT_USER_EMAIL "Git user email"
+    git config --global user.name  "$GIT_USER_NAME"
+    git config --global user.email "$GIT_USER_EMAIL"
+    log_success "Git configured for $GIT_USER_NAME <$GIT_USER_EMAIL>"
+fi
+
 git config --global init.defaultBranch main
 git config --global pull.rebase true
 git config --global push.autoSetupRemote true
 git config --global core.editor nvim
 git config --global diff.tool  vimdiff
-
-log_success "Git configured for $GIT_USER_NAME <$GIT_USER_EMAIL>"
 
 # ── GitHub CLI auth reminder ──────────────────────────────────────────────────
 if is_installed gh; then

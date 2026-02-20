@@ -102,6 +102,7 @@ paru_install() {
 confirm() {
     local prompt="$1"
     local answer
-    read -rp "${YELLOW}?${RESET} $prompt [y/N] " answer
+    printf "${YELLOW}?${RESET} %s [y/N] " "$prompt"
+    read -r answer
     [[ "$answer" =~ ^[Yy]$ ]]
 }
