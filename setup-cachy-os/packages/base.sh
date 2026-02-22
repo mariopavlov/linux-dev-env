@@ -31,7 +31,6 @@ paru_install \
     github-cli \
     chezmoi \
     neovim \
-    ttf-jetbrains-mono-nerd \
     git \
     curl \
     wget \
@@ -42,6 +41,25 @@ paru_install \
     btop
 
 log_success "Core packages installed"
+
+# ── JetBrainsMono Nerd Font (from repo) ───────────────────────────────────────
+log_step "JetBrainsMono Nerd Font"
+
+FONT_SRC="$SCRIPT_DIR/../fonts/JetBrainsMono"
+FONT_DST="$HOME/.local/share/fonts/JetBrainsMonoNerd"
+
+if [[ -d "$FONT_DST" ]] && ls "$FONT_DST"/*.ttf &>/dev/null; then
+    log_skip "JetBrainsMono Nerd Font"
+else
+    if [[ ! -d "$FONT_SRC" ]]; then
+        log_error "Font source not found at $FONT_SRC"
+        exit 1
+    fi
+    mkdir -p "$FONT_DST"
+    cp "$FONT_SRC"/*.ttf "$FONT_DST/"
+    fc-cache -fv "$FONT_DST" &>/dev/null
+    log_success "JetBrainsMono Nerd Font installed from repo"
+fi
 
 # ── Fisher (Fish plugin manager) ──────────────────────────────────────────────
 log_step "Installing Fisher"
