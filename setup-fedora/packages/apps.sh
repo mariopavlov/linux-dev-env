@@ -41,40 +41,46 @@ EOF'
 fi
 
 # ── JetBrains Toolbox ─────────────────────────────────────────────────────────
+# Manual install required: download the tarball from https://www.jetbrains.com/toolbox-app/
+# Extract and run the jetbrains-toolbox binary — it self-installs to ~/.local/share/JetBrains/
 log_step "JetBrains Toolbox"
 
 TOOLBOX_BIN="$HOME/.local/share/JetBrains/Toolbox/bin/jetbrains-toolbox"
 if [[ -x "$TOOLBOX_BIN" ]]; then
     log_skip "JetBrains Toolbox"
 else
-    log_info "Downloading JetBrains Toolbox installer"
-    # Fetch the latest download URL from the JetBrains releases JSON
-    TOOLBOX_URL=$(curl -s "https://data.services.jetbrains.com/products/releases?code=TBA&latest=true&type=release" \
-        | python3 -c "
-import sys, json
-data = json.load(sys.stdin)
-releases = data.get('TBA', [])
-if releases:
-    for dl in releases[0].get('downloads', {}).values():
-        if 'linux' in dl.get('link', ''):
-            print(dl['link'])
-            break
-")
-
-    if [[ -z "$TOOLBOX_URL" ]]; then
-        log_error "Could not determine JetBrains Toolbox download URL"
-        log_info "Download manually from: https://www.jetbrains.com/toolbox-app/"
-    else
-        TMPDIR_TB="$(mktemp -d)"
-        curl -Lo "$TMPDIR_TB/toolbox.tar.gz" "$TOOLBOX_URL"
-        tar -xzf "$TMPDIR_TB/toolbox.tar.gz" -C "$TMPDIR_TB"
-        TOOLBOX_APP_DIR=$(find "$TMPDIR_TB" -maxdepth 1 -name "jetbrains-toolbox-*" -type d | head -1)
-        mkdir -p "$HOME/.local/bin"
-        cp "$TOOLBOX_APP_DIR/jetbrains-toolbox" "$HOME/.local/bin/"
-        rm -rf "$TMPDIR_TB"
-        log_success "JetBrains Toolbox installed to ~/.local/bin/"
-        log_info "Launch once to complete setup: jetbrains-toolbox"
-    fi
+    log_warn "JetBrains Toolbox not installed — download manually from:"
+    log_info "  https://www.jetbrains.com/toolbox-app/"
 fi
+
+# ── Ulauncher (application launcher) ──────────────────────────────────────────
+log_step "Ulauncher"
+
+if is_installed ulauncher; then
+    log_skip "Ulauncher"
+else
+    dnf_install ulauncher
+    log_success "Ulauncher installed"
+fi
+
+# ── wmctrl (required for Ulauncher hotkey on Wayland) ─────────────────────────
+# On Wayland (Fedora default), Ulauncher cannot receive global hotkey events from
+# some windows (terminals, OS Settings). The workaround is to register the hotkey
+# via GNOME's custom shortcuts using the `ulauncher-toggle` command instead.
+log_step "wmctrl (Ulauncher Wayland hotkey fix)"
+
+if is_installed wmctrl; then
+    log_skip "wmctrl"
+else
+    dnf_install wmctrl
+    log_success "wmctrl installed"
+fi
+
+log_warn "Ulauncher Wayland hotkey — manual steps required:"
+log_info "  1. Open Ulauncher Preferences → set hotkey to something unused (e.g. Ctrl+F23)"
+log_info "  2. Open Settings → Keyboard → Keyboard Shortcuts → Custom Shortcuts → +"
+log_info "     Name: Ulauncher"
+log_info "     Command: ulauncher-toggle"
+log_info "     Shortcut: Alt+Space"
 
 log_success "apps.sh complete"
