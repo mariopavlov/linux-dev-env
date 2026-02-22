@@ -44,9 +44,9 @@ _GPU_LIST=$(lspci | grep -iE 'VGA compatible controller|3D controller|Display co
 log_info "PCI display devices detected:"
 echo "$_GPU_LIST" | while IFS= read -r _line; do log_info "  $_line"; done
 
-if echo "$_GPU_LIST" | grep -qi 'nvidia';           then HAS_NVIDIA=true;    fi
-if echo "$_GPU_LIST" | grep -qi 'intel';            then HAS_INTEL_GPU=true; fi
-if echo "$_GPU_LIST" | grep -qiE 'amd|ati|radeon'; then HAS_AMD_GPU=true;   fi
+if echo "$_GPU_LIST" | grep -qi 'nvidia';                    then HAS_NVIDIA=true;    fi
+if echo "$_GPU_LIST" | grep -qi 'intel';                     then HAS_INTEL_GPU=true; fi
+if echo "$_GPU_LIST" | grep -qiE '\bamd\b|\bati\b|\bradeon'; then HAS_AMD_GPU=true;   fi
 if $HAS_NVIDIA && { $HAS_INTEL_GPU || $HAS_AMD_GPU; }; then IS_OPTIMUS=true; fi
 
 if $IS_OPTIMUS; then
