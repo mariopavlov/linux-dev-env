@@ -19,26 +19,56 @@ else
     log_skip "DNF already configured"
 fi
 
-# ── Core packages via DNF ──────────────────────────────────────────────────────
+# ── DNF plugins (needed for copr and config-manager commands) ─────────────────
+log_step "DNF plugins"
+# Fedora 41+ uses dnf5; the copr plugin ships separately
+sudo dnf install -y dnf5-plugin-copr 2>/dev/null || \
+    sudo dnf install -y dnf-plugins-core 2>/dev/null || true
+
+# ── Ghostty terminal (MUST come before fish) ───────────────────────────────────
+# ghostty conflicts with ncurses-term (which fish depends on).
+# Installing ghostty first with --allowerasing removes ncurses-term cleanly
+# before fish is installed, avoiding collateral removal of fish later.
+log_step "Ghostty terminal"
+
+if is_installed ghostty; then
+    log_skip "Ghostty ($(ghostty --version 2>/dev/null | head -1))"
+else
+    sudo dnf install -y --allowerasing ghostty
+    log_success "Ghostty installed"
+fi
+
+# ── ncurses-term (fish/ghostty conflict workaround) ───────────────────────────
+# fish has a hard dependency on ncurses-term, but ncurses-term and ghostty both
+# ship /usr/share/terminfo/g/ghostty. Use rpm --replacefiles to install
+# ncurses-term alongside ghostty (the file content is identical).
+log_step "ncurses-term (fish/ghostty conflict workaround)"
+
+if pkg_installed ncurses-term; then
+    log_skip "ncurses-term"
+else
+    _NT_TMP="$(mktemp -d)"
+    sudo dnf download ncurses-term --destdir "$_NT_TMP" -y
+    sudo rpm -Uvh --replacefiles "$_NT_TMP"/ncurses-term-*.rpm
+    rm -rf "$_NT_TMP"
+    log_success "ncurses-term installed alongside ghostty"
+fi
+
+# ── Core packages (available in standard Fedora repos) ────────────────────────
 log_step "Installing core packages via dnf"
 
 dnf_install \
     fish \
-    starship \
     alacritty \
     zoxide \
     fzf \
-    eza \
     bat \
     ripgrep \
     fd-find \
-    zellij \
-    github-cli \
     chezmoi \
     neovim \
     git \
     curl \
-    wget \
     jq \
     zip \
     unzip \
@@ -48,16 +78,66 @@ dnf_install \
 
 log_success "Core packages installed"
 
-# ── Ghostty terminal (via COPR) ────────────────────────────────────────────────
-log_step "Ghostty terminal"
+# ── starship (COPR atim/starship — not in standard Fedora repos) ──────────────
+log_step "starship"
 
-if is_installed ghostty; then
-    log_skip "Ghostty ($(ghostty --version 2>/dev/null | head -1))"
+if is_installed starship; then
+    log_skip "starship ($(starship --version | head -1))"
 else
-    log_info "Enabling COPR pgdev/ghostty"
-    copr_enable "pgdev/ghostty"
-    dnf_install ghostty
-    log_success "Ghostty installed"
+    copr_enable "atim/starship"
+    dnf_install starship
+    log_success "starship installed"
+fi
+
+# ── eza (GitHub releases binary — no COPR for F43) ───────────────────────────
+log_step "eza"
+
+if is_installed eza; then
+    log_skip "eza"
+else
+    _EZA_TMP="$(mktemp -d)"
+    curl -Lo "$_EZA_TMP/eza.tar.gz" \
+        "https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-musl.tar.gz"
+    tar -xzf "$_EZA_TMP/eza.tar.gz" -C "$_EZA_TMP"
+    sudo install -m 755 "$_EZA_TMP/eza" /usr/local/bin/eza
+    rm -rf "$_EZA_TMP"
+    log_success "eza installed from GitHub releases"
+fi
+
+# ── zellij (COPR varlad/zellij — atim/zellij has no F43 build) ───────────────
+log_step "zellij"
+
+if is_installed zellij; then
+    log_skip "zellij"
+else
+    copr_enable "varlad/zellij"
+    dnf_install zellij
+    log_success "zellij installed"
+fi
+
+# ── lazygit ───────────────────────────────────────────────────────────────────
+log_step "lazygit"
+
+if is_installed lazygit; then
+    log_skip "lazygit ($(lazygit --version | head -1))"
+elif sudo dnf install -y lazygit 2>/dev/null; then
+    log_success "lazygit installed from Fedora repos"
+else
+    copr_enable "atim/lazygit"
+    dnf_install lazygit
+    log_success "lazygit installed from COPR"
+fi
+
+# ── GitHub CLI (official GitHub DNF repo) ─────────────────────────────────────
+log_step "GitHub CLI"
+
+if is_installed gh; then
+    log_skip "GitHub CLI ($(gh --version | head -1))"
+else
+    sudo dnf config-manager addrepo \
+        --from-repofile=https://cli.github.com/packages/rpm/gh-cli.repo
+    dnf_install gh
+    log_success "GitHub CLI installed"
 fi
 
 # ── JetBrainsMono Nerd Font (from repo) ───────────────────────────────────────
@@ -131,7 +211,6 @@ log_step "Docker CE"
 if is_installed docker; then
     log_skip "Docker ($(docker --version 2>/dev/null))"
 else
-    log_info "Adding Docker official DNF repository"
     sudo dnf config-manager addrepo \
         --from-repofile=https://download.docker.com/linux/fedora/docker-ce.repo
     dnf_install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
