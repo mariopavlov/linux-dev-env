@@ -34,7 +34,7 @@ if [[ $# -eq 0 ]]; then
     echo "  --langs      C/C++, Go, Rust, SDKMan, nvm, uv, Anaconda (packages/languages.sh)"
     echo "  --apps       Zed, VS Code, JetBrains Toolbox (packages/apps.sh)"
     echo "  --gaming     Steam, Lutris, Heroic, Wine/Proton, NVIDIA (packages/gaming.sh)"
-    echo "  --dotfiles   Apply dotfiles via Chezmoi (../setup-cachy-os/dotfiles/)"
+    echo "  --dotfiles   Apply dotfiles via Chezmoi (../dotfiles/)"
     echo "  --claude     Symlink Claude Code config from claude-skills/ into ~/.claude/"
     echo ""
     echo "Tip: run with 'op run --env-file=~/.op-env -- bash install.sh --all'"
@@ -85,8 +85,7 @@ if $RUN_DOTFILES; then
         exit 1
     fi
 
-    # Share dotfiles with setup-cachy-os (they are distro-agnostic)
-    DOTFILES_SRC="$SCRIPT_DIR/../setup-cachy-os/dotfiles"
+    DOTFILES_SRC="$SCRIPT_DIR/../dotfiles"
     if [[ ! -d "$DOTFILES_SRC" ]]; then
         log_error "Dotfiles not found at $DOTFILES_SRC"
         exit 1
