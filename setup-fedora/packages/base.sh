@@ -60,25 +60,23 @@ else
     log_success "Ghostty installed"
 fi
 
-# ── JetBrains Mono Nerd Font ───────────────────────────────────────────────────
-# Fedora ships jetbrains-mono-fonts but not the Nerd Font variant; install manually.
+# ── JetBrainsMono Nerd Font (from repo) ───────────────────────────────────────
 log_step "JetBrainsMono Nerd Font"
 
-FONT_DIR="$HOME/.local/share/fonts/JetBrainsMonoNerd"
-if [[ -d "$FONT_DIR" ]] && ls "$FONT_DIR"/*.ttf &>/dev/null; then
+FONT_SRC="$SCRIPT_DIR/../fonts/JetBrainsMono"
+FONT_DST="$HOME/.local/share/fonts/JetBrainsMonoNerd"
+
+if [[ -d "$FONT_DST" ]] && ls "$FONT_DST"/*.ttf &>/dev/null; then
     log_skip "JetBrainsMono Nerd Font"
 else
-    NERD_FONT_VERSION="3.3.0"
-    NERD_FONT_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v${NERD_FONT_VERSION}/JetBrainsMono.tar.xz"
-    TMPDIR_FONT="$(mktemp -d)"
-
-    log_info "Downloading JetBrainsMono Nerd Font v${NERD_FONT_VERSION}"
-    curl -Lo "$TMPDIR_FONT/JetBrainsMono.tar.xz" "$NERD_FONT_URL"
-    mkdir -p "$FONT_DIR"
-    tar -xf "$TMPDIR_FONT/JetBrainsMono.tar.xz" -C "$FONT_DIR"
-    rm -rf "$TMPDIR_FONT"
-    fc-cache -fv "$FONT_DIR" &>/dev/null
-    log_success "JetBrainsMono Nerd Font installed to $FONT_DIR"
+    if [[ ! -d "$FONT_SRC" ]]; then
+        log_error "Font source not found at $FONT_SRC"
+        exit 1
+    fi
+    mkdir -p "$FONT_DST"
+    cp "$FONT_SRC"/*.ttf "$FONT_DST/"
+    fc-cache -fv "$FONT_DST" &>/dev/null
+    log_success "JetBrainsMono Nerd Font installed from repo"
 fi
 
 # ── Fisher (Fish plugin manager) ──────────────────────────────────────────────
