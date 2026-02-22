@@ -26,6 +26,7 @@ paru_install \
     ripgrep \
     fd \
     zellij \
+    lazygit \
     docker \
     docker-compose \
     github-cli \
