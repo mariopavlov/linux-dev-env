@@ -12,7 +12,7 @@ font-feature = +liga
 font-feature = +dlig
 
 # ── Theme ─────────────────────────────────────────────────────────────────────
-theme = Catppuccin Mocha
+theme = catppuccin-mocha
 
 # ── Transparency ──────────────────────────────────────────────────────────────
 background-opacity = 0.75
@@ -38,8 +38,8 @@ scrollback-limit = 10000
 copy-on-select = clipboard
 
 # ── Keybinds ──────────────────────────────────────────────────────────────────
-# New tab / window
-keybind = ctrl+t=new_tab
+# ctrl+t is unbound so Zellij (auto-launched inside Ghostty) receives it
+keybind = ctrl+t=unbind
 keybind = ctrl+shift+t=new_window
 
 # Split panes

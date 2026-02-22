@@ -6,6 +6,9 @@
 vim.g.lazyvim_python_lsp = "pyright"
 vim.g.lazyvim_python_ruff = "ruff"
 
+-- Python provider: point to dedicated venv with pynvim (created by install scripts)
+vim.g.python3_host_prog = vim.fn.expand("~/.nvim-venv/bin/python")
+
 -- Disable unused providers
 vim.g.loaded_ruby_provider = 0
 vim.g.loaded_perl_provider = 0

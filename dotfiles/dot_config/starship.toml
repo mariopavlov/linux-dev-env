@@ -1,148 +1,205 @@
-# Starship prompt configuration
-# https://starship.rs/config/
+"$schema" = 'https://starship.rs/config-schema.json'
 
-# ── Format ────────────────────────────────────────────────────────────────────
-format = """
-[](fg:#1e1e2e)\
-$os\
-$username\
-$hostname\
-[](fg:#1e1e2e bg:#313244)\
-$directory\
-[](fg:#313244 bg:#45475a)\
-$git_branch\
-$git_status\
-[](fg:#45475a bg:#585b70)\
-$c\
-$cmake\
-$golang\
-$rust\
-$python\
-$java\
-$nodejs\
-[](fg:#585b70)\
-$fill\
-$cmd_duration\
-$line_break\
-$character"""
+[aws]
+symbol = " "
 
-# ── Global settings ───────────────────────────────────────────────────────────
-add_newline = true
-command_timeout = 2000
+[buf]
+symbol = " "
 
-# ── Fill (right-aligns the right side) ───────────────────────────────────────
-[fill]
-symbol = " "
+[bun]
+symbol = " "
 
-# ── OS icon ───────────────────────────────────────────────────────────────────
-[os]
-format = "[$symbol]($style)"
-style = "fg:#89dceb bg:#1e1e2e"
-disabled = false
-
-[os.symbols]
-Arch = ""
-Linux = "󰌽"
-Macos = "󰀵"
-Windows = "󰍲"
-
-# ── Username ──────────────────────────────────────────────────────────────────
-[username]
-format = "[ $user ]($style)"
-style_user = "fg:#cdd6f4 bg:#1e1e2e"
-style_root = "fg:#f38ba8 bg:#1e1e2e bold"
-show_always = false
-
-# ── Hostname (shown for SSH sessions) ────────────────────────────────────────
-[hostname]
-ssh_only = true
-format = "[@$hostname ]($style)"
-style = "fg:#a6e3a1 bg:#1e1e2e"
-
-# ── Directory ─────────────────────────────────────────────────────────────────
-[directory]
-format = "[ 󰉋 $path ]($style)"
-style = "fg:#89b4fa bg:#313244 bold"
-truncation_length = 4
-truncate_to_repo = true
-read_only = " 󰌾"
-
-[directory.substitutions]
-"~/workspace" = "󰏗 ws"
-"~" = "󰋜"
-
-# ── Git ───────────────────────────────────────────────────────────────────────
-[git_branch]
-format = "[ $symbol$branch(:$remote_branch) ]($style)"
-style = "fg:#f9e2af bg:#45475a"
-symbol = " "
-
-[git_status]
-format = "[$all_status$ahead_behind]($style)"
-style = "fg:#f38ba8 bg:#45475a"
-conflicted = "⚡"
-ahead = "⇡${count}"
-behind = "⇣${count}"
-diverged = "⇕⇡${ahead_count}⇣${behind_count}"
-untracked = "?${count}"
-stashed = "󰏗"
-modified = "!${count}"
-staged = "+${count}"
-renamed = "»${count}"
-deleted = "✘${count}"
-
-# ── Languages ─────────────────────────────────────────────────────────────────
 [c]
-format = "[ $symbol($version) ]($style)"
-style = "fg:#cdd6f4 bg:#585b70"
-symbol = " "
+symbol = " "
+
+[cpp]
+symbol = " "
 
 [cmake]
-format = "[ cmake($version) ]($style)"
-style = "fg:#cdd6f4 bg:#585b70"
+symbol = " "
+
+[conda]
+symbol = " "
+
+[crystal]
+symbol = " "
+
+[dart]
+symbol = " "
+
+[deno]
+symbol = " "
+
+[directory]
+read_only = " 󰌾"
+
+[docker_context]
+symbol = " "
+
+[elixir]
+symbol = " "
+
+[elm]
+symbol = " "
+
+[fennel]
+symbol = " "
+
+[fortran]
+symbol = " "
+
+[fossil_branch]
+symbol = " "
+
+[gcloud]
+symbol = " "
+
+[git_branch]
+symbol = " "
+
+[git_commit]
+tag_symbol = '  '
 
 [golang]
-format = "[ $symbol($version) ]($style)"
-style = "fg:#89dceb bg:#585b70"
-symbol = "󰟓 "
+symbol = " "
 
-[rust]
-format = "[ $symbol($version) ]($style)"
-style = "fg:#fab387 bg:#585b70"
-symbol = "󱘗 "
+[gradle]
+symbol = " "
 
-[python]
-format = "[ $symbol($version) ]($style)"
-style = "fg:#a6e3a1 bg:#585b70"
-symbol = "󰌠 "
-detect_extensions = ["py"]
-detect_files = ["pyproject.toml", ".python-version", "Pipfile", "requirements.txt"]
+[guix_shell]
+symbol = " "
+
+[haskell]
+symbol = " "
+
+[haxe]
+symbol = " "
+
+[hg_branch]
+symbol = " "
+
+[hostname]
+ssh_symbol = " "
 
 [java]
-format = "[ $symbol($version) ]($style)"
-style = "fg:#f38ba8 bg:#585b70"
-symbol = "󰬷 "
+symbol = " "
+
+[julia]
+symbol = " "
+
+[kotlin]
+symbol = " "
+
+[lua]
+symbol = " "
+
+[memory_usage]
+symbol = "󰍛 "
+
+[meson]
+symbol = "󰔷 "
+
+[nim]
+symbol = "󰆥 "
+
+[nix_shell]
+symbol = " "
 
 [nodejs]
-format = "[ $symbol($version) ]($style)"
-style = "fg:#a6e3a1 bg:#585b70"
-symbol = " "
+symbol = " "
 
-# ── Command duration ──────────────────────────────────────────────────────────
-[cmd_duration]
-format = "[ 󱦟 $duration]($style) "
-style = "fg:#a6adc8"
-min_time = 2_000
-show_milliseconds = false
+[ocaml]
+symbol = " "
 
-# ── Character (prompt symbol) ─────────────────────────────────────────────────
-[character]
-success_symbol = "[❯](fg:#a6e3a1 bold)"
-error_symbol = "[❯](fg:#f38ba8 bold)"
-vimcmd_symbol = "[❮](fg:#cba6f7 bold)"
+[os.symbols]
+Alpaquita = " "
+Alpine = " "
+AlmaLinux = " "
+Amazon = " "
+Android = " "
+AOSC = " "
+Arch = " "
+Artix = " "
+CachyOS = " "
+CentOS = " "
+Debian = " "
+DragonFly = " "
+Elementary = " "
+Emscripten = " "
+EndeavourOS = " "
+Fedora = " "
+FreeBSD = " "
+Garuda = "󰛓 "
+Gentoo = " "
+HardenedBSD = "󰞌 "
+Illumos = "󰈸 "
+Ios = "󰀷 "
+Kali = " "
+Linux = " "
+Mabox = " "
+Macos = " "
+Manjaro = " "
+Mariner = " "
+MidnightBSD = " "
+Mint = " "
+NetBSD = " "
+NixOS = " "
+Nobara = " "
+OpenBSD = "󰈺 "
+openSUSE = " "
+OracleLinux = "󰌷 "
+Pop = " "
+Raspbian = " "
+Redhat = " "
+RedHatEnterprise = " "
+RockyLinux = " "
+Redox = "󰀘 "
+Solus = "󰠳 "
+SUSE = " "
+Ubuntu = " "
+Unknown = " "
+Void = " "
+Windows = "󰍲 "
+Zorin = " "
 
-# ── Docker ────────────────────────────────────────────────────────────────────
-[docker_context]
-format = "[ 󰡨 $context ]($style)"
-style = "fg:#89dceb"
-only_with_files = true
+[package]
+symbol = "󰏗 "
+
+[perl]
+symbol = " "
+
+[php]
+symbol = " "
+
+[pijul_channel]
+symbol = " "
+
+[pixi]
+symbol = "󰏗 "
+
+[python]
+symbol = " "
+
+[rlang]
+symbol = "󰟔 "
+
+[ruby]
+symbol = " "
+
+[rust]
+symbol = "󱘗 "
+
+[scala]
+symbol = " "
+
+[status]
+symbol = " "
+
+[swift]
+symbol = " "
+
+[xmake]
+symbol = " "
+
+[zig]
+symbol = " "

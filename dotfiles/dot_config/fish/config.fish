@@ -54,7 +54,7 @@ set -gx VISUAL nvim
 # ── Bat theme ─────────────────────────────────────────────────────────────────
 # Using a built-in bat theme. For Catppuccin: install `catppuccin-bat` from AUR,
 # run `bat cache --build`, then change this to "Catppuccin Mocha".
-set -gx BAT_THEME "TwoDark"
+set -gx BAT_THEME TwoDark
 
 # ── FZF defaults ──────────────────────────────────────────────────────────────
 set -gx FZF_DEFAULT_COMMAND "fd --type f --hidden --follow --exclude .git"
@@ -62,6 +62,6 @@ set -gx FZF_DEFAULT_OPTS "--height 40% --layout=reverse --border --color=bg+:#31
 
 # ── Zellij ────────────────────────────────────────────────────────────────────
 # Uncomment to auto-launch Zellij on terminal open (attach or new session)
-# if command -q zellij; and not set -q ZELLIJ
-#     zellij attach --create main
-# end
+if command -q zellij; and not set -q ZELLIJ
+    zellij attach --create main
+end
