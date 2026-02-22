@@ -180,11 +180,12 @@ fi
 # ── MangoHud (FPS/GPU overlay) ────────────────────────────────────────────────
 log_step "MangoHud"
 
-if pkg_installed mangohud; then
-    log_skip "MangoHud"
+if pkg_installed mangohud && pkg_installed mangohud.i686; then
+    log_skip "MangoHud (64-bit + 32-bit)"
 else
-    dnf_install mangohud
-    log_success "MangoHud installed (use MANGOHUD=1 game or enable in Steam launch options)"
+    # Install both 64-bit and 32-bit — Wine/Proton games (Battle.net, SC2) need the i686 lib
+    dnf_install mangohud mangohud.i686
+    log_success "MangoHud installed (64-bit + 32-bit for Wine/Proton)"
 fi
 
 log_success "gaming.sh complete"
@@ -203,7 +204,13 @@ if $IS_OPTIMUS; then
     log_info "     For Steam games: add the same vars before %command% in launch options"
 fi
 log_info "  5. For Lutris: install runners via Lutris → Preferences → Runners"
-log_info "  6. MangoHud launch option for Steam: MANGOHUD=1 %command%"
+log_info "  6. MangoHud for Faugus / Battle.net games (SC2, D4, WoW, etc.):"
+log_info "     Enable MangoHud in Faugus AND add this environment variable:"
+log_info "       MANGOHUD_DLSYM=1"
+log_info "     (Required because games launched by Battle.net are child processes;"
+log_info "      MANGOHUD_DLSYM=1 switches from LD_PRELOAD to dlsym hooking so"
+log_info "      the overlay works in the child game process, not just the launcher)"
+log_info "  7. MangoHud launch option for Steam: MANGOHUD=1 %command%"
 if $HAS_NVIDIA; then
-    log_info "  7. Verify GPU: prime-run glxinfo | grep 'OpenGL renderer'"
+    log_info "  8. Verify GPU: prime-run glxinfo | grep 'OpenGL renderer'"
 fi
