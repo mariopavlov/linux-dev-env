@@ -40,22 +40,36 @@ HAS_AMD_GPU=false
 IS_OPTIMUS=false
 
 _GPU_LIST=$(lspci | grep -iE 'VGA compatible controller|3D controller|Display controller')
-log_info "PCI display devices detected:"
-echo "$_GPU_LIST" | while IFS= read -r _line; do log_info "  $_line"; done
 
 if echo "$_GPU_LIST" | grep -qi 'nvidia';                    then HAS_NVIDIA=true;    fi
 if echo "$_GPU_LIST" | grep -qi 'intel';                     then HAS_INTEL_GPU=true; fi
 if echo "$_GPU_LIST" | grep -qiE '\bamd\b|\bati\b|\bradeon'; then HAS_AMD_GPU=true;   fi
-if $HAS_NVIDIA && { $HAS_INTEL_GPU || $HAS_AMD_GPU; }; then IS_OPTIMUS=true; fi
 
-if $IS_OPTIMUS; then
-    $HAS_INTEL_GPU && log_info "Config: Intel iGPU + NVIDIA Optimus" || true
-    $HAS_AMD_GPU   && log_info "Config: AMD iGPU + NVIDIA Optimus"   || true
-elif $HAS_NVIDIA; then
-    log_info "Config: NVIDIA discrete GPU (no Optimus)"
-elif $HAS_AMD_GPU; then
-    log_info "Config: AMD GPU only"
-fi
+# ── Interactive GPU configuration selection ──────────────────────────────────
+GPU_CONFIG=""
+echo ""
+log_info "Detected GPUs:"
+echo "$_GPU_LIST" | while IFS= read -r _line; do log_info "  $_line"; done
+echo ""
+echo -e "${BOLD}Select your GPU configuration:${RESET}"
+echo "  1) AMD iGPU + NVIDIA discrete (desktop — NVIDIA drives all displays)"
+echo "  2) Intel iGPU + NVIDIA Optimus (laptop — Intel drives panel, NVIDIA offloads)"
+echo "  3) NVIDIA only (no integrated GPU)"
+echo "  4) AMD GPU only (no NVIDIA)"
+echo ""
+
+while true; do
+    read -rp "Enter choice [1-4]: " _gpu_choice
+    case "$_gpu_choice" in
+        1) GPU_CONFIG="amd_nvidia";   HAS_AMD_GPU=true;   HAS_NVIDIA=true; IS_OPTIMUS=false; break ;;
+        2) GPU_CONFIG="intel_nvidia"; HAS_INTEL_GPU=true;  HAS_NVIDIA=true; IS_OPTIMUS=true;  break ;;
+        3) GPU_CONFIG="nvidia_only";  HAS_NVIDIA=true;     IS_OPTIMUS=false; break ;;
+        4) GPU_CONFIG="amd_only";     HAS_AMD_GPU=true;    IS_OPTIMUS=false; break ;;
+        *) log_error "Invalid choice — enter 1, 2, 3, or 4" ;;
+    esac
+done
+
+log_info "Selected config: $GPU_CONFIG"
 
 # ── Vulkan & Mesa libraries ───────────────────────────────────────────────────
 log_step "Vulkan & Mesa base libraries"
@@ -77,6 +91,45 @@ if $HAS_NVIDIA; then
         log_info "Or set environment vars in per-app launch options:"
         log_info "  __NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia <app>"
     fi
+fi
+
+# ── KWin DRM device (AMD iGPU + NVIDIA desktop only) ────────────────────────
+# AMD CPUs ship an integrated Radeon iGPU that is unused when a discrete NVIDIA
+# GPU drives all displays. KWin tries to manage both DRM nodes and crashes
+# (exit 64) when it fails to open the unused AMD node.
+# Fix: point KWIN_DRM_DEVICES to the NVIDIA card only.
+if [[ "$GPU_CONFIG" == "amd_nvidia" ]]; then
+    log_step "KWin display configuration (exclude unused AMD iGPU)"
+
+    _NVIDIA_PCI_SLOT=$(lspci -D | grep -iE 'nvidia.*(VGA|3D)' | head -1 | awk '{print $1}')
+    _NVIDIA_CARD=""
+    if [[ -n "$_NVIDIA_PCI_SLOT" ]]; then
+        _NVIDIA_CARD=$(readlink -f "/dev/dri/by-path/pci-${_NVIDIA_PCI_SLOT}-card" 2>/dev/null || true)
+    fi
+
+    if [[ -b "$_NVIDIA_CARD" ]]; then
+        _KWIN_CONF="/etc/environment.d/kwin-gpu.conf"
+        sudo mkdir -p /etc/environment.d
+        if [[ -f "$_KWIN_CONF" ]] && grep -q "KWIN_DRM_DEVICES=$_NVIDIA_CARD" "$_KWIN_CONF"; then
+            log_skip "KWIN_DRM_DEVICES already set to $_NVIDIA_CARD"
+        else
+            echo "KWIN_DRM_DEVICES=$_NVIDIA_CARD" | sudo tee "$_KWIN_CONF" >/dev/null
+            log_success "KWIN_DRM_DEVICES set to $_NVIDIA_CARD (AMD iGPU excluded from KWin)"
+        fi
+    else
+        log_warn "Could not resolve NVIDIA DRM device — skipping KWIN_DRM_DEVICES"
+        log_warn "If you get a black screen after login, manually create /etc/environment.d/kwin-gpu.conf"
+    fi
+fi
+
+# ── Locale (UTF-8 required by Qt/Plasma Wayland) ────────────────────────────
+_CURRENT_LANG=$(localectl status 2>/dev/null | grep 'LANG=' | sed 's/.*LANG=//' | tr -d '[:space:]' || true)
+if [[ "$_CURRENT_LANG" != *"UTF-8"* && "$_CURRENT_LANG" != *"utf8"* ]]; then
+    log_step "Setting locale to en_US.UTF-8 (required by Qt/Plasma Wayland)"
+    sudo localectl set-locale LANG=en_US.UTF-8
+    log_success "Locale set to en_US.UTF-8"
+else
+    log_skip "Locale already UTF-8 ($_CURRENT_LANG)"
 fi
 
 # Intel iGPU Vulkan (ANV driver — ships in mesa, ICD registered via mesa-vulkan-drivers)
@@ -195,7 +248,7 @@ log_info "  1. Reboot if NVIDIA drivers were just installed (akmod builds on fir
 log_info "  2. Launch Steam → Settings → Compatibility → Enable Steam Play for all titles"
 log_info "  3. Open ProtonUp-Qt (Flatpak) and install the latest GE-Proton"
 log_info "  4. Battle.net: open Faugus Launcher → select GE-Proton → install Battle.net"
-if $IS_OPTIMUS; then
+if [[ "$GPU_CONFIG" == "intel_nvidia" ]]; then
     log_info "     Optimus detected — set these env vars inside Faugus to use the NVIDIA dGPU:"
     log_info "       __NV_PRIME_RENDER_OFFLOAD=1"
     log_info "       __GLX_VENDOR_LIBRARY_NAME=nvidia"
@@ -211,6 +264,9 @@ log_info "     (Required because games launched by Battle.net are child processe
 log_info "      MANGOHUD_DLSYM=1 switches from LD_PRELOAD to dlsym hooking so"
 log_info "      the overlay works in the child game process, not just the launcher)"
 log_info "  7. MangoHud launch option for Steam: MANGOHUD=1 %command%"
-if $HAS_NVIDIA; then
-    log_info "  8. Verify GPU: prime-run glxinfo | grep 'OpenGL renderer'"
+if [[ "$GPU_CONFIG" != "amd_only" ]]; then
+    log_info "  8. Verify GPU: nvidia-smi"
+fi
+if [[ "$GPU_CONFIG" == "amd_nvidia" ]]; then
+    log_info "  9. KWin configured to use NVIDIA only — reboot to apply"
 fi
