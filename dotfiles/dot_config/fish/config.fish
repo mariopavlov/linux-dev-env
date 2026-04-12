@@ -59,9 +59,3 @@ set -gx BAT_THEME TwoDark
 # ── FZF defaults ──────────────────────────────────────────────────────────────
 set -gx FZF_DEFAULT_COMMAND "fd --type f --hidden --follow --exclude .git"
 set -gx FZF_DEFAULT_OPTS "--height 40% --layout=reverse --border --color=bg+:#313244,spinner:#f5e0dc,hl:#f38ba8,fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc,marker:#f5e0dc,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8"
-
-# ── Zellij ────────────────────────────────────────────────────────────────────
-# Uncomment to auto-launch Zellij on terminal open (attach or new session)
-# if command -q zellij; and not set -q ZELLIJ
-#     zellij attach --create main
-# end
