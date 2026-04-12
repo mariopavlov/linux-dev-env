@@ -32,7 +32,7 @@ if [[ $# -eq 0 ]]; then
     echo "  --all        Run all steps"
     echo "  --base       Core shell tools, fonts, Docker, Git (packages/base.sh)"
     echo "  --langs      C/C++, Go, Rust, SDKMan, nvm, uv, Anaconda (packages/languages.sh)"
-    echo "  --apps       Zed, VS Code, JetBrains Toolbox (packages/apps.sh)"
+    echo "  --apps       Zed, VS Code, JetBrains Toolbox, Copilot CLI, Codex (packages/apps.sh)"
     echo "  --gaming     Steam, Lutris, Heroic, Wine/Proton (packages/gaming.sh)"
     echo "  --dotfiles   Apply dotfiles via Chezmoi (../dotfiles/)"
     echo "  --claude     Symlink Claude Code config from claude-skills/ into ~/.claude/"

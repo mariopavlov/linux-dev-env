@@ -116,11 +116,14 @@ Skip Anaconda: `SKIP_ANACONDA=1 bash install.sh --langs`
 
 ### `--apps` (packages/apps.sh)
 
-| App | AUR package |
-|-----|-------------|
-| Zed | `zed` |
-| VS Code | `visual-studio-code-bin` |
-| JetBrains Toolbox | `jetbrains-toolbox` |
+| App | Source | Notes |
+|-----|--------|-------|
+| Zed | `paru` | `zed` |
+| VS Code | `paru` | `visual-studio-code-bin` |
+| VS Code Insiders | `paru` | `visual-studio-code-insiders-bin` |
+| JetBrains Toolbox | `paru` | `jetbrains-toolbox` |
+| GitHub Copilot CLI | `npm` | `@github/copilot` — runs as `copilot` |
+| OpenAI Codex CLI | `npm` | `@openai/codex` — requires Node (--langs) |
 
 ### `--gaming` (packages/gaming.sh)
 
