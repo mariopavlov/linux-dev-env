@@ -62,6 +62,6 @@ set -gx FZF_DEFAULT_OPTS "--height 40% --layout=reverse --border --color=bg+:#31
 
 # ── Zellij ────────────────────────────────────────────────────────────────────
 # Uncomment to auto-launch Zellij on terminal open (attach or new session)
-if command -q zellij; and not set -q ZELLIJ
-    zellij attach --create main
-end
+# if command -q zellij; and not set -q ZELLIJ
+#     zellij attach --create main
+# end
