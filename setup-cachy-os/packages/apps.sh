@@ -60,7 +60,7 @@ else
     if ! command -v npm &>/dev/null; then
         log_warn "npm not found — install Node first (--langs), then re-run --apps for Copilot CLI"
     else
-        npm install -g @github/copilot
+        sudo npm install -g @github/copilot
         log_success "Copilot CLI installed"
     fi
 fi
@@ -74,7 +74,7 @@ else
     if ! command -v npm &>/dev/null; then
         log_warn "npm not found — install Node first (--langs), then re-run --apps for Codex"
     else
-        npm install -g @openai/codex
+        sudo npm install -g @openai/codex
         log_success "Codex CLI installed"
     fi
 fi
