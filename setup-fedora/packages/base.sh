@@ -29,11 +29,15 @@ sudo dnf install -y dnf5-plugin-copr 2>/dev/null || \
 # ghostty conflicts with ncurses-term (which fish depends on).
 # Installing ghostty first with --allowerasing removes ncurses-term cleanly
 # before fish is installed, avoiding collateral removal of fish later.
+#
+# Ghostty is not in default Fedora repos — pull from the scottames/ghostty COPR
+# (the install path recommended by upstream).
 log_step "Ghostty terminal"
 
 if is_installed ghostty; then
     log_skip "Ghostty ($(ghostty --version 2>/dev/null | head -1))"
 else
+    copr_enable "scottames/ghostty"
     sudo dnf install -y --allowerasing ghostty
     log_success "Ghostty installed"
 fi

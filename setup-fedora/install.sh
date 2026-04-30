@@ -24,10 +24,10 @@ RUN_LANGS=false
 RUN_APPS=false
 RUN_GAMING=false
 RUN_DOTFILES=false
-RUN_CLAUDE=false
+RUN_CLAUDE=false  # disabled: --claude is a no-op while skills are being rewritten
 
 if [[ $# -eq 0 ]]; then
-    echo "Usage: $0 [--all] [--base] [--langs] [--apps] [--gaming] [--dotfiles] [--claude]"
+    echo "Usage: $0 [--all] [--base] [--langs] [--apps] [--gaming] [--dotfiles]"
     echo ""
     echo "  --all        Run all steps"
     echo "  --base       Core shell tools, fonts, Docker, Git (packages/base.sh)"
@@ -35,7 +35,6 @@ if [[ $# -eq 0 ]]; then
     echo "  --apps       Zed, VS Code, JetBrains Toolbox (packages/apps.sh)"
     echo "  --gaming     Steam, Lutris, Heroic, Wine/Proton, NVIDIA (packages/gaming.sh)"
     echo "  --dotfiles   Apply dotfiles via Chezmoi (../dotfiles/)"
-    echo "  --claude     Symlink Claude Code config from claude-skills/ into ~/.claude/"
     echo ""
     echo "Tip: run with 'op run --env-file=~/.op-env -- bash install.sh --all'"
     exit 0
@@ -43,13 +42,13 @@ fi
 
 for arg in "$@"; do
     case "$arg" in
-        --all)      RUN_BASE=true; RUN_LANGS=true; RUN_APPS=true; RUN_GAMING=true; RUN_DOTFILES=true; RUN_CLAUDE=true ;;
+        --all)      RUN_BASE=true; RUN_LANGS=true; RUN_APPS=true; RUN_GAMING=true; RUN_DOTFILES=true ;;
         --base)     RUN_BASE=true ;;
         --langs)    RUN_LANGS=true ;;
         --apps)     RUN_APPS=true ;;
         --gaming)   RUN_GAMING=true ;;
         --dotfiles) RUN_DOTFILES=true ;;
-        --claude)   RUN_CLAUDE=true ;;
+        --claude)   log_warn "--claude is currently disabled while skills are being rewritten; skipping" ;;
         *) log_error "Unknown flag: $arg"; exit 1 ;;
     esac
 done
