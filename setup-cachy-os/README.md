@@ -83,7 +83,6 @@ Flags are composable: `bash install.sh --base --langs`
 | ghostty | `paru extra/ghostty` | Primary terminal |
 | alacritty | `paru` | Backup terminal |
 | zoxide | `paru` | Smart `cd` |
-| zellij | `paru` | Terminal multiplexer |
 | fzf | `paru` | Fuzzy finder |
 | eza / bat / ripgrep / fd | `paru` | Modern CLI replacements |
 | docker + docker-compose | `paru` | Containers (user added to group) |
