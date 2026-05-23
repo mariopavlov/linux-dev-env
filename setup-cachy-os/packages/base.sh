@@ -25,7 +25,6 @@ paru_install \
     bat \
     ripgrep \
     fd \
-    zellij \
     lazygit \
     docker \
     docker-compose \

@@ -108,17 +108,6 @@ else
     log_success "eza installed from GitHub releases"
 fi
 
-# ── zellij (COPR varlad/zellij — atim/zellij has no F43 build) ───────────────
-log_step "zellij"
-
-if is_installed zellij; then
-    log_skip "zellij"
-else
-    copr_enable "varlad/zellij"
-    dnf_install zellij
-    log_success "zellij installed"
-fi
-
 # ── lazygit ───────────────────────────────────────────────────────────────────
 log_step "lazygit"
 
