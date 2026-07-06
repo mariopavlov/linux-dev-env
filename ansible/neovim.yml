@@ -1,0 +1,9 @@
+- name: Install NeoVim 
+  hosts: localhost
+  tasks: 
+  - name: Clone NeoVim
+    ansible.builtin.git:
+      repo: git@github.com:neovim/neovim.git
+      dest: "{{ lookup('ansible.builtin.env', 'HOME') }}/personal/neovim"
+      single_branch: yes
+      version: v0.12.4
