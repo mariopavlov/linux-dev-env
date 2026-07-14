@@ -145,6 +145,16 @@ git config --global push.autoSetupRemote true
 git config --global core.editor nvim
 git config --global diff.tool  vimdiff
 
+# useful aliases
+git config --global alias.st status
+git config --global alias.co checkout
+git config --global alias.br branch
+git config --global alias.lg "log --oneline --graph --decorate --all"
+
+# better diffs and logs
+git config --global diff.colorMoved zebra
+git config --global merge.conflictstyle diff3
+
 # ── GitHub CLI auth reminder ──────────────────────────────────────────────────
 if is_installed gh; then
     if ! gh auth status &>/dev/null; then
