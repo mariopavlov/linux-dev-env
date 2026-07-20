@@ -7,7 +7,9 @@ Post-install setup scripts for various platforms.
 | Directory | OS | Package Manager |
 |-----------|-----|-----------------|
 | [`setup-cachy-os/`](setup-cachy-os/README.md) | CachyOS Linux | paru (AUR) |
-| `setup-fedora/` | Fedora Linux | dnf *(planned)* |
+| [`setup-ubuntu/`](setup-ubuntu/README.md) | Ubuntu 24.04+ | apt (work laptop, no gaming) |
+| `setup-fedora/` | Fedora Linux | dnf |
+| `setup-fedora-wsl/` | Fedora on WSL | dnf |
 | `setup-macos/` | macOS | Homebrew *(planned)* |
 
 ## Quick Start (CachyOS)
