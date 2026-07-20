@@ -47,12 +47,15 @@ abbr -a dpsa 'docker ps -a'
 abbr -a di   'docker images'
 abbr -a dex  'docker exec -it'
 
-# ── System ────────────────────────────────────────────────────────────────────
-abbr -a update  'paru -Syu'
-abbr -a install 'paru -S'
-abbr -a search  'paru -Ss'
-abbr -a remove  'paru -Rns'
-abbr -a cleanup 'paru -Sc'
+# ── System (paru — Arch/CachyOS only) ─────────────────────────────────────────
+# Guarded so these are simply absent on hosts without paru (e.g. Ubuntu).
+if command -q paru
+    abbr -a update  'paru -Syu'
+    abbr -a install 'paru -S'
+    abbr -a search  'paru -Ss'
+    abbr -a remove  'paru -Rns'
+    abbr -a cleanup 'paru -Sc'
+end
 
 # ── Misc ──────────────────────────────────────────────────────────────────────
 abbr -a reload 'source ~/.config/fish/config.fish'
