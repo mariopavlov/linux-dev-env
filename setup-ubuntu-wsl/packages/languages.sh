@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Programming languages: C/C++, Go, Rust, SDKMan, nvm.fish, uv, Anaconda
+# Programming languages: C/C++, Go, Rust, SDKMan, Bun, nvm.fish, uv, Anaconda
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -114,6 +114,23 @@ else
 fi
 
 log_info "To install a JDK, open a new shell and run: sdk install java"
+
+# ── Bun ────────────────────────────────────────────────────────────────────────────
+log_step "Bun"
+
+BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+export BUN_INSTALL
+
+if [[ -x "$BUN_INSTALL/bin/bun" ]]; then
+    log_skip "Bun ($("$BUN_INSTALL/bin/bun" --version))"
+else
+    curl -fsSL https://bun.com/install | bash
+    log_success "Bun installed: $("$BUN_INSTALL/bin/bun" --version)"
+fi
+
+# Make Bun available to subsequent steps in this script. Fish adds the same
+# directory persistently via the managed config.fish dotfile.
+export PATH="$BUN_INSTALL/bin:$PATH"
 
 # ── nvm.fish (Node version manager) ──────────────────────────────────────────
 # nvm.fish is a pure-Fish reimplementation of nvm installed via Fisher (see base.sh)

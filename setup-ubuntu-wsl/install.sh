@@ -34,7 +34,7 @@ if [[ $# -eq 0 ]]; then
     echo ""
     echo "  --all        Run all steps (base → langs → dotfiles → claude)"
     echo "  --base       Core shell tools, Git config (packages/base.sh)"
-    echo "  --langs      C/C++, Go, Rust, SDKMan, nvm, uv, Anaconda (packages/languages.sh)"
+    echo "  --langs      C/C++, Go, Rust, SDKMan, Bun, nvm, uv, Anaconda (packages/languages.sh)"
     echo "  --dotfiles   Apply dotfiles via Chezmoi (../dotfiles/)"
     echo "  --claude     Symlink Claude Code config from claude-skills/ into ~/.claude/"
     echo ""
@@ -113,6 +113,7 @@ if $RUN_BASE; then
 fi
 if $RUN_LANGS; then
     log_info "SDKMan: open a new shell and run 'sdk install java' to install a JDK"
+    log_info "Bun: installed to ~/.bun; run 'bun upgrade' to update it"
     log_info "nvm.fish: run 'nvm install lts' in Fish to install Node LTS"
 fi
 if $RUN_DOTFILES; then
