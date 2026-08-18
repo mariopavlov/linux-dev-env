@@ -67,7 +67,7 @@ bash install.sh [flags]
 Flags:
   --all        Run all steps (base → langs → dotfiles → claude)
   --base       Core tools: shell, CLI utilities, Git
-  --langs      Languages: C/C++, Go, Rust, SDKMan, nvm, uv, Anaconda
+  --langs      Languages: C/C++, Go, Rust, SDKMan, Bun, nvm, uv, Anaconda
   --dotfiles   Apply dotfiles via Chezmoi
   --claude     Symlink Claude Code config into ~/.claude/
 ```
@@ -96,8 +96,8 @@ Flags are composable: `bash install.sh --base --langs`
 
 ### `--langs` (packages/languages.sh)
 
-Identical to `setup-ubuntu` — see that [README](../setup-ubuntu/README.md#--langs-packageslanguagessh).
-build-essential/clang, Go, Rust (rustup), uv + pynvim, SDKMan, Node via nvm.fish, optional Anaconda.
+build-essential/clang, Go, Rust (rustup), uv + pynvim, SDKMan, Bun, Node via nvm.fish,
+and optional Anaconda. Bun is installed to `~/.bun` with its official installer.
 
 Skip Anaconda: `SKIP_ANACONDA=1 bash install.sh --langs`
 
@@ -137,6 +137,12 @@ nvm install lts
 nvm use lts
 ```
 
+**Bun:**
+```fish
+bun --version
+bun upgrade
+```
+
 **GitHub CLI:** `gh auth login`
 
 **Neovim:** Run `nvim` — LazyVim auto-bootstraps and installs all plugins on first launch.
@@ -152,7 +158,7 @@ setup-ubuntu-wsl/
 │   └── utils.sh            # Shared logging & apt/PPA helpers
 └── packages/
     ├── base.sh             # Core shell tools, Git config
-    ├── languages.sh        # C/C++, Go, Rust, SDKMan, nvm, uv, Anaconda
+    ├── languages.sh        # C/C++, Go, Rust, SDKMan, Bun, nvm, uv, Anaconda
     └── claude.sh           # Claude Code config symlinks
 ```
 
@@ -167,4 +173,4 @@ setup-ubuntu-wsl/
 | `--apps` (Zed, VS Code, Ulauncher) | GUI apps run on Windows; use VS Code / Zed with the WSL remote extension |
 | Docker CE + docker group | Docker Desktop's WSL integration provides the CLI and daemon |
 
-Everything else — shell, CLI tooling, languages, dotfiles, Claude config — is identical.
+Everything else is identical except Bun, which is additionally installed by the WSL `--langs` step.

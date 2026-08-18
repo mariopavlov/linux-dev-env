@@ -43,6 +43,10 @@ fish_add_path "$HOME/.cargo/bin"
 # Local user binaries
 fish_add_path "$HOME/.local/bin"
 
+# Bun runtime and package manager
+set -gx BUN_INSTALL "$HOME/.bun"
+fish_add_path "$BUN_INSTALL/bin"
+
 # Anaconda (only if installed, and NOT auto-activated)
 # Uncomment if you want conda in PATH without auto-activating base env:
 # fish_add_path "$HOME/anaconda3/bin"
