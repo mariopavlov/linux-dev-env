@@ -28,15 +28,17 @@ RUN_BASE=false
 RUN_LANGS=false
 RUN_DOTFILES=false
 RUN_CLAUDE=false
+RUN_AGENTS=false
 
 if [[ $# -eq 0 ]]; then
-    echo "Usage: $0 [--all] [--base] [--langs] [--dotfiles] [--claude]"
+    echo "Usage: $0 [--all] [--base] [--langs] [--dotfiles] [--claude] [--agents]"
     echo ""
-    echo "  --all        Run all steps (base → langs → dotfiles → claude)"
+    echo "  --all        Run all steps (base → langs → dotfiles → claude → agents)"
     echo "  --base       Core shell tools, Git config (packages/base.sh)"
     echo "  --langs      C/C++, Go, Rust, SDKMan, Bun, nvm, uv, Anaconda (packages/languages.sh)"
     echo "  --dotfiles   Apply dotfiles via Chezmoi (../dotfiles/)"
     echo "  --claude     Symlink Claude Code config from claude-skills/ into ~/.claude/"
+    echo "  --agents     Claude Code, Codex, OpenCode, Herdr, integrations, Fish completion"
     echo ""
     echo "WSL variant — no GUI apps, no terminal emulator, no fonts, no Docker Engine."
     echo "Tip: run with 'op run --env-file=~/.op-env -- bash install.sh --all'"
@@ -45,11 +47,12 @@ fi
 
 for arg in "$@"; do
     case "$arg" in
-        --all)      RUN_BASE=true; RUN_LANGS=true; RUN_DOTFILES=true; RUN_CLAUDE=true ;;
+        --all)      RUN_BASE=true; RUN_LANGS=true; RUN_DOTFILES=true; RUN_CLAUDE=true; RUN_AGENTS=true ;;
         --base)     RUN_BASE=true ;;
         --langs)    RUN_LANGS=true ;;
         --dotfiles) RUN_DOTFILES=true ;;
         --claude)   RUN_CLAUDE=true ;;
+        --agents)   RUN_AGENTS=true ;;
         *) log_error "Unknown flag: $arg"; exit 1 ;;
     esac
 done
@@ -101,6 +104,10 @@ if $RUN_CLAUDE; then
     run_step "Claude Code config" bash "$SCRIPT_DIR/packages/claude.sh"
 fi
 
+if $RUN_AGENTS; then
+    run_step "Agentic development tools" bash "$SCRIPT_DIR/packages/agents.sh"
+fi
+
 # ── Summary ───────────────────────────────────────────────────────────────────
 echo ""
 echo -e "${BOLD}${GREEN}Setup complete!${RESET}"
@@ -122,4 +129,8 @@ if $RUN_DOTFILES; then
 fi
 if $RUN_CLAUDE; then
     log_info "Claude Code config linked — new skills available in all projects"
+fi
+if $RUN_AGENTS; then
+    log_info "Agents: run 'claude', 'codex', or 'opencode' inside Herdr"
+    log_info "Herdr: run 'herdr' to start or reattach; Fish completion is installed"
 fi
