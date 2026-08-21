@@ -65,11 +65,12 @@ For SSH keys: enable the **1Password SSH agent** in 1Password Settings → Devel
 bash install.sh [flags]
 
 Flags:
-  --all        Run all steps (base → langs → dotfiles → claude)
+  --all        Run all steps (base → langs → dotfiles → claude → agents)
   --base       Core tools: shell, CLI utilities, Git
   --langs      Languages: C/C++, Go, Rust, SDKMan, Bun, nvm, uv, Anaconda
   --dotfiles   Apply dotfiles via Chezmoi
   --claude     Symlink Claude Code config into ~/.claude/
+  --agents     Install Claude Code, Codex, OpenCode, Herdr, and integrations
 ```
 
 Flags are composable: `bash install.sh --base --langs`
@@ -110,6 +111,22 @@ unused under WSL — terminal appearance is a Windows Terminal setting.
 
 Symlinks everything in `claude-skills/dot-claude/` into `~/.claude/`.
 
+### `--agents` (packages/agents.sh)
+
+Installs the agentic terminal workflow with each project's official native installer:
+
+| Tool | Source | Notes |
+|------|--------|-------|
+| Claude Code | `claude.ai/install.sh` | Runs as `claude`; first launch prompts for authentication |
+| OpenAI Codex CLI | `chatgpt.com/codex/install.sh` | Runs as `codex`; first launch prompts for authentication |
+| OpenCode | `opencode.ai/install` | Runs as `opencode`; configure a provider with `/connect` |
+| Herdr | `herdr.dev/install.sh` | Persistent terminal workspaces for all three agents |
+
+The step also installs the Herdr integrations for Claude Code, Codex, and OpenCode so their native
+conversation sessions can be restored after a Herdr/WSL restart. Fish completion is generated at
+`~/.config/fish/completions/herdr.fish`. Re-running `--agents` skips installed binaries and refreshes
+the integrations and completion file.
+
 ---
 
 ## After Running
@@ -147,6 +164,11 @@ bun upgrade
 
 **Neovim:** Run `nvim` — LazyVim auto-bootstraps and installs all plugins on first launch.
 
+**Agentic workflow:** Run `herdr` in a project directory, then launch `claude`, `codex`, or
+`opencode` in its panes. Closing Windows Terminal only detaches the Herdr client; the WSL processes
+keep running. Shutting down Windows stops those processes, and Herdr restores eligible integrated
+agent conversations when it starts again.
+
 ---
 
 ## Repository Structure
@@ -156,10 +178,13 @@ setup-ubuntu-wsl/
 ├── install.sh              # Master orchestrator
 ├── lib/
 │   └── utils.sh            # Shared logging & apt/PPA helpers
-└── packages/
-    ├── base.sh             # Core shell tools, Git config
-    ├── languages.sh        # C/C++, Go, Rust, SDKMan, Bun, nvm, uv, Anaconda
-    └── claude.sh           # Claude Code config symlinks
+├── packages/
+│   ├── base.sh             # Core shell tools, Git config
+│   ├── languages.sh        # C/C++, Go, Rust, SDKMan, Bun, nvm, uv, Anaconda
+│   ├── claude.sh           # Claude Code config symlinks
+│   └── agents.sh           # AI agents, Herdr, integrations, Fish completion
+└── tests/
+    └── agents_test.sh      # Network-free agentic setup and idempotency test
 ```
 
 ---
