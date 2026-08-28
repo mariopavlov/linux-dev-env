@@ -1,14 +1,9 @@
 # Fish shell configuration
-# Managed by Chezmoi — edit source at setup-cachy-os/dotfiles/.config/fish/config.fish
+# Managed by Chezmoi — edit source at dotfiles/dot_config/fish/config.fish
 
 # ── 1Password SSH agent ───────────────────────────────────────────────────────
 # Enables use of SSH keys stored in 1Password without any keys on disk
 set -gx SSH_AUTH_SOCK "$HOME/.1password/agent.sock"
-
-# ── Starship prompt ───────────────────────────────────────────────────────────
-if command -q starship
-    starship init fish | source
-end
 
 # ── Zoxide (smart cd) ─────────────────────────────────────────────────────────
 if command -q zoxide
@@ -16,8 +11,12 @@ if command -q zoxide
 end
 
 # ── SDKMan ────────────────────────────────────────────────────────────────────
-# Add all installed SDKMan candidates (java, maven, gradle, …) to PATH.
-# This makes `java`, `mvn`, `gradle` etc. available without any extra step.
+# Java itself comes from mise (see ~/.config/mise/config.toml). SDKMan is kept
+# for its other candidates — kotlin, scala, maven, gradle, springboot — which
+# mise does not manage here.
+#
+# Ordering matters: this block runs BEFORE `mise activate` below, so mise's
+# shims end up ahead of SDKMan's candidate paths and mise's JDK wins for `java`.
 if test -d "$HOME/.sdkman/candidates"
     for candidate_bin in $HOME/.sdkman/candidates/*/current/bin
         if test -d "$candidate_bin"
@@ -34,30 +33,35 @@ if functions -q bass; and test -s "$HOME/.sdkman/bin/sdkman-init.sh"
 end
 
 # ── PATH additions ────────────────────────────────────────────────────────────
-# Go binaries
+# Go module binaries (`go install ...`). The Go toolchain itself is from mise.
 fish_add_path "$HOME/go/bin"
 
-# Rust/Cargo binaries
+# Rust/Cargo binaries — rustup stays outside mise (mise's `rust` delegates to
+# rustup anyway, and clippy/rustfmt/rust-analyzer are per-toolchain components).
 fish_add_path "$HOME/.cargo/bin"
 
-# Local user binaries
+# Local user binaries — agent CLIs (claude, codex, opencode, herdr) land here
 fish_add_path "$HOME/.local/bin"
+fish_add_path "$HOME/.opencode/bin"
 
-# Bun runtime and package manager
-set -gx BUN_INSTALL "$HOME/.bun"
-fish_add_path "$BUN_INSTALL/bin"
+# ── mise (tool version manager) ───────────────────────────────────────────────
+# Must come after the fish_add_path calls above so mise's shims take precedence.
+# Manages: node, go, java, bun, python, uv, neovim and the CLI tools.
+if command -q mise
+    mise activate fish | source
+end
 
-# Anaconda (only if installed, and NOT auto-activated)
-# Uncomment if you want conda in PATH without auto-activating base env:
-# fish_add_path "$HOME/anaconda3/bin"
+# ── Starship prompt ───────────────────────────────────────────────────────────
+# After mise activate, so the mise-managed starship is the one that initialises.
+if command -q starship
+    starship init fish | source
+end
 
 # ── Editor ────────────────────────────────────────────────────────────────────
 set -gx EDITOR nvim
 set -gx VISUAL nvim
 
 # ── Bat theme ─────────────────────────────────────────────────────────────────
-# Using a built-in bat theme. For Catppuccin: install `catppuccin-bat` from AUR,
-# run `bat cache --build`, then change this to "Catppuccin Mocha".
 set -gx BAT_THEME TwoDark
 
 # ── FZF defaults ──────────────────────────────────────────────────────────────

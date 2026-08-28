@@ -28,7 +28,7 @@ git clone https://github.com/YOUR_USER/linux-dev-env.git ~/workspace/linux-dev-e
 cd ~/workspace/linux-dev-env/setup-ubuntu-wsl
 
 # Make scripts executable
-chmod +x install.sh packages/*.sh
+chmod +x install.sh migrate-legacy.sh packages/*.sh
 
 # Run everything at once
 bash install.sh --all
@@ -64,16 +64,49 @@ For SSH keys: enable the **1Password SSH agent** in 1Password Settings → Devel
 ```
 bash install.sh [flags]
 
-Flags:
-  --all        Run all steps (base → langs → dotfiles → claude → agents)
-  --base       Core tools: shell, CLI utilities, Git
-  --langs      Languages: C/C++, Go, Rust, SDKMan, Bun, nvm, uv, Anaconda
+Steps:
+  --all        Run all steps (base → mise → langs → dotfiles → claude → agents)
+  --base       System layer: apt packages, Fish + Fisher, Git config
+  --mise       mise + every tool pinned in dotfiles/dot_config/mise/config.toml
+  --langs      C/C++ toolchain, Rust (rustup), SDKMan, pynvim venv
   --dotfiles   Apply dotfiles via Chezmoi
   --claude     Symlink Claude Code config into ~/.claude/
   --agents     Install Claude Code, Codex, OpenCode, Herdr, and integrations
+
+Maintenance:
+  --update     Update everything installed (not part of --all)
+  -h, --help   Show help
 ```
 
-Flags are composable: `bash install.sh --base --langs`
+Flags are composable: `bash install.sh --base --mise --langs`
+
+---
+
+## The Two Layers
+
+Tooling is split deliberately:
+
+| Layer | Owner | What |
+|-------|-------|------|
+| **System** | `apt` | Compilers and debuggers, Fish (it is the login shell, so it must be a real path in `/etc/shells`), git, curl, archive and system utilities |
+| **Tools** | `mise` | node, go, java, bun, python, uv, neovim, and the CLI tools — bat, chezmoi, eza, fd, fzf, gh, jq, lazygit, ripgrep, starship, zoxide |
+
+Every mise-managed version lives in one file — [`dotfiles/dot_config/mise/config.toml`](../dotfiles/dot_config/mise/config.toml)
+— which is **byte-identical across every distro in this repo**. That file is the unification point:
+change a version there and it lands the same way on Ubuntu WSL, Fedora WSL, Fedora and CachyOS. No
+apt/dnf/paru package-name differences, no per-distro GitHub-release tarball scripts, and no
+`batcat`/`fdfind` naming shims.
+
+```bash
+mise ls        # what is managed, and where it came from
+mise up        # upgrade everything
+mise doctor    # diagnose PATH / activation problems
+```
+
+**PATH:** Fish gets `mise activate fish` from `config.fish`. Bash gets mise's *shims* via `~/.bashrc`,
+which is what makes every toolchain visible to Neovim — `:!`, `:terminal`, and LSP/Mason spawns all
+go through non-interactive bash, which never reads your Fish config. One line covers every managed
+tool; only cargo needs its own, because rustup stays outside mise.
 
 ---
 
@@ -83,24 +116,52 @@ Flags are composable: `bash install.sh --base --langs`
 
 | Tool | Source | Notes |
 |------|--------|-------|
-| fish | `apt`, or `ppa:fish-shell/release-4` | Shell (set as default). PPA only added when the distro ships Fish 3.x (24.04); 26.04+ has 4.x |
-| starship | official installer | Prompt |
-| zoxide / fzf | `apt` | Smart `cd`, fuzzy finder |
-| bat / ripgrep / fd | `apt` | Shipped as `batcat`/`fdfind`; shims linked into `~/.local/bin` |
-| eza | GitHub release binary | Modern `ls` |
-| lazygit | GitHub release binary | Git TUI |
-| chezmoi | official installer | Dotfile manager (`/usr/local/bin`) |
-| neovim | GitHub release tarball | `/opt/nvim-linux-x86_64` (apt's is too old for LazyVim) |
-| github-cli | official GitHub apt repo | `gh` CLI |
-| git / jq / zip / htop / btop | `apt` | Core utilities |
-| Fisher + nvm.fish / fzf.fish / bass / sponge | Fisher | Fish plugins |
+| fish | `apt`, or `ppa:fish-shell/release-4` | Shell (set as login shell). PPA only added when the distro ships Fish 3.x (24.04); 26.04+ has 4.x |
+| git / gawk / zip / unzip / htop / btop | `apt` | System utilities with no version pressure |
+| Fisher + fzf.fish / bass / sponge | Fisher | Fish plugins. `nvm.fish` is gone — Node is mise's now |
+
+`--base` also verifies the login shell actually took, and tells you which of the two usual causes
+is at fault if it did not (a stale WSL session, or a Windows Terminal profile with a hardcoded
+command line).
+
+### `--mise` (packages/mise.sh)
+
+Installs mise from the [official APT repo](https://mise.jdx.dev/installing-mise.html) — not the curl
+installer — so mise itself upgrades with `apt upgrade` while it manages everything else. Then it
+installs every tool in the shared manifest.
+
+| Managed | Tools |
+|---------|-------|
+| Runtimes | node (lts), go, bun, python, java (temurin-21) |
+| Python tooling | uv |
+| Editor | neovim, `npm:neovim` (the Node provider, pinned as a tool so it survives a Node version change) |
+| CLI | bat, chezmoi, eza, fd, fzf, gh, jq, lazygit, ripgrep, starship, zoxide |
+| Agent tooling | [beads](https://github.com/gastownhall/beads) (`bd`) — declared as `github:gastownhall/beads`, since it is not in the mise registry |
+
+> Chezmoi normally owns `~/.config/mise/config.toml`, but chezmoi is itself a mise-managed tool.
+> `mise.sh` breaks the cycle by copying the repo's manifest into place first; the later `--dotfiles`
+> step writes the identical file.
 
 ### `--langs` (packages/languages.sh)
 
-build-essential/clang, Go, Rust (rustup), uv + pynvim, SDKMan, Bun, Node via nvm.fish,
-and optional Anaconda. Bun is installed to `~/.bun` with its official installer.
+Only what does *not* belong in mise:
 
-Skip Anaconda: `SKIP_ANACONDA=1 bash install.sh --langs`
+| Kept out of mise | Why |
+|------------------|-----|
+| C/C++ toolchain | System compilers and debuggers; needs system integration |
+| Rust (rustup) | mise's `rust` delegates to rustup anyway, and clippy / rustfmt / rust-analyzer are per-toolchain rustup components |
+| SDKMan | Kept for kotlin, scala, maven, gradle, springboot. **The JDK itself comes from mise** |
+| pynvim venv | `~/.nvim-venv` for Neovim's Python provider — uv's job |
+
+Anaconda was **dropped**. It is a competing environment manager, and having it and mise both own
+PATH invites confusing breakage. Use mise's python plus uv instead.
+
+### `--update`
+
+The gap the pre-mise setup had: eza, lazygit, starship, chezmoi, neovim and bun were installed once
+and then never touched again, because every guard was a bare `is_installed` check. `--update` runs
+`apt upgrade` → `mise up` → `rustup update` → `fisher update` → `chezmoi apply` → agent CLI
+self-updates.
 
 ### `--dotfiles` (../dotfiles/)
 
@@ -142,23 +203,16 @@ without needing systemd or a second daemon in the distro.
 it in Windows Terminal → Settings → Profiles → Ubuntu → Appearance → Font face. Fonts installed
 inside the distro have no effect.
 
-**SDKMan:**
+**Tools:** `mise ls` shows everything managed and its version. `mise up` upgrades it all. If a tool
+seems missing, `mise doctor` is the first thing to run.
+
+**Java:** comes from mise (`temurin-21`). Use SDKMan for the rest of the JVM ecosystem:
 ```bash
-sdk install java          # latest LTS
-sdk install java 21-tem   # or a specific version
+sdk install kotlin
+sdk install maven
 ```
-
-**Node:**
-```fish
-nvm install lts
-nvm use lts
-```
-
-**Bun:**
-```fish
-bun --version
-bun upgrade
-```
+mise's shims are prepended *after* SDKMan's candidate paths in `config.fish`, so `java` resolves to
+the mise JDK even if a SDKMan JDK is also installed.
 
 **GitHub CLI:** `gh auth login`
 
@@ -176,16 +230,48 @@ agent conversations when it starts again.
 ```
 setup-ubuntu-wsl/
 ├── install.sh              # Master orchestrator
+├── migrate-legacy.sh       # Pre-mise cleanup (dry run by default)
 ├── lib/
 │   └── utils.sh            # Shared logging & apt/PPA helpers
 ├── packages/
-│   ├── base.sh             # Core shell tools, Git config
-│   ├── languages.sh        # C/C++, Go, Rust, SDKMan, Bun, nvm, uv, Anaconda
+│   ├── base.sh             # System layer: apt, Fish, Fisher, Git config
+│   ├── mise.sh             # mise + the shared tool manifest
+│   ├── languages.sh        # C/C++, Rust (rustup), SDKMan, pynvim
 │   ├── claude.sh           # Claude Code config symlinks
 │   └── agents.sh           # AI agents, Herdr, integrations, Fish completion
 └── tests/
     └── agents_test.sh      # Network-free agentic setup and idempotency test
 ```
+
+---
+
+## Migrating an Existing Install
+
+If this distro was set up before the mise split, run the migration after `--mise`:
+
+```bash
+bash install.sh --base --mise      # get the replacements in place first
+bash migrate-legacy.sh             # DRY RUN — prints what it would remove
+bash migrate-legacy.sh --apply     # execute
+```
+
+It is safe by construction:
+
+1. **Dry run is the default.** `--apply` is required to touch anything.
+2. **It refuses to run** until mise has installed the replacements, so you always have a working
+   toolchain before anything is removed.
+3. **Everything removable is backed up** to `~/.dev-env-backup-<timestamp>/` first.
+
+What it reclaims: the `nvm.fish` Fisher plugin and `~/.local/share/nvm`, `~/.bun`, the `golang-go`
+apt package, the hand-installed binaries in `/usr/local/bin` and `/opt/nvim-linux-x86_64`, the
+`bat`/`fd` naming shims, the standalone `uv`, the apt packages mise now provides, and `~/anaconda3`.
+
+SDKMan is **kept** — only its role narrows, from "Java and everything else JVM" to "everything else
+JVM".
+
+**If you skip the migration entirely, nothing breaks.** `mise activate` prepends its shims to PATH,
+so the mise-managed tools already win over the leftovers. The script only reclaims disk and removes
+the ambiguity.
 
 ---
 
@@ -198,4 +284,6 @@ setup-ubuntu-wsl/
 | `--apps` (Zed, VS Code, Ulauncher) | GUI apps run on Windows; use VS Code / Zed with the WSL remote extension |
 | Docker CE + docker group | Docker Desktop's WSL integration provides the CLI and daemon |
 
-Everything else is identical except Bun, which is additionally installed by the WSL `--langs` step.
+Everything else is identical. The `--mise` step and the shared tool manifest are what make this
+tree nearly a copy of [`../setup-fedora-wsl`](../setup-fedora-wsl/README.md) — the two differ only in
+their system-package layer.
