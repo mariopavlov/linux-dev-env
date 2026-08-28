@@ -21,6 +21,11 @@ source "$SCRIPT_DIR/lib/utils.sh"
 assert_not_root
 assert_dnf
 
+# utils' log_skip appends "(already installed)", which reads as nonsense here —
+# this script reports things that are ABSENT, not things already present.
+log_skip() { echo -e "${YELLOW}[SKIP]${RESET}  $*"; }
+
+
 APPLY=false
 FORCE=false
 
@@ -64,6 +69,50 @@ if (( ${#MISSING[@]} > 0 )); then
     log_warn "--force given — continuing anyway"
 else
     log_success "All ${#REQUIRED_TOOLS[@]} replacement tools are installed via mise"
+fi
+
+# The tools being installed is NOT sufficient. They must also be REACHABLE:
+# `mise activate` lives in config.fish, which the --dotfiles step applies.
+# Removing /usr/local/bin/starship while Fish still cannot see mise's starship
+# leaves you with a broken prompt, no `ls`, and no `cat` — the tools exist on
+# disk but nothing is on PATH to find them.
+log_step "Preflight: shell activation"
+
+ACTIVATION_MISSING=()
+
+FISH_CONFIG="$HOME/.config/fish/config.fish"
+if grep -q 'mise activate fish' "$FISH_CONFIG" 2>/dev/null; then
+    log_success "Fish activates mise ($FISH_CONFIG)"
+else
+    ACTIVATION_MISSING+=("Fish: 'mise activate fish' is not in $FISH_CONFIG")
+fi
+
+if grep -q 'mise activate bash --shims' "$HOME/.bashrc" 2>/dev/null; then
+    log_success "Bash has mise shims (~/.bashrc)"
+else
+    ACTIVATION_MISSING+=("Bash: 'mise activate bash --shims' is not in ~/.bashrc")
+fi
+
+# The decisive check: does a fresh login Fish actually resolve a mise tool?
+if fish -l -c 'command -q starship; and command -q eza' 2>/dev/null; then
+    log_success "A fresh login Fish resolves mise-managed tools"
+else
+    ACTIVATION_MISSING+=("A fresh login Fish cannot resolve starship/eza")
+fi
+
+if (( ${#ACTIVATION_MISSING[@]} > 0 )); then
+    log_error "mise is installed but its tools are not reachable from your shell:"
+    for problem in "${ACTIVATION_MISSING[@]}"; do
+        log_error "  - $problem"
+    done
+    echo ""
+    log_info "Removing the old copies now would leave you with no prompt and no ls."
+    log_info "Fix it first:"
+    log_info "  bash install.sh --dotfiles      # applies the config.fish that activates mise"
+    log_info "  exec fish                       # new session"
+    log_info "Then re-run this script."
+    $FORCE || exit 1
+    log_warn "--force given — continuing anyway"
 fi
 
 if $APPLY; then
@@ -185,6 +234,27 @@ remove_path "$HOME/anaconda3" "replaced by mise python + uv"
 if [[ -f "$HOME/.config/fish/conf.d/conda.fish" ]]; then
     remove_path "$HOME/.config/fish/conf.d/conda.fish" "leftover from 'conda init fish'"
 fi
+
+# ── 9. Stale Fish universal PATH entries ──────────────────────────────────────
+# `fish_add_path` writes to the UNIVERSAL variable $fish_user_paths, which
+# persists in fish_variables independently of config.fish. Deleting the
+# fish_add_path line does not remove the entry, so directories removed above
+# linger on PATH forever. Purge them explicitly.
+log_step "Stale Fish universal PATH entries"
+
+for stale in "$HOME/.bun/bin" "$HOME/.local/share/nvm" "$HOME/anaconda3/bin"; do
+    if fish -c "contains '$stale' \$fish_user_paths" 2>/dev/null; then
+        (( PLANNED++ )) || true
+        if $APPLY; then
+            fish -c "set -U fish_user_paths (string match -v '$stale' \$fish_user_paths)"
+            log_success "Removed $stale from \$fish_user_paths"
+        else
+            log_info "WOULD REMOVE  $stale from Fish's universal \$fish_user_paths"
+        fi
+    else
+        log_skip "$stale (not in \$fish_user_paths)"
+    fi
+done
 
 # ── 8. SDKMan — kept, not removed ─────────────────────────────────────────────
 log_step "SDKMan"
