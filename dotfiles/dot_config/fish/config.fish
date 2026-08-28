@@ -70,3 +70,25 @@ set -gx BAT_THEME TwoDark
 # ── FZF defaults ──────────────────────────────────────────────────────────────
 set -gx FZF_DEFAULT_COMMAND "fd --type f --hidden --follow --exclude .git"
 set -gx FZF_DEFAULT_OPTS "--height 40% --layout=reverse --border --color=bg+:#313244,spinner:#f5e0dc,hl:#f38ba8,fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc,marker:#f5e0dc,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8"
+
+# ── Herdr auto-start ──────────────────────────────────────────────────────────
+# All real work happens inside Herdr workspaces, so an interactive shell drops
+# straight into the persistent session instead of sitting at a bare prompt.
+#
+# Guards, in order — every one of them must hold:
+#   • interactive only        — scripts and `fish -c` must not launch a UI
+#   • TERM is not dumb        — CI, editors and pipes get a plain shell
+#   • HERDR_ENV is unset      — Herdr exports it into its own panes; without
+#                               this the panes' shells would launch Herdr again
+#   • HERDR_AUTOSTART is not 0 — escape hatch: `HERDR_AUTOSTART=0 fish`
+#   • herdr is on PATH        — a fresh box before --agents has run
+#
+# Not `exec`: when Herdr exits or fails to start you land back in this shell
+# rather than losing the terminal, which is what makes it fixable.
+if status is-interactive
+    and test "$TERM" != dumb
+    and not set -q HERDR_ENV
+    and test "$HERDR_AUTOSTART" != 0
+    and command -q herdr
+    herdr
+end
