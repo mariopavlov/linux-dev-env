@@ -1,0 +1,45 @@
+onboarding = false
+
+# ── Theme shortlist (previewed 2026-08-28) ────────────────────────────────────
+# ★ kanagawa      — cool base, warm muted earth accents; ink-wash feel
+# ★ tokyo-night   — cool, punchy, high contrast
+# ★ catppuccin    — cool, medium contrast; matches ghostty + nvim (Mocha)
+# Also previewed: solarized, rose-pine, gruvbox, dracula, nord (matches
+# alacritty), vesper, one-dark, terminal (inherits the host terminal palette).
+[theme]
+name = "kanagawa"
+
+[ui]
+agent_panel_sort = "spaces"
+
+# Agents panel. `bold` lifts the workspace/tab rows, which were hard to read at
+# the default weight. `dim` is deliberately never set here - herdr uses it to
+# render unselected rows, so setting it flattens the selection distinction.
+# row_gap is left at 0; the only other value is 1, a full blank text row.
+[ui.sidebar.agents]
+rows = [
+  [
+    "state_icon",
+    { token = "workspace", bold = true },
+    { token = "tab",       bold = true },
+  ],
+  [
+    { token = "agent",     fg = "#98BB6C" },
+  ],
+]
+
+# Spaces panel.
+# NOTE: an explicit `fg` is rendered literally and is NOT dimmed, so any token
+# given a hex loses the selected/unselected distinction. Tokens that must show
+# selection state use `bold` only and inherit the contextual color.
+[ui.sidebar.spaces]
+rows = [
+  [
+    "state_icon",
+    { token = "workspace",  bold = true },
+  ],
+  [
+    { token = "branch",     bold = true },
+    "git_status",
+  ],
+]
