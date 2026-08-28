@@ -1,0 +1,65 @@
+# mise — unified tool versions for every distro in this repo
+#
+# Managed by Chezmoi.  Source: dotfiles/dot_config/mise/config.toml
+#                      Target: ~/.config/mise/config.toml
+#
+# This file is the unification point: change a version here and it lands
+# identically on Ubuntu WSL, Fedora WSL, Fedora and CachyOS. No apt/dnf/paru
+# package-name differences, no per-distro GitHub-release tarball scripts, no
+# `batcat`/`fdfind` naming shims.
+#
+#   mise install    install everything listed below
+#   mise up         upgrade everything listed below
+#   mise ls         show what is installed and from where
+#
+# Bootstrapped by setup-*/packages/mise.sh, which copies this file into place
+# before Chezmoi runs (Chezmoi itself is installed by mise, so mise.sh has to
+# break the chicken-and-egg by installing from the repo copy).
+
+[tools]
+# ── Language runtimes ─────────────────────────────────────────────────────────
+node   = "lts"
+go     = "latest"
+bun    = "latest"
+python = "3.13"
+
+# Java. SDKMan is still installed for its other candidates (kotlin, scala,
+# springboot, …); mise's shims are prepended after SDKMan's paths in
+# config.fish, so this JDK is the one `java` resolves to.
+java   = "temurin-21"
+
+# ── Python tooling ────────────────────────────────────────────────────────────
+# uv drives packaging and venvs, including the ~/.nvim-venv pynvim provider
+# created by packages/languages.sh.
+uv     = "latest"
+
+# ── Editor ────────────────────────────────────────────────────────────────────
+neovim = "latest"
+
+# Neovim's Node provider. Pinned as a mise tool rather than `npm install -g`
+# so it survives a Node version change.
+"npm:neovim" = "latest"
+
+# ── Agent tooling ─────────────────────────────────────────────────────────────
+# Beads — issue tracker / memory layer for coding agents. Not in the mise
+# registry, so the backend is named explicitly. Ships goreleaser-style release
+# assets, which the `github:` backend resolves on its own.
+#
+#   Provides: bd
+"github:gastownhall/beads" = "latest"
+
+# ── CLI tools ─────────────────────────────────────────────────────────────────
+# Previously hand-installed from GitHub release tarballs (eza, lazygit,
+# starship, chezmoi, gh) or from distro packages under inconsistent names
+# (bat/batcat, fd/fdfind). All of it collapses to this list.
+bat      = "latest"
+chezmoi  = "latest"
+eza      = "latest"
+fd       = "latest"
+fzf      = "latest"
+gh       = "latest"
+jq       = "latest"
+lazygit  = "latest"
+ripgrep  = "latest"
+starship = "latest"
+zoxide   = "latest"

@@ -1,10 +1,10 @@
-# Ubuntu on WSL — Post-Install Setup
+# Fedora on WSL — Post-Install Setup
 
-Modular, idempotent post-install scripts for **Ubuntu running under WSL2** (24.04 "noble" and newer).
+Modular, idempotent post-install scripts for **Fedora running under WSL2**.
 
-WSL variant of [`../setup-ubuntu`](../setup-ubuntu/README.md): everything graphical lives on the
-Windows host, so this drops the terminal emulator, fonts, GUI apps and Docker Engine and keeps the
-CLI development environment.
+WSL variant of `../setup-fedora`: everything graphical lives on the Windows host, so this drops the
+terminal emulator, fonts, GUI apps, gaming/GPU setup and Docker Engine and keeps the CLI
+development environment.
 
 > **No secrets in this repo.** SSH keys are managed by 1Password. Git credentials and tokens are
 > injected at runtime via `op run` — never stored here.
@@ -13,7 +13,7 @@ CLI development environment.
 
 ## Prerequisites
 
-- WSL2 with an Ubuntu 24.04+ distro (`wsl --install -d Ubuntu-24.04` from Windows)
+- WSL2 with a Fedora distro (`wsl --install -d FedoraLinux-42` from Windows, or an imported rootfs)
 - Windows Terminal for the terminal + font (install the Nerd Font on **Windows**, not in the distro)
 - Docker Desktop for Windows if you want containers (see below)
 - 1Password CLI (`op`) installed inside the distro if using secret injection (recommended)
@@ -25,7 +25,7 @@ CLI development environment.
 ```bash
 # Clone this repo (into the Linux filesystem, not /mnt/c — much faster)
 git clone https://github.com/YOUR_USER/linux-dev-env.git ~/workspace/linux-dev-env
-cd ~/workspace/linux-dev-env/setup-ubuntu-wsl
+cd ~/workspace/linux-dev-env/setup-fedora-wsl
 
 # Make scripts executable
 chmod +x install.sh migrate-legacy.sh packages/*.sh
@@ -66,7 +66,7 @@ bash install.sh [flags]
 
 Steps:
   --all        Run all steps (base → mise → langs → dotfiles → claude → agents)
-  --base       System layer: apt packages, Fish + Fisher, Git config
+  --base       System layer: dnf packages, Fish + Fisher, Git config
   --mise       mise + every tool pinned in dotfiles/dot_config/mise/config.toml
   --langs      C/C++ toolchain, Rust (rustup), SDKMan, pynvim venv
   --dotfiles   Apply dotfiles via Chezmoi
@@ -88,7 +88,7 @@ Tooling is split deliberately:
 
 | Layer | Owner | What |
 |-------|-------|------|
-| **System** | `apt` | Compilers and debuggers, Fish (it is the login shell, so it must be a real path in `/etc/shells`), git, curl, archive and system utilities |
+| **System** | `dnf` | Compilers and debuggers, Fish (it is the login shell, so it must be a real path in `/etc/shells`), git, curl, archive and system utilities |
 | **Tools** | `mise` | node, go, java, bun, python, uv, neovim, and the CLI tools — bat, chezmoi, eza, fd, fzf, gh, jq, lazygit, ripgrep, starship, zoxide |
 
 Every mise-managed version lives in one file — [`dotfiles/dot_config/mise/config.toml`](../dotfiles/dot_config/mise/config.toml)
@@ -116,8 +116,9 @@ tool; only cargo needs its own, because rustup stays outside mise.
 
 | Tool | Source | Notes |
 |------|--------|-------|
-| fish | `apt`, or `ppa:fish-shell/release-4` | Shell (set as login shell). PPA only added when the distro ships Fish 3.x (24.04); 26.04+ has 4.x |
-| git / gawk / zip / unzip / htop / btop | `apt` | System utilities with no version pressure |
+| fish | `dnf` | Shell (set as login shell) |
+| git / curl / gawk / zip / unzip / htop / btop | `dnf` | System utilities with no version pressure |
+| util-linux-user | `dnf` | Provides `chsh`/`usermod` |
 | Fisher + fzf.fish / bass / sponge | Fisher | Fish plugins. `nvm.fish` is gone — Node is mise's now |
 
 `--base` also verifies the login shell actually took, and tells you which of the two usual causes
@@ -126,9 +127,12 @@ command line).
 
 ### `--mise` (packages/mise.sh)
 
-Installs mise from the [official APT repo](https://mise.jdx.dev/installing-mise.html) — not the curl
-installer — so mise itself upgrades with `apt upgrade` while it manages everything else. Then it
+Installs mise from the [official DNF repo](https://mise.jdx.dev/installing-mise.html) — not the curl
+installer — so mise itself upgrades with `dnf upgrade` while it manages everything else. Then it
 installs every tool in the shared manifest.
+
+This also removes the COPR dependencies this tree used to carry: `atim/starship` and `atim/lazygit`
+are no longer needed, since mise provides both.
 
 | Managed | Tools |
 |---------|-------|
@@ -149,7 +153,7 @@ Only what does *not* belong in mise:
 | Kept out of mise | Why |
 |------------------|-----|
 | C/C++ toolchain | System compilers and debuggers; needs system integration |
-| Rust (rustup) | mise's `rust` delegates to rustup anyway, and clippy / rustfmt / rust-analyzer are per-toolchain rustup components |
+| Rust (rustup) | Installed from `dnf` then `rustup-init`; mise's `rust` delegates to rustup anyway, and clippy / rustfmt / rust-analyzer are per-toolchain rustup components |
 | SDKMan | Kept for kotlin, scala, maven, gradle, springboot. **The JDK itself comes from mise** |
 | pynvim venv | `~/.nvim-venv` for Neovim's Python provider — uv's job |
 
@@ -160,12 +164,12 @@ PATH invites confusing breakage. Use mise's python plus uv instead.
 
 The gap the pre-mise setup had: eza, lazygit, starship, chezmoi, neovim and bun were installed once
 and then never touched again, because every guard was a bare `is_installed` check. `--update` runs
-`apt upgrade` → `mise up` → `rustup update` → `fisher update` → `chezmoi apply` → agent CLI
+`dnf upgrade` → `mise up` → `rustup update` → `fisher update` → `chezmoi apply` → agent CLI
 self-updates.
 
 ### `--dotfiles` (../dotfiles/)
 
-Applied via Chezmoi from the shared `dotfiles/` directory. The Alacritty config is applied but
+Applied via Chezmoi from the shared `dotfiles/` directory. The Ghostty/Alacritty configs are applied but
 unused under WSL — terminal appearance is a Windows Terminal setting.
 
 ### `--claude` (packages/claude.sh)
@@ -200,7 +204,7 @@ distro under **Settings → Resources → WSL Integration**. That provides the `
 without needing systemd or a second daemon in the distro.
 
 **Font:** Install JetBrains Mono Nerd Font on **Windows** (from `../fonts/JetBrainsMono/`) and select
-it in Windows Terminal → Settings → Profiles → Ubuntu → Appearance → Font face. Fonts installed
+it in Windows Terminal → Settings → Profiles → Fedora → Appearance → Font face. Fonts installed
 inside the distro have no effect.
 
 **Tools:** `mise ls` shows everything managed and its version. `mise up` upgrades it all. If a tool
@@ -228,13 +232,13 @@ agent conversations when it starts again.
 ## Repository Structure
 
 ```
-setup-ubuntu-wsl/
+setup-fedora-wsl/
 ├── install.sh              # Master orchestrator
 ├── migrate-legacy.sh       # Pre-mise cleanup (dry run by default)
 ├── lib/
-│   └── utils.sh            # Shared logging & apt/PPA helpers
+│   └── utils.sh            # Shared logging & dnf/COPR helpers
 ├── packages/
-│   ├── base.sh             # System layer: apt, Fish, Fisher, Git config
+│   ├── base.sh             # System layer: dnf, Fish, Fisher, Git config
 │   ├── mise.sh             # mise + the shared tool manifest
 │   ├── languages.sh        # C/C++, Rust (rustup), SDKMan, pynvim
 │   ├── claude.sh           # Claude Code config symlinks
@@ -262,9 +266,10 @@ It is safe by construction:
    toolchain before anything is removed.
 3. **Everything removable is backed up** to `~/.dev-env-backup-<timestamp>/` first.
 
-What it reclaims: the `nvm.fish` Fisher plugin and `~/.local/share/nvm`, `~/.bun`, the `golang-go`
-apt package, the hand-installed binaries in `/usr/local/bin` and `/opt/nvim-linux-x86_64`, the
-`bat`/`fd` naming shims, the standalone `uv`, the apt packages mise now provides, and `~/anaconda3`.
+What it reclaims: the `nvm.fish` Fisher plugin and `~/.local/share/nvm`, `~/.bun`, the `golang` dnf
+package, the hand-installed `eza` in `/usr/local/bin`, the standalone `uv`, the dnf/COPR packages
+mise now provides (zoxide, fzf, bat, ripgrep, fd-find, jq, chezmoi, neovim, starship, lazygit), and
+`~/anaconda3`.
 
 SDKMan is **kept** — only its role narrows, from "Java and everything else JVM" to "everything else
 JVM".
@@ -275,15 +280,16 @@ the ambiguity.
 
 ---
 
-## Differences vs `setup-ubuntu`
+## Differences vs `setup-fedora`
 
 | Dropped | Why |
 |---------|-----|
-| Alacritty | Terminal is Windows Terminal on the host |
+| Ghostty / Alacritty | Terminal is Windows Terminal on the host |
 | JetBrains Mono Nerd Font | Fonts must be installed on Windows to have any effect |
 | `--apps` (Zed, VS Code, Ulauncher) | GUI apps run on Windows; use VS Code / Zed with the WSL remote extension |
+| `--gaming` | No GPU/gaming stack under WSL |
 | Docker CE + docker group | Docker Desktop's WSL integration provides the CLI and daemon |
 
 Everything else is identical. The `--mise` step and the shared tool manifest are what make this
-tree nearly a copy of [`../setup-fedora-wsl`](../setup-fedora-wsl/README.md) — the two differ only in
+tree nearly a copy of [`../setup-ubuntu-wsl`](../setup-ubuntu-wsl/README.md) — the two differ only in
 their system-package layer.
