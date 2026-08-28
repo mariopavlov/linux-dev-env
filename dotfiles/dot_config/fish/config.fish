@@ -5,11 +5,6 @@
 # Enables use of SSH keys stored in 1Password without any keys on disk
 set -gx SSH_AUTH_SOCK "$HOME/.1password/agent.sock"
 
-# ── Zoxide (smart cd) ─────────────────────────────────────────────────────────
-if command -q zoxide
-    zoxide init fish | source
-end
-
 # ── SDKMan ────────────────────────────────────────────────────────────────────
 # Java itself comes from mise (see ~/.config/mise/config.toml). SDKMan is kept
 # for its other candidates — kotlin, scala, maven, gradle, springboot — which
@@ -51,8 +46,16 @@ if command -q mise
     mise activate fish | source
 end
 
-# ── Starship prompt ───────────────────────────────────────────────────────────
-# After mise activate, so the mise-managed starship is the one that initialises.
+# ── Tool initialisation ───────────────────────────────────────────────────────
+# EVERYTHING that shells out to a mise-managed binary must live BELOW the
+# `mise activate` above. These blocks are all guarded by `command -q`, so if
+# they run too early the guard is simply false and the block silently no-ops —
+# no error, just a missing `z` or a default prompt. Add new tool init here, not
+# at the top of the file.
+if command -q zoxide
+    zoxide init fish | source
+end
+
 if command -q starship
     starship init fish | source
 end
