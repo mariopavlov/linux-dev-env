@@ -222,8 +222,19 @@ the mise JDK even if a SDKMan JDK is also installed.
 
 **Neovim:** Run `nvim` — LazyVim auto-bootstraps and installs all plugins on first launch.
 
-**Agentic workflow:** Run `herdr` in a project directory, then launch `claude`, `codex`, or
-`opencode` in its panes. Closing Windows Terminal only detaches the Herdr client; the WSL processes
+**Agentic workflow:** Every interactive Fish shell starts Herdr automatically (`config.fish`), so a
+new Windows Terminal tab lands straight in the persistent session — launch `claude`, `codex`, or
+`opencode` in its panes. The autostart is skipped inside Herdr's own panes (it exports `HERDR_ENV`),
+in non-interactive shells, and when `HERDR_AUTOSTART=0` is set; quitting Herdr drops you back to a
+plain Fish prompt rather than closing the terminal.
+
+**Workspace template:** `herdr-workspace [PATH]` (a Fish function in
+`dotfiles/dot_config/fish/functions/`) creates a workspace labelled after the directory, with seven
+tabs — Research, Implement, Review, nvim, lazygit, ollama, shell — every pane a shell rooted at
+`PATH`, which defaults to the current directory. Research, Implement, Review and shell get two
+vertically split panes; the rest get one. Nothing is auto-started: the tabs are labelled shells, so
+you choose the agent per project. Edit the `tab_template` list at the top of the function to change
+the layout, and run `herdr-workspace --help` to print it. Closing Windows Terminal only detaches the Herdr client; the WSL processes
 keep running. Shutting down Windows stops those processes, and Herdr restores eligible integrated
 agent conversations when it starts again.
 
