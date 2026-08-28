@@ -234,9 +234,46 @@ tabs — Research, Implement, Review, nvim, lazygit, ollama, shell — every pan
 `PATH`, which defaults to the current directory. Research, Implement, Review and shell get two
 vertically split panes; the rest get one. Nothing is auto-started: the tabs are labelled shells, so
 you choose the agent per project. Edit the `tab_template` list at the top of the function to change
-the layout, and run `herdr-workspace --help` to print it. Closing Windows Terminal only detaches the Herdr client; the WSL processes
-keep running. Shutting down Windows stops those processes, and Herdr restores eligible integrated
-agent conversations when it starts again.
+the layout, and run `herdr-workspace --help` to print it.
+
+**Persistence:** Closing Windows Terminal only detaches the Herdr client; the WSL processes keep
+running. Shutting down Windows stops those processes, and Herdr restores eligible integrated agent
+conversations when it starts again.
+
+**Shift+Enter for a newline:** Agents read Shift+Enter as a newline when run directly in Windows
+Terminal, but not inside Herdr. The cause is a dialect mismatch, not a keybinding. Legacy terminal
+encoding has no room for a modifier on Enter — Shift+Enter is byte-identical to Enter (`CR`,
+`0x0D`) — so an app that wants the distinction must negotiate one of three incompatible protocols:
+
+| Layer | Speaks | Shift+Enter |
+| --- | --- | --- |
+| Windows Terminal 1.24 | win32-input-mode (`CSI ?9001h`) | full key event |
+| Claude Code / Codex | win32-input-mode | works — asks in WT's dialect |
+| Herdr 0.8.0 | kitty (`CSI >1u`) + modifyOtherKeys (`CSI >4;2m`) | WT understands neither |
+
+Herdr's binary carries no `CSI ?9001h`, so its upstream request goes unanswered and it only ever
+receives bare `CR` to forward — its `CSI 27;2;13~` encoding table for Shift+Enter can never fire.
+Nothing in `config.toml` can fix this; there is no key event to bind. (Upstream fix: win32-input-mode
+support in Herdr.)
+
+The workaround sidesteps negotiation entirely — have Windows Terminal inject `LF` (`0x0A`, i.e.
+Ctrl+J) directly, which every layer forwards as a plain byte and every agent reads as a newline. It
+behaves identically inside and outside Herdr, and Ctrl+Enter keeps working. In `settings.json`:
+
+```jsonc
+"actions": [
+    {
+        "command": { "action": "sendInput", "input": "\n" },
+        "id": "User.sendInput.newline",
+        "name": "Insert newline (LF)"
+    }
+],
+"keybindings": [
+    { "id": "User.sendInput.newline", "keys": "shift+enter" }
+]
+```
+
+To see what any key actually sends, run `showkey -a` in a pane and press it.
 
 ---
 
