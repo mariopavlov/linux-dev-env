@@ -9,7 +9,7 @@ Post-install setup scripts for various platforms.
 | [`setup-cachy-os/`](setup-cachy-os/README.md) | CachyOS Linux | paru (AUR) |
 | [`setup-ubuntu/`](setup-ubuntu/README.md) | Ubuntu 24.04+ | apt (work laptop, no gaming) |
 | [`setup-ubuntu-wsl/`](setup-ubuntu-wsl/README.md) | Ubuntu 24.04+ on WSL2 | apt (CLI only, no GUI/Docker Engine) |
-| `setup-fedora/` | Fedora Linux | dnf |
+| [`setup-fedora/`](setup-fedora/README.md) | Fedora Linux | dnf |
 | [`setup-fedora-wsl/`](setup-fedora-wsl/README.md) | Fedora on WSL | dnf (CLI only, no GUI/Docker Engine) |
 | `setup-macos/` | macOS | Homebrew *(planned)* |
 
@@ -26,9 +26,16 @@ scripts thin:
 Each `setup-*/` directory then only has to cover what genuinely differs: the system package
 manager, the compilers, and the login shell.
 
-> **Status:** `setup-ubuntu-wsl/` and `setup-fedora-wsl/` are on the mise split.
-> `setup-ubuntu/`, `setup-fedora/` and `setup-cachy-os/` still install their tools per-distro and
-> have not been ported yet.
+> **Status:** every platform directory is on the mise split. Each one exposes the same step flags —
+> `--base --mise --langs --dotfiles --agents` plus a standalone `--update` — and each ships a
+> `migrate-legacy.sh` that reclaims the pre-mise copies (dry run by default).
+
+## Agentic Tooling
+
+`--agents` is also shared across every platform: Claude Code, OpenAI Codex CLI, OpenCode and
+[Herdr](https://herdr.dev) installed from their official native installers, plus Herdr's per-agent
+integrations and Fish completion. They stay outside mise deliberately — each self-updates on its own
+channel, which `install.sh --update` invokes.
 
 ## Quick Start (CachyOS)
 

@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
-# Base packages: shell tools, terminals, fonts, Docker, Git config, Fisher
+# Base packages: system layer, terminals, fonts, Fish, Docker, Git config
+#
+# Scope note: this file installs only what must come from the system package
+# manager. Developer tooling (neovim, eza, lazygit, starship, chezmoi, gh, bat,
+# fd, fzf, ripgrep, jq, zoxide) is managed by mise — see packages/mise.sh and
+# dotfiles/dot_config/mise/config.toml.
+#
+# On a rolling distro paru's versions are already current, so moving those tools
+# to mise is not about freshness — it is about this machine resolving the same
+# versions, from the same manifest, as every other machine in this repo.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -8,39 +17,29 @@ source "$SCRIPT_DIR/lib/utils.sh"
 assert_not_root
 assert_paru
 
-# ── Core packages ─────────────────────────────────────────────────────────────
-# fish, alacritty, fzf, eza, bat, ripgrep, fd likely already installed;
-# paru --needed silently skips installed packages.
-log_step "Installing core packages via paru"
+# ── Core system packages ──────────────────────────────────────────────────────
+# Deliberately short: the login shell, the terminal emulators, Docker, and the
+# handful of system utilities with no version pressure worth managing.
+# paru --needed silently skips anything already installed.
+log_step "Installing core system packages via paru"
 
 paru_install \
     fish \
-    starship \
     ghostty \
     ghostty-shell-integration \
     alacritty \
-    zoxide \
-    fzf \
-    eza \
-    bat \
-    ripgrep \
-    fd \
-    lazygit \
     docker \
     docker-compose \
-    github-cli \
-    chezmoi \
-    neovim \
     git \
     curl \
     wget \
-    jq \
+    gawk \
     zip \
     unzip \
     htop \
     btop
 
-log_success "Core packages installed"
+log_success "Core system packages installed"
 
 # ── JetBrainsMono Nerd Font (from repo) ───────────────────────────────────────
 log_step "JetBrainsMono Nerd Font"
@@ -88,23 +87,30 @@ install_fisher_plugin() {
     fi
 }
 
-install_fisher_plugin "jorgebucaran/nvm.fish"       # Node version manager (pure Fish)
+# nvm.fish is deliberately absent — Node is managed by mise. Run
+# ./migrate-legacy.sh if you are coming from a setup that had it.
 install_fisher_plugin "PatrickF1/fzf.fish"          # fzf keybindings for Fish
 install_fisher_plugin "edc/bass"                    # Bass: run bash in Fish (needed for SDKMan)
 install_fisher_plugin "meaningful-ooo/sponge"       # Clean Fish history of failed commands
 
 # ── Set Fish as default shell ─────────────────────────────────────────────────
+# Fish stays on the system package manager, not mise: it is the login shell, so
+# it has to be a real path listed in /etc/shells for `usermod -s`. Pointing a
+# login shell at a mise shim is a bad failure mode.
 log_step "Setting Fish as default shell"
 
 FISH_PATH="$(command -v fish)"
-if [[ "$SHELL" == "$FISH_PATH" ]]; then
-    log_skip "Fish is already the default shell"
+CURRENT_LOGIN_SHELL="$(getent passwd "$USER" | cut -d: -f7)"
+
+if [[ "$CURRENT_LOGIN_SHELL" == "$FISH_PATH" ]]; then
+    log_skip "Fish is already the login shell for $USER"
 else
     if ! grep -qF "$FISH_PATH" /etc/shells; then
-        echo "$FISH_PATH" | sudo tee -a /etc/shells
+        echo "$FISH_PATH" | sudo tee -a /etc/shells >/dev/null
+        log_success "$FISH_PATH added to /etc/shells"
     fi
     sudo usermod -s "$FISH_PATH" "$USER"
-    log_success "Default shell set to Fish (takes effect on next login)"
+    log_success "Login shell for $USER set to $FISH_PATH (takes effect on next login)"
 fi
 
 # ── Docker ────────────────────────────────────────────────────────────────────
@@ -156,12 +162,15 @@ git config --global diff.colorMoved zebra
 git config --global merge.conflictstyle diff3
 
 # ── GitHub CLI auth reminder ──────────────────────────────────────────────────
+# gh comes from mise, so it may not exist yet when --base runs standalone.
 if is_installed gh; then
     if ! gh auth status &>/dev/null; then
         log_warn "GitHub CLI installed but not authenticated — run: gh auth login"
     else
         log_skip "GitHub CLI already authenticated"
     fi
+else
+    log_info "GitHub CLI comes from mise — run --mise, then 'gh auth login'"
 fi
 
 log_success "base.sh complete"

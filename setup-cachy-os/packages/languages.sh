@@ -1,5 +1,20 @@
 #!/usr/bin/env bash
-# Programming languages: C/C++, Go, Rust, SDKMan, nvm.fish, uv, Anaconda
+# Programming languages that mise does NOT manage: C/C++ toolchain, Rust, SDKMan
+#
+# Node, Go, Java, Bun, Python and uv moved to mise — see packages/mise.sh and
+# dotfiles/dot_config/mise/config.toml. What is left here is what genuinely
+# does not belong in mise:
+#
+#   C/C++     system compilers and debuggers; needs system integration
+#   rustup    mise's `rust` delegates to rustup anyway, and clippy / rustfmt /
+#             rust-analyzer are per-toolchain rustup components
+#   SDKMan    kept for its non-Java candidates (kotlin, scala, maven, gradle,
+#             springboot). The JDK itself comes from mise.
+#   pynvim    a dedicated venv for Neovim's Python provider — uv's job
+#
+# Anaconda was dropped: it is a competing environment manager and having it and
+# mise both own PATH is a recipe for confusing breakage. Use mise's python plus
+# uv instead.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -7,6 +22,9 @@ source "$SCRIPT_DIR/lib/utils.sh"
 
 assert_not_root
 assert_paru
+
+# mise-managed tools (uv) are needed below. mise.sh runs first under --all.
+export PATH="$HOME/.local/share/mise/shims:$HOME/.local/bin:$PATH"
 
 # ── C / C++ toolchain ─────────────────────────────────────────────────────────
 log_step "C / C++ toolchain"
@@ -24,16 +42,6 @@ paru_install \
 
 log_success "C/C++ toolchain installed (gcc, clang, cmake, ninja, make, gdb, lldb, ccache)"
 
-# ── Go ────────────────────────────────────────────────────────────────────────
-log_step "Go"
-
-if pkg_installed go; then
-    log_skip "Go ($(go version 2>/dev/null | awk '{print $3}'))"
-else
-    paru_install go
-    log_success "Go installed: $(go version | awk '{print $3}')"
-fi
-
 # ── Rust (rustup) ─────────────────────────────────────────────────────────────
 log_step "Rust via rustup"
 
@@ -41,6 +49,7 @@ if is_installed rustup; then
     log_info "rustup already installed ($(rustup --version 2>/dev/null | head -1)) — updating"
     rustup update stable --no-self-update
 else
+    # Arch's rustup package is the upstream binary and stays current
     paru_install rustup
     rustup default stable
     log_success "Rust installed: $(rustc --version)"
@@ -50,7 +59,10 @@ fi
 rustup component add rust-analyzer clippy rustfmt 2>/dev/null || true
 log_success "Rust components: rust-analyzer, clippy, rustfmt"
 
-# Make cargo available to bash (nvim uses bash as its shell)
+# Make cargo available to bash, which is the shell Neovim shells out through.
+# Every other toolchain gets this for free from the mise shims line that
+# packages/mise.sh adds to ~/.bashrc; cargo needs its own because rustup is
+# outside mise.
 if ! grep -q 'cargo/env' "$HOME/.bashrc" 2>/dev/null; then
     echo 'source "$HOME/.cargo/env"' >> "$HOME/.bashrc"
     log_success "cargo added to ~/.bashrc (available to nvim and bash sessions)"
@@ -58,19 +70,15 @@ else
     log_skip "cargo already in ~/.bashrc"
 fi
 
-# ── uv (Python packaging & venv management) ───────────────────────────────────
-log_step "uv (Python)"
-
-if is_installed uv; then
-    log_skip "uv ($(uv --version))"
-else
-    paru_install uv
-    log_success "uv installed: $(uv --version)"
-fi
-
-# pynvim — required for the Python provider in Neovim
-# Create a dedicated venv so nvim's python3_host_prog can import pynvim directly.
+# ── pynvim (Neovim Python provider) ───────────────────────────────────────────
+# uv comes from mise. A dedicated venv lets nvim's python3_host_prog import
+# pynvim directly without touching the mise-managed python.
 log_step "pynvim (Neovim Python provider)"
+
+if ! is_installed uv; then
+    log_error "uv not found — run 'bash install.sh --mise' first"
+    exit 1
+fi
 
 NVIM_VENV="$HOME/.nvim-venv"
 if [[ -f "$NVIM_VENV/bin/python" ]] && "$NVIM_VENV/bin/python" -c "import pynvim" 2>/dev/null; then
@@ -81,16 +89,14 @@ else
     log_success "pynvim installed to $NVIM_VENV"
 fi
 
-# ── SDKMan (Java) ─────────────────────────────────────────────────────────────
-# SDKMan is bash-based; usable from Fish via the `bass` plugin (installed in base.sh)
-# Fish config.fish adds the bass integration — see dotfiles/.config/fish/config.fish
-log_step "SDKMan (Java)"
-
-# SDKMan's installer requires both zip and unzip
-if ! is_installed zip || ! is_installed unzip; then
-    log_info "Installing zip/unzip (required by SDKMan)"
-    paru_install zip unzip
-fi
+# ── SDKMan (JVM ecosystem, minus the JDK) ─────────────────────────────────────
+# SDKMan is bash-based; usable from Fish via the `bass` plugin (installed in
+# base.sh). The `sdk` wrapper lives in dotfiles/dot_config/fish/config.fish.
+#
+# Java itself is mise's (temurin-21). mise's shims are prepended after SDKMan's
+# candidate paths in config.fish, so `java` resolves to the mise JDK. Use SDKMan
+# for kotlin, scala, maven, gradle, springboot and friends.
+log_step "SDKMan (JVM ecosystem)"
 
 SDKMAN_DIR="${SDKMAN_DIR:-$HOME/.sdkman}"
 
@@ -98,61 +104,12 @@ if [[ -d "$SDKMAN_DIR" && -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]]; then
     log_skip "SDKMan ($SDKMAN_DIR)"
 else
     log_info "Installing SDKMan to $SDKMAN_DIR"
-    # SDKMAN_DIR must be exported before the installer checks it
     export SDKMAN_DIR
     curl -s "https://get.sdkman.io" | bash
     log_success "SDKMan installed"
 fi
 
-log_info "To install a JDK, open a new shell and run: sdk install java"
-
-# ── nvm.fish (Node version manager) ──────────────────────────────────────────
-# nvm.fish is a pure-Fish reimplementation of nvm installed via Fisher (see base.sh)
-# Verify it's available and install LTS Node if not present
-log_step "Node (nvm.fish)"
-
-if fish -c "type -q nvm" 2>/dev/null; then
-    # Install LTS if not already present
-    if ! fish -c "nvm list" 2>/dev/null | grep -q "lts/"; then
-        log_info "Installing Node LTS via nvm.fish"
-        fish -c "nvm install lts"
-        log_success "Node LTS installed: $(fish -c 'node --version' 2>/dev/null)"
-    else
-        log_skip "Node LTS ($(fish -c 'nvm list' 2>/dev/null | grep lts | awk '{print $1}'))"
-    fi
-
-    # Set LTS as the default so nvm.fish uses it instead of the system node.
-    # nvm_default_version is a universal variable read by nvm.fish on every shell start.
-    fish -c "set --universal nvm_default_version lts"
-    log_success "nvm default set to lts"
-
-    # neovim npm package — required for the Node.js provider in Neovim
-    # Must activate nvm first so npm points to the nvm-managed install, not system npm.
-    if fish -c "nvm use lts; npm list -g neovim" 2>/dev/null | grep -q neovim; then
-        log_skip "neovim npm package"
-    else
-        fish -c "nvm use lts; npm install -g neovim"
-        log_success "neovim npm package installed"
-    fi
-else
-    log_warn "nvm.fish not found in Fish — run --base first to install Fisher plugins"
-fi
-
-# ── Anaconda (optional — large ~1 GB) ────────────────────────────────────────
-log_step "Anaconda (optional)"
-
-if pkg_installed anaconda; then
-    log_skip "Anaconda"
-elif [[ "${SKIP_ANACONDA:-}" == "1" ]]; then
-    log_warn "Anaconda skipped (SKIP_ANACONDA=1)"
-elif confirm "Install Anaconda? (~1 GB download, takes a while)"; then
-    paru_install anaconda
-    # Conda init for Fish
-    conda init fish 2>/dev/null || true
-    log_success "Anaconda installed"
-    log_info "Run 'conda config --set auto_activate_base false' to prevent auto-activation"
-else
-    log_warn "Anaconda skipped. Install later with: paru -S anaconda"
-fi
+log_info "Java comes from mise — 'mise ls java' to check, not 'sdk install java'"
+log_info "Use SDKMan for other candidates: sdk install kotlin | maven | gradle"
 
 log_success "languages.sh complete"

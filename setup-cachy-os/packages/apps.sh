@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Desktop applications: Zed, VS Code, JetBrains Toolbox, AI CLI tools
+# Desktop applications: Zed, VS Code, JetBrains Toolbox, Copilot CLI
+#
+# The other agent CLIs (Claude Code, Codex, OpenCode, Herdr) live in agents.sh.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -52,31 +54,22 @@ else
 fi
 
 # ── GitHub Copilot CLI ────────────────────────────────────────────────────────
+# Node comes from mise, whose prefix is user-owned — no sudo, which is also what
+# fixes the EACCES failures the old `sudo npm install -g` produced here.
 log_step "GitHub Copilot CLI"
 
-if command -v copilot &>/dev/null; then
+export PATH="$HOME/.local/share/mise/shims:$PATH"
+
+if is_installed copilot; then
     log_skip "Copilot CLI ($(copilot --version 2>/dev/null || echo 'already installed'))"
+elif ! is_installed npm; then
+    log_warn "npm not found — run --mise first, then re-run --apps for Copilot CLI"
 else
-    if ! command -v npm &>/dev/null; then
-        log_warn "npm not found — install Node first (--langs), then re-run --apps for Copilot CLI"
-    else
-        sudo npm install -g @github/copilot
-        log_success "Copilot CLI installed"
-    fi
+    npm install -g @github/copilot
+    log_success "Copilot CLI installed"
 fi
 
-# ── OpenAI Codex CLI ─────────────────────────────────────────────────────────
-log_step "OpenAI Codex CLI"
-
-if command -v codex &>/dev/null; then
-    log_skip "Codex CLI"
-else
-    if ! command -v npm &>/dev/null; then
-        log_warn "npm not found — install Node first (--langs), then re-run --apps for Codex"
-    else
-        sudo npm install -g @openai/codex
-        log_success "Codex CLI installed"
-    fi
-fi
+# Codex, Claude Code, OpenCode and Herdr are installed by packages/agents.sh
+# from their official native installers — run `bash install.sh --agents`.
 
 log_success "apps.sh complete"
