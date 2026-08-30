@@ -1,11 +1,10 @@
-# Ubuntu Post-Install Setup
+# Fedora — Post-Install Setup
 
-Modular, idempotent post-install scripts for **Ubuntu** (24.04 "noble" and newer) —
-tuned for a **work laptop** (no gaming module).
+Modular, idempotent post-install scripts for **bare-metal Fedora Linux**.
 
-For Ubuntu running under WSL use [`../setup-ubuntu-wsl`](../setup-ubuntu-wsl/README.md) instead — it
-drops the terminal emulator, fonts, GUI apps and Docker Engine, none of which belong inside a WSL
-distro.
+For Fedora running under WSL use [`../setup-fedora-wsl`](../setup-fedora-wsl/README.md) instead — it
+drops the terminal emulators, fonts, GUI apps, gaming stack and Docker Engine, none of which belong
+inside a WSL distro.
 
 > **No secrets in this repo.** SSH keys are managed by 1Password. Git credentials and tokens are
 > injected at runtime via `op run` — never stored here.
@@ -14,20 +13,17 @@ distro.
 
 ## Prerequisites
 
-- Ubuntu 24.04+ (or a Debian-based distro with `apt-get` and `add-apt-repository`)
-- 1Password CLI (`op`) installed if using secret injection (recommended)
-- Internet connection
+- Fedora Workstation (tested on Fedora 42/43)
+- 1Password CLI (`op`) if using secret injection (recommended)
 
 ---
 
 ## Quick Start
 
 ```bash
-# Clone this repo
-git clone https://github.com/YOUR_USER/linux-dev-env.git
-cd linux-dev-env/setup-ubuntu
+git clone https://github.com/YOUR_USER/linux-dev-env.git ~/workspace/linux-dev-env
+cd ~/workspace/linux-dev-env/setup-fedora
 
-# Make scripts executable
 chmod +x install.sh migrate-legacy.sh packages/*.sh
 
 # Run everything at once
@@ -54,8 +50,8 @@ Then run any script with:
 op run --env-file=~/.op-env -- bash install.sh --base
 ```
 
-For SSH keys: enable the **1Password SSH agent** in 1Password Settings → Developer.
-The `config.fish` dotfile sets `SSH_AUTH_SOCK` automatically.
+For SSH keys: enable the **1Password SSH agent** in 1Password Settings → Developer. `config.fish`
+already points `SSH_AUTH_SOCK` at it.
 
 ---
 
@@ -65,14 +61,14 @@ The `config.fish` dotfile sets `SSH_AUTH_SOCK` automatically.
 bash install.sh [flags]
 
 Steps:
-  --all        Run all steps (base → mise → langs → apps → dotfiles → claude → agents)
-  --base       System layer: apt packages, Alacritty, fonts, Fish + Fisher,
+  --all        Run all steps (base → mise → langs → apps → gaming → dotfiles → agents)
+  --base       System layer: dnf packages, Ghostty/Alacritty, fonts, Fish + Fisher,
                Docker CE, Git config
   --mise       mise + every tool pinned in dotfiles/dot_config/mise/config.toml
   --langs      C/C++ toolchain, Rust (rustup), SDKMan, pynvim venv
-  --apps       Zed, VS Code, Ulauncher
+  --apps       Zed, VS Code, JetBrains Toolbox, Ulauncher
+  --gaming     Steam, Lutris, Heroic, Wine/Proton, NVIDIA
   --dotfiles   Apply dotfiles via Chezmoi
-  --claude     Symlink Claude Code config into ~/.claude/
   --agents     Install Claude Code, Codex, OpenCode, Herdr, and integrations
 
 Maintenance:
@@ -82,6 +78,8 @@ Maintenance:
 
 Flags are composable: `bash install.sh --base --mise --langs`
 
+`--claude` is currently a no-op while the skills are being rewritten.
+
 ---
 
 ## The Two Layers
@@ -90,17 +88,13 @@ Tooling is split deliberately:
 
 | Layer | Owner | What |
 |-------|-------|------|
-| **System** | `apt` | Compilers and debuggers, Fish (it is the login shell, so it must be a real path in `/etc/shells`), Alacritty, fonts, Docker Engine, git, curl, archive and system utilities |
+| **System** | `dnf` | Compilers and debuggers, Fish (it is the login shell, so it must be a real path in `/etc/shells`), Ghostty and Alacritty, fonts, Docker Engine, git, curl, archive and system utilities |
 | **Tools** | `mise` | node, go, java, bun, python, uv, neovim, and the CLI tools — bat, chezmoi, eza, fd, fzf, gh, jq, lazygit, ripgrep, starship, zoxide |
 
 Every mise-managed version lives in one file — [`dotfiles/dot_config/mise/config.toml`](../dotfiles/dot_config/mise/config.toml)
 — which is **byte-identical across every distro in this repo**. That file is the unification point:
-change a version there and it lands the same way on Ubuntu, Fedora, CachyOS and both WSL trees.
-
-This is what removed the pile of one-off installers this tree used to carry: the GitHub-release
-tarball fetches for eza, lazygit and Neovim-into-`/opt`, the standalone starship and chezmoi
-installers, the third-party apt repo for `gh`, and the `batcat`/`fdfind` symlink shims Debian's
-package naming forced on us. mise installs `bat` and `fd` under their real names.
+change a version there and it lands the same way on Fedora, CachyOS, Ubuntu and both WSL trees. No
+apt/dnf/paru package-name differences, no per-distro GitHub-release tarball scripts.
 
 ```bash
 mise ls        # what is managed, and where it came from
@@ -121,18 +115,30 @@ tool; only cargo needs its own, because rustup stays outside mise.
 
 | Tool | Source | Notes |
 |------|--------|-------|
-| fish | `ppa:fish-shell/release-4` | Shell (set as login shell), Fish 4.x |
-| alacritty | `apt` | Primary terminal (Ghostty has no apt package) |
-| git / gawk / zip / unzip / htop / btop | `apt` | System utilities with no version pressure |
-| docker-ce + compose | official Docker apt repo | Containers (user added to the `docker` group) |
-| JetBrains Mono Nerd Font | repo `fonts/` | Copied to `~/.local/share/fonts` |
+| Ghostty | COPR `scottames/ghostty` | Installed **before** fish — see the terminfo note below |
+| ncurses-term | `dnf download` + `rpm --replacefiles` | Reinstated alongside Ghostty; both ship the same `terminfo/g/ghostty` |
+| alacritty | `dnf` | Backup terminal |
+| fish | `dnf` | Shell (set as login shell) |
+| git / curl / gawk / zip / unzip / htop / btop | `dnf` | System utilities with no version pressure |
+| util-linux-user | `dnf` | Provides `chsh`/`usermod` |
+| JetBrains Mono Nerd Font | `../fonts/` | Copied to `~/.local/share/fonts` |
+| Docker CE | Docker's dnf repo | Service enabled, user added to the `docker` group |
 | Fisher + fzf.fish / bass / sponge | Fisher | Fish plugins. `nvm.fish` is gone — Node is mise's now |
+
+> **Ghostty before fish:** `ghostty` and `ncurses-term` both ship
+> `/usr/share/terminfo/g/ghostty`, and fish hard-depends on `ncurses-term`. Installing Ghostty first
+> with `--allowerasing`, then putting `ncurses-term` back with `rpm --replacefiles`, avoids fish
+> being removed as collateral later.
 
 ### `--mise` (packages/mise.sh)
 
-Installs mise from the [official APT repo](https://mise.jdx.dev/installing-mise.html) — not the curl
-installer — so mise itself upgrades with `apt upgrade` while it manages everything else. Then it
+Installs mise from the [official DNF repo](https://mise.jdx.dev/installing-mise.html) — not the curl
+installer — so mise itself upgrades with `dnf upgrade` while it manages everything else. Then it
 installs every tool in the shared manifest.
+
+This also removes the COPR dependencies this tree used to carry: `atim/starship` and `atim/lazygit`
+are no longer needed, since mise provides both. `scottames/ghostty` stays — Ghostty is still a dnf
+package.
 
 | Managed | Tools |
 |---------|-------|
@@ -153,7 +159,7 @@ Only what does *not* belong in mise:
 | Kept out of mise | Why |
 |------------------|-----|
 | C/C++ toolchain | System compilers and debuggers; needs system integration |
-| Rust (rustup) | Official rustup installer (Ubuntu's packaged rustup is often stale); mise's `rust` delegates to rustup anyway, and clippy / rustfmt / rust-analyzer are per-toolchain rustup components |
+| Rust (rustup) | Installed from `dnf` then `rustup-init`; mise's `rust` delegates to rustup anyway, and clippy / rustfmt / rust-analyzer are per-toolchain rustup components |
 | SDKMan | Kept for kotlin, scala, maven, gradle, springboot. **The JDK itself comes from mise** |
 | pynvim venv | `~/.nvim-venv` for Neovim's Python provider — uv's job |
 
@@ -162,27 +168,23 @@ PATH invites confusing breakage. Use mise's python plus uv instead.
 
 ### `--apps` (packages/apps.sh)
 
-| App | Source | Notes |
-|-----|--------|-------|
-| Zed | official installer | `zed` |
-| VS Code | Microsoft apt repo | `code` |
-| Ulauncher | `ppa:agornostal/ulauncher` | App launcher (Wayland needs a manual hotkey — see below) |
+Zed, VS Code, JetBrains Toolbox and Ulauncher.
+
+### `--gaming` (packages/gaming.sh)
+
+Steam, Lutris, Heroic, Wine/Proton and the NVIDIA driver stack.
 
 ### `--update`
 
-The gap the pre-mise setup had: eza, lazygit, starship, chezmoi and neovim were installed once and
-then never touched again, because every guard was a bare `is_installed` check. `--update` runs
-`apt upgrade` → `mise up` → `rustup update` → `fisher update` → `chezmoi apply` → agent CLI
+The gap the pre-mise setup had: eza, lazygit, starship, chezmoi, neovim and bun were installed once
+and then never touched again, because every guard was a bare `is_installed` check. `--update` runs
+`dnf upgrade` → `mise up` → `rustup update` → `fisher update` → `chezmoi apply` → agent CLI
 self-updates.
 
 ### `--dotfiles` (../dotfiles/)
 
 Applied via Chezmoi from the shared `dotfiles/` directory: Fish, Starship, Neovim (LazyVim),
 Alacritty, Ghostty, mise and Herdr.
-
-### `--claude` (packages/claude.sh)
-
-Symlinks everything in `claude-skills/dot-claude/` into `~/.claude/`.
 
 ### `--agents` (packages/agents.sh)
 
@@ -204,17 +206,9 @@ the integrations and completion file.
 
 ## After Running
 
-**Docker:** Log out and back in (or run `newgrp docker`) for the group change to take effect.
-
 **Shell:** Log out and back in for Fish to become your login shell.
 
-**Ulauncher on Wayland:** Ubuntu's default GNOME session is Wayland, where apps can't grab
-global hotkeys. Bind it manually:
-1. Ulauncher Preferences → set hotkey to something unused (e.g. `Ctrl+F23`)
-2. Settings → Keyboard → View and Customize Shortcuts → Custom Shortcuts → **+**
-   - Name: `Ulauncher`  ·  Command: `ulauncher-toggle`  ·  Shortcut: `Alt+Space`
-
-On an X11 session the default `Alt+Space` hotkey works out of the box.
+**Docker:** Log out and back in (or run `newgrp docker`) for the group change to take effect.
 
 **Tools:** `mise ls` shows everything managed and its version. `mise up` upgrades it all. If a tool
 seems missing, `mise doctor` is the first thing to run.
@@ -240,23 +234,25 @@ Fish prompt rather than closing the terminal.
 **Workspace template:** `herdr-workspace [PATH]` (a Fish function in
 `dotfiles/dot_config/fish/functions/`) creates a workspace labelled after the directory, with seven
 tabs — Research, Implement, Review, nvim, lazygit, ollama, shell — every pane a shell rooted at
-`PATH`, which defaults to the current directory. Run `herdr-workspace --help` to print the layout.
+`PATH`, which defaults to the current directory. Nothing is auto-started: the tabs are labelled
+shells, so you choose the agent per project. Run `herdr-workspace --help` to print the layout.
 
 ---
 
 ## Repository Structure
 
 ```
-setup-ubuntu/
+setup-fedora/
 ├── install.sh              # Master orchestrator
 ├── migrate-legacy.sh       # Pre-mise cleanup (dry run by default)
 ├── lib/
-│   └── utils.sh            # Shared logging & apt/PPA helpers
+│   └── utils.sh            # Shared logging & dnf/COPR helpers
 ├── packages/
-│   ├── base.sh             # System layer: apt, Alacritty, fonts, Fish, Docker, Git
+│   ├── base.sh             # System layer: dnf, terminals, fonts, Fish, Docker, Git
 │   ├── mise.sh             # mise + the shared tool manifest
 │   ├── languages.sh        # C/C++, Rust (rustup), SDKMan, pynvim
-│   ├── apps.sh             # Zed, VS Code, Ulauncher
+│   ├── apps.sh             # Zed, VS Code, JetBrains Toolbox, Ulauncher
+│   ├── gaming.sh           # Steam, Lutris, Heroic, Wine/Proton, NVIDIA
 │   ├── claude.sh           # Claude Code config symlinks
 │   └── agents.sh           # AI agents, Herdr, integrations, Fish completion
 └── tests/
@@ -282,10 +278,10 @@ It is safe by construction:
    toolchain before anything is removed.
 3. **Everything removable is backed up** to `~/.dev-env-backup-<timestamp>/` first.
 
-What it reclaims: the `nvm.fish` Fisher plugin and `~/.local/share/nvm`, `~/.bun`, the `golang-go`
-apt package, the hand-installed binaries in `/usr/local/bin` (eza, lazygit, chezmoi, starship, nvim)
-and `/opt/nvim-linux-x86_64`, the `batcat`/`fdfind` shims, the standalone `uv`, the apt packages mise
-now provides (zoxide, fzf, bat, ripgrep, fd-find, jq, gh), and `~/anaconda3`.
+What it reclaims: the `nvm.fish` Fisher plugin and `~/.local/share/nvm`, `~/.bun`, the `golang` dnf
+package, the hand-installed `eza` in `/usr/local/bin`, the standalone `uv`, the dnf/COPR packages
+mise now provides (zoxide, fzf, bat, ripgrep, fd-find, jq, chezmoi, neovim, starship, lazygit, gh),
+the now-pointless `atim/starship` and `atim/lazygit` COPRs, and `~/anaconda3`.
 
 SDKMan is **kept** — only its role narrows, from "Java and everything else JVM" to "everything else
 JVM".
@@ -296,10 +292,7 @@ the ambiguity.
 
 ---
 
-## Notes vs Other Platforms
+## Planned Work
 
-- **No gaming module** — this is a work-laptop setup.
-- **Ghostty** is not packaged for Ubuntu; Alacritty is the primary terminal.
-- With the tool layer moved to mise, this tree now differs from
-  [`../setup-fedora`](../setup-fedora/README.md) only in its system-package layer and the absence
-  of the gaming module.
+See [`../TODO.md`](../TODO.md) — Quickshell evaluation belongs to this tree, since it needs a real
+Wayland compositor.

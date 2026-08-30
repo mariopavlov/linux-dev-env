@@ -1,5 +1,16 @@
 #!/usr/bin/env bash
-# Base packages: shell tools, terminals, fonts, Docker, Git config, Fisher
+# Base packages: system layer, terminal, fonts, Fish, Docker, Git config
+#
+# Scope note: this file installs only what must come from the system package
+# manager. Developer tooling (neovim, eza, lazygit, starship, chezmoi, gh, bat,
+# fd, fzf, ripgrep, jq, zoxide) is managed by mise — see packages/mise.sh and
+# dotfiles/dot_config/mise/config.toml. That is what removed the pile of
+# GitHub-release tarball fetches this file used to carry (eza, lazygit, neovim
+# into /opt), the third-party apt repo for gh, and the `batcat`/`fdfind`
+# symlink shims Debian's package naming forced on us.
+#
+# What stays here is what a bare-metal work laptop genuinely needs from apt: the
+# terminal emulator, the fonts, the login shell, and Docker Engine.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -20,45 +31,28 @@ apt_install \
     wget \
     gnupg
 
-# ── Core packages (available in standard Ubuntu repos) ────────────────────────
-log_step "Installing core packages via apt"
+# ── Core system packages ──────────────────────────────────────────────────────
+# Deliberately short. Everything here is either a mise dependency (git, curl),
+# an archive tool needed by installers (zip/unzip), a GUI component that has no
+# business in a tool-version manager (alacritty), or a system utility with no
+# version pressure worth managing (htop/btop).
+log_step "Installing core system packages via apt"
 
 apt_install \
     alacritty \
-    zoxide \
-    fzf \
-    bat \
-    ripgrep \
-    fd-find \
     git \
-    jq \
+    gawk \
     zip \
     unzip \
     htop \
     btop
 
-log_success "Core packages installed"
-
-# ── bat / fd naming shims ─────────────────────────────────────────────────────
-# On Debian/Ubuntu these ship as `batcat` and `fdfind` to avoid name clashes.
-# Symlink the conventional names into ~/.local/bin so configs/aliases work.
-log_step "bat / fd command shims"
-
-mkdir -p "$HOME/.local/bin"
-if is_installed batcat && [[ ! -e "$HOME/.local/bin/bat" ]]; then
-    ln -sf "$(command -v batcat)" "$HOME/.local/bin/bat"
-    log_success "~/.local/bin/bat → batcat"
-else
-    log_skip "bat shim"
-fi
-if is_installed fdfind && [[ ! -e "$HOME/.local/bin/fd" ]]; then
-    ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd"
-    log_success "~/.local/bin/fd → fdfind"
-else
-    log_skip "fd shim"
-fi
+log_success "Core system packages installed"
 
 # ── Fish shell (PPA for Fish 4.x — Ubuntu's repo ships 3.x) ────────────────────
+# Fish stays on the system package manager, not mise: it is the login shell, so
+# it has to be a real path listed in /etc/shells for `usermod -s`. Pointing a
+# login shell at a mise shim is a bad failure mode.
 log_step "Fish shell"
 
 if is_installed fish; then
@@ -72,92 +66,6 @@ else
         apt_install fish
         log_success "Fish installed from Ubuntu repos"
     fi
-fi
-
-# ── starship (official installer — not in Ubuntu repos) ───────────────────────
-log_step "starship"
-
-if is_installed starship; then
-    log_skip "starship ($(starship --version | head -1))"
-else
-    curl -sS https://starship.rs/install.sh | sh -s -- -y
-    log_success "starship installed"
-fi
-
-# ── eza (GitHub releases binary — not in Ubuntu repos) ────────────────────────
-log_step "eza"
-
-if is_installed eza; then
-    log_skip "eza"
-else
-    _EZA_TMP="$(mktemp -d)"
-    curl -Lo "$_EZA_TMP/eza.tar.gz" \
-        "https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-musl.tar.gz"
-    tar -xzf "$_EZA_TMP/eza.tar.gz" -C "$_EZA_TMP"
-    sudo install -m 755 "$_EZA_TMP/eza" /usr/local/bin/eza
-    rm -rf "$_EZA_TMP"
-    log_success "eza installed from GitHub releases"
-fi
-
-# ── lazygit (GitHub releases binary — not in Ubuntu repos) ────────────────────
-log_step "lazygit"
-
-if is_installed lazygit; then
-    log_skip "lazygit ($(lazygit --version | head -1))"
-else
-    _LG_TMP="$(mktemp -d)"
-    _LG_VER="$(curl -fsSL 'https://api.github.com/repos/jesseduffield/lazygit/releases/latest' \
-        | grep -Po '"tag_name": *"v\K[^"]*')"
-    curl -Lo "$_LG_TMP/lazygit.tar.gz" \
-        "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${_LG_VER}_Linux_x86_64.tar.gz"
-    tar -xzf "$_LG_TMP/lazygit.tar.gz" -C "$_LG_TMP" lazygit
-    sudo install -m 755 "$_LG_TMP/lazygit" /usr/local/bin/lazygit
-    rm -rf "$_LG_TMP"
-    log_success "lazygit $_LG_VER installed from GitHub releases"
-fi
-
-# ── chezmoi (official installer — not in Ubuntu repos) ────────────────────────
-log_step "chezmoi"
-
-if is_installed chezmoi; then
-    log_skip "chezmoi ($(chezmoi --version | head -1))"
-else
-    sudo sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /usr/local/bin
-    log_success "chezmoi installed to /usr/local/bin"
-fi
-
-# ── Neovim (GitHub release tarball — Ubuntu's apt version is too old for LazyVim)
-log_step "Neovim"
-
-NVIM_DIR="/opt/nvim-linux-x86_64"
-if is_installed nvim && [[ -x "$NVIM_DIR/bin/nvim" ]]; then
-    log_skip "Neovim ($(nvim --version | head -1))"
-else
-    _NVIM_TMP="$(mktemp -d)"
-    curl -Lo "$_NVIM_TMP/nvim.tar.gz" \
-        "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz"
-    sudo rm -rf "$NVIM_DIR"
-    sudo tar -C /opt -xzf "$_NVIM_TMP/nvim.tar.gz"
-    sudo ln -sf "$NVIM_DIR/bin/nvim" /usr/local/bin/nvim
-    rm -rf "$_NVIM_TMP"
-    log_success "Neovim installed: $(nvim --version | head -1)"
-fi
-
-# ── GitHub CLI (official GitHub apt repo) ─────────────────────────────────────
-log_step "GitHub CLI"
-
-if is_installed gh; then
-    log_skip "GitHub CLI ($(gh --version | head -1))"
-else
-    sudo mkdir -p -m 755 /etc/apt/keyrings
-    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
-        | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg >/dev/null
-    sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
-        | sudo tee /etc/apt/sources.list.d/github-cli.list >/dev/null
-    APT_UPDATED=false
-    apt_install gh
-    log_success "GitHub CLI installed"
 fi
 
 # ── JetBrainsMono Nerd Font (from repo) ───────────────────────────────────────
@@ -206,7 +114,8 @@ install_fisher_plugin() {
     fi
 }
 
-install_fisher_plugin "jorgebucaran/nvm.fish"       # Node version manager (pure Fish)
+# nvm.fish is deliberately absent — Node is managed by mise. Run
+# ./migrate-legacy.sh if you are coming from a setup that had it.
 install_fisher_plugin "PatrickF1/fzf.fish"          # fzf keybindings for Fish
 install_fisher_plugin "edc/bass"                    # Bass: run bash in Fish (needed for SDKMan)
 install_fisher_plugin "meaningful-ooo/sponge"       # Clean Fish history of failed commands
@@ -215,14 +124,17 @@ install_fisher_plugin "meaningful-ooo/sponge"       # Clean Fish history of fail
 log_step "Setting Fish as default shell"
 
 FISH_PATH="$(command -v fish)"
-if [[ "$SHELL" == "$FISH_PATH" ]]; then
-    log_skip "Fish is already the default shell"
+CURRENT_LOGIN_SHELL="$(getent passwd "$USER" | cut -d: -f7)"
+
+if [[ "$CURRENT_LOGIN_SHELL" == "$FISH_PATH" ]]; then
+    log_skip "Fish is already the login shell for $USER"
 else
     if ! grep -qF "$FISH_PATH" /etc/shells; then
-        echo "$FISH_PATH" | sudo tee -a /etc/shells
+        echo "$FISH_PATH" | sudo tee -a /etc/shells >/dev/null
+        log_success "$FISH_PATH added to /etc/shells"
     fi
     sudo usermod -s "$FISH_PATH" "$USER"
-    log_success "Default shell set to Fish (takes effect on next login)"
+    log_success "Login shell for $USER set to $FISH_PATH (takes effect on next login)"
 fi
 
 # ── Docker CE (official Docker apt repo) ──────────────────────────────────────
@@ -296,12 +208,15 @@ git config --global diff.colorMoved zebra
 git config --global merge.conflictstyle diff3
 
 # ── GitHub CLI auth reminder ──────────────────────────────────────────────────
+# gh comes from mise, so it may not exist yet when --base runs standalone.
 if is_installed gh; then
     if ! gh auth status &>/dev/null; then
         log_warn "GitHub CLI installed but not authenticated — run: gh auth login"
     else
         log_skip "GitHub CLI already authenticated"
     fi
+else
+    log_info "GitHub CLI comes from mise — run --mise, then 'gh auth login'"
 fi
 
 log_success "base.sh complete"
