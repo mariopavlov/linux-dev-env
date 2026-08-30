@@ -16,6 +16,7 @@ agent_panel_sort = "spaces"
 # the default weight. `dim` is deliberately never set here - herdr uses it to
 # render unselected rows, so setting it flattens the selection distinction.
 # row_gap is left at 0; the only other value is 1, a full blank text row.
+show_agent_labels_on_pane_borders = true
 [ui.sidebar.agents]
 rows = [
   [
@@ -27,6 +28,9 @@ rows = [
     { token = "agent",     fg = "#98BB6C" },
   ],
 ]
+
+[ui.toast]
+delivery = "system"
 
 # Spaces panel.
 # NOTE: an explicit `fg` is rendered literally and is NOT dimmed, so any token
