@@ -57,6 +57,11 @@ if command -q paru
     abbr -a cleanup 'paru -Sc'
 end
 
+# ── HTTP / JSON ───────────────────────────────────────────────────────────────
+# Expands inline with the cursor on the URL, so curl flags and jq filters
+# stay editable: `jc` + space → curl -sS ▮ | jq
+abbr -a --set-cursor jc 'curl -sS % | jq'
+
 # ── Misc ──────────────────────────────────────────────────────────────────────
 abbr -a reload 'source ~/.config/fish/config.fish'
 abbr -a path   'echo $PATH | tr " " "\n"'
