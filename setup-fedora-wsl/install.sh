@@ -40,7 +40,7 @@ Steps
 
 Maintenance
   --update     Update everything already installed. Not part of --all:
-               dnf upgrade → mise up → rustup update → fisher update →
+               dnf upgrade → Flatpak → mise up → rustup update → fisher update →
                chezmoi apply → agent CLI self-updates
   -h, --help   Show this help
 
@@ -112,6 +112,14 @@ if $RUN_UPDATE; then
     log_step "System packages (dnf)"
     sudo dnf upgrade -y
     log_success "dnf packages upgraded"
+
+    if is_installed flatpak; then
+        log_step "Flatpak applications"
+        flatpak update -y
+        log_success "Flatpak applications updated"
+    else
+        log_skip "Flatpak (not installed)"
+    fi
 
     if is_installed mise; then
         log_step "mise tools"

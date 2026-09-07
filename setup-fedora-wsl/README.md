@@ -164,8 +164,9 @@ PATH invites confusing breakage. Use mise's python plus uv instead.
 
 The gap the pre-mise setup had: eza, lazygit, starship, chezmoi, neovim and bun were installed once
 and then never touched again, because every guard was a bare `is_installed` check. `--update` runs
-`dnf upgrade` → `mise up` → `rustup update` → `fisher update` → `chezmoi apply` → agent CLI
-self-updates.
+`dnf upgrade` → `flatpak update` (when installed) → `mise up` → `rustup update` →
+`fisher update` → `chezmoi apply` → agent CLI self-updates. Firmware is intentionally left to
+the Windows host.
 
 ### `--dotfiles` (../dotfiles/)
 

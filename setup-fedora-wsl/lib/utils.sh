@@ -29,6 +29,11 @@ pkg_installed() {
     rpm -q "$1" &>/dev/null
 }
 
+# is_wsl — true if running inside a WSL distro
+is_wsl() {
+    [[ -n "${WSL_DISTRO_NAME:-}" ]] || grep -qi microsoft /proc/version 2>/dev/null
+}
+
 # assert_not_root — exit if running as root
 assert_not_root() {
     if [[ $EUID -eq 0 ]]; then

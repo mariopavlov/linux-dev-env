@@ -41,8 +41,8 @@ Steps
 
 Maintenance
   --update     Update everything already installed. Not part of --all:
-               dnf upgrade → mise up → rustup update → fisher update →
-               chezmoi apply → agent CLI self-updates
+               dnf upgrade → Flatpak → mise up → rustup update → fisher update →
+               chezmoi apply → agent CLI self-updates → firmware check
   -h, --help   Show this help
 
 Migrating from the pre-mise setup
@@ -117,6 +117,14 @@ if $RUN_UPDATE; then
     sudo dnf upgrade -y
     log_success "dnf packages upgraded"
 
+    if is_installed flatpak; then
+        log_step "Flatpak applications"
+        flatpak update -y
+        log_success "Flatpak applications updated"
+    else
+        log_skip "Flatpak (not installed)"
+    fi
+
     if is_installed mise; then
         log_step "mise tools"
         mise up --yes
@@ -159,6 +167,22 @@ if $RUN_UPDATE; then
     is_installed herdr    && { herdr self update   || log_warn "herdr self update failed"; }
     is_installed codex    && log_info "codex: self-updates on launch"
     log_success "Agent CLIs updated"
+
+    if is_installed fwupdmgr; then
+        log_step "Firmware"
+        if fwupdmgr get-updates; then
+            if confirm "Install the listed firmware updates?"; then
+                sudo fwupdmgr update
+                log_success "Firmware updates installed"
+            else
+                log_info "Firmware updates declined"
+            fi
+        else
+            log_info "No firmware updates available"
+        fi
+    else
+        log_info "Firmware skipped (fwupdmgr not installed)"
+    fi
 
     echo ""
     echo -e "${BOLD}${GREEN}Update complete!${RESET}"
