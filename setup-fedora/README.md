@@ -178,8 +178,9 @@ Steam, Lutris, Heroic, Wine/Proton and the NVIDIA driver stack.
 
 The gap the pre-mise setup had: eza, lazygit, starship, chezmoi, neovim and bun were installed once
 and then never touched again, because every guard was a bare `is_installed` check. `--update` runs
-`dnf upgrade` → `mise up` → `rustup update` → `fisher update` → `chezmoi apply` → agent CLI
-self-updates.
+`dnf upgrade` → `flatpak update` (when installed) → `mise up` → `rustup update` →
+`fisher update` → `chezmoi apply` → agent CLI self-updates → firmware listing and confirmation
+(when `fwupdmgr` is installed).
 
 ### `--dotfiles` (../dotfiles/)
 
