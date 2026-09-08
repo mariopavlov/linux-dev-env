@@ -11,7 +11,7 @@ set -gx SSH_AUTH_SOCK "$HOME/.1password/agent.sock"
 # mise does not manage here.
 #
 # Ordering matters: this block runs BEFORE `mise activate` below, so mise's
-# shims end up ahead of SDKMan's candidate paths and mise's JDK wins for `java`.
+# tool paths (or shims) precede SDKMan's candidate paths and mise's JDK wins.
 if test -d "$HOME/.sdkman/candidates"
     for candidate_bin in $HOME/.sdkman/candidates/*/current/bin
         if test -d "$candidate_bin"
@@ -40,10 +40,16 @@ fish_add_path "$HOME/.local/bin"
 fish_add_path "$HOME/.opencode/bin"
 
 # ── mise (tool version manager) ───────────────────────────────────────────────
-# Must come after the fish_add_path calls above so mise's shims take precedence.
+# Must come after fish_add_path so mise's tool paths (or shims) take precedence.
 # Manages: node, go, java, bun, python, uv, neovim and the CLI tools.
+# IDE discovery needs shims in non-interactive shells; terminals use hooks.
+# https://mise.jdx.dev/ide-integration.html
 if command -q mise
-    mise activate fish | source
+    if status is-interactive
+        mise activate fish | source
+    else
+        mise activate fish --shims | source
+    end
 end
 
 # ── Tool initialisation ───────────────────────────────────────────────────────
