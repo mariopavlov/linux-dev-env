@@ -89,7 +89,7 @@ Tooling is split deliberately:
 | Layer | Owner | What |
 |-------|-------|------|
 | **System** | `dnf` | Compilers and debuggers, Fish (it is the login shell, so it must be a real path in `/etc/shells`), Ghostty and Alacritty, fonts, Docker Engine, git, curl, archive and system utilities |
-| **Tools** | `mise` | node, go, java, bun, python, uv, neovim, and the CLI tools — bat, chezmoi, eza, fd, fzf, gh, jq, lazygit, ripgrep, starship, zoxide |
+| **Tools** | `mise` | node, go, java, bun, python, uv, neovim, and the CLI tools — bat, chezmoi, eza, fd, fzf, gh, jq, k9s, lazygit, ripgrep, starship, zoxide |
 
 Every mise-managed version lives in one file — [`dotfiles/dot_config/mise/config.toml`](../dotfiles/dot_config/mise/config.toml)
 — which is **byte-identical across every distro in this repo**. That file is the unification point:
@@ -145,7 +145,7 @@ package.
 | Runtimes | node (lts), go, bun, python, java (temurin-21) |
 | Python tooling | uv |
 | Editor | neovim, `npm:neovim` (the Node provider, pinned as a tool so it survives a Node version change) |
-| CLI | bat, chezmoi, eza, fd, fzf, gh, jq, lazygit, ripgrep, starship, zoxide |
+| CLI | bat, chezmoi, eza, fd, fzf, gh, jq, k9s, lazygit, ripgrep, starship, zoxide |
 | Agent tooling | [beads](https://github.com/gastownhall/beads) (`bd`) — declared as `github:gastownhall/beads`, since it is not in the mise registry |
 
 > Chezmoi normally owns `~/.config/mise/config.toml`, but chezmoi is itself a mise-managed tool.

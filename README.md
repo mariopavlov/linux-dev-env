@@ -20,7 +20,7 @@ scripts thin:
 
 | Shared | Path | What it owns |
 |--------|------|--------------|
-| **Tool manifest** | [`dotfiles/dot_config/mise/config.toml`](dotfiles/dot_config/mise/config.toml) | node, go, java, bun, python, uv, neovim and the CLI tools (bat, chezmoi, eza, fd, fzf, gh, jq, lazygit, ripgrep, starship, zoxide) — plus beads (`bd`) — pinned once, identical everywhere |
+| **Tool manifest** | [`dotfiles/dot_config/mise/config.toml`](dotfiles/dot_config/mise/config.toml) | node, go, java, bun, python, uv, neovim and the CLI tools (bat, chezmoi, eza, fd, fzf, gh, jq, k9s, lazygit, ripgrep, starship, zoxide) — plus beads (`bd`) — pinned once, identical everywhere |
 | **Dotfiles** | [`dotfiles/`](dotfiles/) | Fish, Starship, Neovim (LazyVim), Alacritty, Ghostty — applied with Chezmoi |
 
 Each `setup-*/` directory then only has to cover what genuinely differs: the system package
