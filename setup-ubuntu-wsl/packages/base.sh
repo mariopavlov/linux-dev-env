@@ -34,6 +34,11 @@ apt_install \
 # Deliberately short. Everything here is either a mise dependency (git, curl),
 # an archive tool needed by installers (zip/unzip), or a system utility with no
 # version pressure worth managing (htop/btop).
+# libicu-dev pulls the ICU runtime (libicuXX). Marksman — the Markdown LSP
+# Mason installs for LazyVim — is a .NET single-file binary and aborts with
+# "Couldn't find a valid ICU package installed on the system." without it.
+# -dev is the only name that is stable across Ubuntu releases; the runtime
+# package is version-suffixed and renames every cycle.
 log_step "Installing core system packages via apt"
 
 apt_install \
@@ -42,7 +47,8 @@ apt_install \
     zip \
     unzip \
     htop \
-    btop
+    btop \
+    libicu-dev
 
 log_success "Core system packages installed"
 

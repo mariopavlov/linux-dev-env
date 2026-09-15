@@ -40,6 +40,9 @@ sudo dnf install -y dnf5-plugin-copr 2>/dev/null || \
 # an archive tool needed by installers (zip/unzip), a system utility with no
 # version pressure worth managing (htop/btop), or required for `chsh`/`usermod`
 # (util-linux-user).
+# libicu is the ICU runtime. Marksman — the Markdown LSP Mason installs for
+# LazyVim — is a .NET single-file binary and aborts with "Couldn't find a valid
+# ICU package installed on the system." without it.
 log_step "Installing core system packages via dnf"
 
 dnf_install \
@@ -50,6 +53,7 @@ dnf_install \
     unzip \
     htop \
     btop \
+    libicu \
     util-linux-user
 
 log_success "Core system packages installed"
