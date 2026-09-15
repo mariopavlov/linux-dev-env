@@ -21,6 +21,9 @@ assert_paru
 # Deliberately short: the login shell, the terminal emulators, Docker, and the
 # handful of system utilities with no version pressure worth managing.
 # paru --needed silently skips anything already installed.
+# icu is the ICU runtime. Marksman — the Markdown LSP Mason installs for
+# LazyVim — is a .NET single-file binary and aborts with "Couldn't find a valid
+# ICU package installed on the system." without it.
 log_step "Installing core system packages via paru"
 
 paru_install \
@@ -37,7 +40,8 @@ paru_install \
     zip \
     unzip \
     htop \
-    btop
+    btop \
+    icu
 
 log_success "Core system packages installed"
 
