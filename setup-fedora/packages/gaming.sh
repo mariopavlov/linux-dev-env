@@ -101,13 +101,13 @@ fi
 if [[ "$GPU_CONFIG" == "amd_nvidia" ]]; then
     log_step "KWin display configuration (exclude unused AMD iGPU)"
 
-    _NVIDIA_PCI_SLOT=$(lspci -D | grep -iE 'nvidia.*(VGA|3D)' | head -1 | awk '{print $1}')
+    _NVIDIA_PCI_SLOT=$(lspci -D | grep -iE '(VGA|3D).*nvidia' | head -1 | awk '{print $1}' || true)
     _NVIDIA_CARD=""
     if [[ -n "$_NVIDIA_PCI_SLOT" ]]; then
         _NVIDIA_CARD=$(readlink -f "/dev/dri/by-path/pci-${_NVIDIA_PCI_SLOT}-card" 2>/dev/null || true)
     fi
 
-    if [[ -b "$_NVIDIA_CARD" ]]; then
+    if [[ -c "$_NVIDIA_CARD" ]]; then
         _KWIN_CONF="/etc/environment.d/kwin-gpu.conf"
         sudo mkdir -p /etc/environment.d
         if [[ -f "$_KWIN_CONF" ]] && grep -q "KWIN_DRM_DEVICES=$_NVIDIA_CARD" "$_KWIN_CONF"; then
@@ -139,11 +139,13 @@ if $HAS_INTEL_GPU; then
     log_success "Intel Vulkan (ANV) available via mesa-vulkan-drivers"
 fi
 
-# AMD GPU Vulkan (RADV driver — ships in mesa)
+# AMD GPU Vulkan (RADV driver — ships in mesa-vulkan-drivers, installed above).
+# mesa-vdpau-drivers was dropped from Fedora with Mesa 26 and mesa-va-drivers
+# only exists as the RPM Fusion -freeworld build; neither matters for a
+# display-less iGPU, so nothing extra is installed here.
 if $HAS_AMD_GPU; then
     log_step "AMD GPU Vulkan (RADV)"
-    dnf_install mesa-vulkan-drivers mesa-va-drivers mesa-vdpau-drivers
-    log_success "AMD Vulkan (RADV) available via mesa-vulkan-drivers"
+    log_skip "RADV provided by mesa-vulkan-drivers"
 fi
 
 # ── Steam ─────────────────────────────────────────────────────────────────────
