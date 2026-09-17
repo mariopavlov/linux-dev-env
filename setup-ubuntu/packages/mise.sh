@@ -16,7 +16,7 @@ assert_apt
 log_step "mise"
 
 if is_installed mise; then
-    log_skip "mise ($(mise --version))"
+    log_skip "mise ($(MISE_OFFLINE=1 mise --version))"
 else
     sudo install -dm 755 /etc/apt/keyrings
     curl -fsSL https://mise.jdx.dev/gpg-key.pub \
@@ -26,7 +26,7 @@ else
         | sudo tee /etc/apt/sources.list.d/mise.list >/dev/null
     APT_UPDATED=false
     apt_install mise
-    log_success "mise installed: $(mise --version)"
+    log_success "mise installed: $(MISE_OFFLINE=1 mise --version)"
 fi
 
 # ── Install the shared tool manifest ──────────────────────────────────────────
