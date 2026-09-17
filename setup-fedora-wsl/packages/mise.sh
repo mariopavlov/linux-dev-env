@@ -16,11 +16,11 @@ assert_dnf
 log_step "mise"
 
 if is_installed mise; then
-    log_skip "mise ($(mise --version))"
+    log_skip "mise ($(MISE_OFFLINE=1 mise --version))"
 else
     sudo dnf config-manager addrepo --from-repofile=https://mise.jdx.dev/rpm/mise.repo
     sudo dnf install -y mise
-    log_success "mise installed: $(mise --version)"
+    log_success "mise installed: $(MISE_OFFLINE=1 mise --version)"
 fi
 
 # ── Install the shared tool manifest ──────────────────────────────────────────
