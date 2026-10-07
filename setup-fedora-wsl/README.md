@@ -276,6 +276,12 @@ behaves identically inside and outside Herdr, and Ctrl+Enter keeps working. In `
 
 To see what any key actually sends, run `showkey -a` in a pane and press it.
 
+`settings.json` lives on the Windows side
+(`%LOCALAPPDATA%\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json`), outside
+this repo, and Windows Terminal can rewrite it (it was reset on 2026-09-25). If Shift+Enter starts
+submitting again, check that the action and keybinding above are still there. Use the `LF` binding
+above, not an escape-based one such as `\u001b\r`.
+
 ---
 
 ## Repository Structure
