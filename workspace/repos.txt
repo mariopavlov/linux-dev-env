@@ -1,0 +1,27 @@
+# Workspace repositories — one clone URL per line.
+# Restore: workspace-repos restore   (clones into $GHQ_ROOT/<host>/<path>)
+# Export:  workspace-repos export    (rewrites this file from disk)
+
+git@github.com:mariopavlov/linux-dev-env.git
+git@github.com:mariopavlov/perigee.git
+git@gitlab.ontotext.com:delivery/dev-examples/adb-exploratory-deployment.git
+git@gitlab.ontotext.com:delivery/dev-examples/graphdb-mtls-check.git
+git@gitlab.ontotext.com:graphdb-team/graphdb.git
+git@gitlab.ontotext.com:graphdb-team/gwp-connectors/aem-connector.git
+git@gitlab.ontotext.com:graphdb-team/gwp-connectors/azure-power-platform.git
+git@gitlab.ontotext.com:graphdb-team/gwp-connectors/azure-tagging.git
+git@gitlab.ontotext.com:graphdb-team/gwp-connectors/azure-term-store-synchronization.git
+git@gitlab.ontotext.com:graphdb-team/gwp-connectors/gwc-deployment.git
+git@gitlab.ontotext.com:graphdb-team/gwp-connectors/m365-automation.git
+git@gitlab.ontotext.com:graphdb-team/gwp-connectors/m365-autotests.git
+git@gitlab.ontotext.com:graphdb-team/gwp-connectors/m365-client.git
+git@gitlab.ontotext.com:graphdb-team/gwp-connectors/m365-copilot.git
+git@gitlab.ontotext.com:graphdb-team/gwp-connectors/m365-n8n-tss-workflows.git
+git@gitlab.ontotext.com:graphdb-team/gwp-connectors/m365-n8n-workflows.git
+git@gitlab.ontotext.com:graphdb-team/gwp-connectors/m365-workflows.git
+git@gitlab.ontotext.com:graphdb-team/gwp-connectors/n8n-nodes-poolparty-extractor-http.git
+git@gitlab.ontotext.com:graphdb-team/poolparty.git
+git@gitlab.ontotext.com:managed-services/clients-ms/siemens/siemens-building-x.git
+git@gitlab.ontotext.com:managed-services/internal-ms/m365.git
+git@gitlab.ontotext.com:mpavlov-work/clients/roche/roche-graphql-lab.git
+git@gitlab.ontotext.com:mpavlov-work/clients/siemens/siemens-graphdb-mtls-lab.git

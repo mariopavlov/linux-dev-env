@@ -70,6 +70,11 @@ end
 set -gx EDITOR nvim
 set -gx VISUAL nvim
 
+# ── Workspace (ghq) ───────────────────────────────────────────────────────────
+# Repos live at $GHQ_ROOT/<host>/<path>, mirroring their remote URL.
+# `workspace-repos` exports/restores them via workspace/repos.txt in this repo.
+set -gx GHQ_ROOT "$HOME/workspace"
+
 # ── Bat theme ─────────────────────────────────────────────────────────────────
 set -gx BAT_THEME TwoDark
 
