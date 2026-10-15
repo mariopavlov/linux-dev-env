@@ -1,0 +1,4 @@
+{{- /* lazy.nvim writes its lockfile here; the symlink points it at the
+       repo copy so `:Lazy update` lands in git instead of drifting. The real
+       file is dot-prefixed so Chezmoi does not also deploy it. */ -}}
+{{ joinPath .chezmoi.sourceDir "dot_config/nvim/.lazy-lock.json" }}
