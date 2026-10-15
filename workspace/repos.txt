@@ -1,6 +1,4 @@
-# Workspace repositories — one clone URL per line.
-# Restore: workspace-repos restore   (clones into $GHQ_ROOT/<host>/<path>)
-# Export:  workspace-repos export    (rewrites this file from disk)
-
+# Personal repos — cloned by `install.sh --update`. One clone URL per line;
+# ghq places each at ~/workspace/<host>/<path>.
 git@github.com:mariopavlov/linux-dev-env.git
 git@github.com:mariopavlov/perigee.git
