@@ -21,7 +21,7 @@
 node   = "lts"
 go     = "latest"
 bun    = "latest"
-python = "3.13"
+python = "latest"
 
 # Java. SDKMan is still installed for its other candidates (kotlin, scala,
 # springboot, …); mise's shims are prepended after SDKMan's paths in
