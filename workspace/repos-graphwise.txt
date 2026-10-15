@@ -24,3 +24,4 @@ git@gitlab.ontotext.com:mpavlov-work/clients/siemens/siemens-graphdb-mtls-lab.gi
 git@gitlab.ontotext.com:managed-services/terraform-azure-graphwise-platform.git
 git@gitlab.ontotext.com:managed-services/migration-to-kubernetes.git
 git@gitlab.ontotext.com:managed-services/clients-ms/ey/ey-deployments-aks.git
+git@gitlab.ontotext.com:mpavlov-work/wkl/wkl-terraform-env.git
