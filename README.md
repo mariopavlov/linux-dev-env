@@ -32,17 +32,27 @@ manager, the compilers, and the login shell.
 
 ## Workspace Repositories
 
-[`workspace/repos.txt`](workspace/repos.txt) lists every git repo under `~/workspace`, one clone
-URL per line. Repos are laid out by [ghq](https://github.com/x-motemen/ghq) mirroring their remote
-URL (`~/workspace/github.com/mariopavlov/perigee`, `~/workspace/gitlab.ontotext.com/<group>/…/<repo>`),
-so the manifest needs no paths. The `workspace-repos` Fish function drives it:
+Every repo lives at `~/workspace/<host>/<path>`, mirroring its remote URL, as laid out by
+[ghq](https://github.com/x-motemen/ghq) (`git config --global ghq.root ~/workspace`, set by
+`--dotfiles` and `--update`). The manifests under [`workspace/`](workspace/) are plain lists of
+clone URLs:
+
+| Manifest | Cloned by |
+|----------|-----------|
+| [`repos.txt`](workspace/repos.txt) — personal | `install.sh --update` (always) |
+| [`repos-graphwise.txt`](workspace/repos-graphwise.txt) — work | `install.sh --update --repos graphwise` |
+
+To add a repo, append its URL to the right manifest, commit, and on each machine run `--update`
+or, from any folder, the Fish wrapper:
 
 ```fish
-workspace-repos export    # scan ~/workspace and rewrite workspace/repos.txt (then commit it)
-workspace-repos restore   # on a new machine: clone everything missing (ghq get --parallel)
+workspace-repos update              # personal (default)
+workspace-repos update graphwise    # work
+workspace-repos update all          # every manifest
 ```
 
-Repos without an `origin` remote are reported and skipped — back those up separately.
+Repos already present are left alone (no pull). The SSH keys for GitHub/GitLab must work first.
+`--repos SET` also works without `--update`, and a new `repos-SET.txt` needs no code change.
 
 ## Agentic Tooling
 

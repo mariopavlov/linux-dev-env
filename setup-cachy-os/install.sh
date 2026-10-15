@@ -44,6 +44,9 @@ Maintenance
   --update     Update everything already installed. Not part of --all:
                paru -Syu → mise up → rustup update → fisher update →
                chezmoi apply → lazy.nvim sync → agent CLI self-updates
+  --repos SET  Also clone the missing repos in workspace/repos-SET.txt,
+               e.g. --repos graphwise (repeatable). --update and --repos
+               always clone workspace/repos.txt (personal).
   -h, --help   Show this help
 
 Migrating from the pre-mise setup
@@ -54,6 +57,7 @@ Examples
   bash install.sh --all
   bash install.sh --base --mise --langs
   bash install.sh --update
+  bash install.sh --update --repos graphwise
   op run --env-file=~/.op-env -- bash install.sh --all
 USAGE
 }
@@ -68,13 +72,15 @@ RUN_DOTFILES=false
 RUN_CLAUDE=false
 RUN_AGENTS=false
 RUN_UPDATE=false
+REPO_SETS=()
 
 if [[ $# -eq 0 ]]; then
     usage
     exit 0
 fi
 
-for arg in "$@"; do
+while [[ $# -gt 0 ]]; do
+    arg="$1"; shift
     case "$arg" in
         --all)      RUN_BASE=true; RUN_MISE=true; RUN_LANGS=true; RUN_APPS=true
                     RUN_GAMING=true; RUN_DOTFILES=true; RUN_CLAUDE=true; RUN_AGENTS=true ;;
@@ -87,6 +93,8 @@ for arg in "$@"; do
         --claude)   RUN_CLAUDE=true ;;
         --agents)   RUN_AGENTS=true ;;
         --update)   RUN_UPDATE=true ;;
+        --repos)    [[ $# -gt 0 ]] || { log_error "--repos needs a set name"; exit 1; }
+                    REPO_SETS+=("$1"); shift ;;
         -h|--help)  usage; exit 0 ;;
         *) log_error "Unknown flag: $arg"; echo ""; usage; exit 1 ;;
     esac
@@ -207,6 +215,14 @@ if $RUN_DOTFILES; then
     log_info "Applying dotfiles from $DOTFILES_SRC"
     chezmoi apply --source="$DOTFILES_SRC" --verbose
     log_success "Dotfiles applied"
+    git config --global ghq.root "$HOME/workspace"
+fi
+
+# ── Workspace repos ───────────────────────────────────────────────────────────
+# Clones whatever the manifests list but this machine lacks; existing repos
+# are left alone. Needs the GitHub/GitLab SSH keys to work already.
+if $RUN_UPDATE || [[ ${#REPO_SETS[@]} -gt 0 ]]; then
+    run_step "Workspace repos" bash "$SCRIPT_DIR/../workspace/clone.sh" personal "${REPO_SETS[@]}"
 fi
 
 if $RUN_CLAUDE; then
