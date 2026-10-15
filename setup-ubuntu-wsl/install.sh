@@ -41,7 +41,7 @@ Steps
 Maintenance
   --update     Update everything already installed. Not part of --all:
                apt upgrade → mise up → rustup update → fisher update →
-               chezmoi apply → agent CLI self-updates
+               chezmoi apply → lazy.nvim sync → agent CLI self-updates
   -h, --help   Show this help
 
 Migrating from the pre-mise setup
@@ -147,6 +147,15 @@ if $RUN_UPDATE; then
         log_step "Dotfiles (Chezmoi)"
         chezmoi apply --source="$SCRIPT_DIR/../dotfiles" --verbose
         log_success "Dotfiles re-applied"
+
+        # lazy-lock.json is a symlink into this repo, so the sync writes the new
+        # plugin pins straight into git: review with `git diff`, commit, or
+        # `git checkout` the lockfile + `:Lazy restore` to roll back.
+        if is_installed nvim; then
+            log_step "Neovim plugins (lazy.nvim)"
+            nvim --headless "+Lazy! sync" +qa
+            log_success "Neovim plugins synced — commit dotfiles/dot_config/nvim/.lazy-lock.json"
+        fi
     else
         log_skip "chezmoi (not installed)"
     fi
