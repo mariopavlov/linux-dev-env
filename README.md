@@ -20,7 +20,7 @@ scripts thin:
 
 | Shared | Path | What it owns |
 |--------|------|--------------|
-| **Tool manifest** | [`dotfiles/dot_config/mise/config.toml`](dotfiles/dot_config/mise/config.toml) | node, go, java, bun, python, uv, neovim and the CLI tools (bat, chezmoi, eza, fd, fzf, gh, glab, jq, k9s, lazygit, ripgrep, starship, zoxide) — plus beads (`bd`) — pinned once, identical everywhere |
+| **Tool manifest** | [`dotfiles/dot_config/mise/config.toml`](dotfiles/dot_config/mise/config.toml) | node, go, java, bun, python, uv, neovim and the CLI tools (bat, chezmoi, eza, fd, fzf, gh, ghq, glab, jq, k9s, lazygit, ripgrep, starship, zoxide) — plus beads (`bd`) — pinned once, identical everywhere |
 | **Dotfiles** | [`dotfiles/`](dotfiles/) | Fish, Starship, Neovim (LazyVim), Alacritty, Ghostty — applied with Chezmoi |
 
 Each `setup-*/` directory then only has to cover what genuinely differs: the system package
@@ -29,6 +29,20 @@ manager, the compilers, and the login shell.
 > **Status:** every platform directory is on the mise split. Each one exposes the same step flags —
 > `--base --mise --langs --dotfiles --agents` plus a standalone `--update` — and each ships a
 > `migrate-legacy.sh` that reclaims the pre-mise copies (dry run by default).
+
+## Workspace Repositories
+
+[`workspace/repos.txt`](workspace/repos.txt) lists every git repo under `~/workspace`, one clone
+URL per line. Repos are laid out by [ghq](https://github.com/x-motemen/ghq) mirroring their remote
+URL (`~/workspace/github.com/mariopavlov/perigee`, `~/workspace/gitlab.ontotext.com/<group>/…/<repo>`),
+so the manifest needs no paths. The `workspace-repos` Fish function drives it:
+
+```fish
+workspace-repos export    # scan ~/workspace and rewrite workspace/repos.txt (then commit it)
+workspace-repos restore   # on a new machine: clone everything missing (ghq get --parallel)
+```
+
+Repos without an `origin` remote are reported and skipped — back those up separately.
 
 ## Agentic Tooling
 
