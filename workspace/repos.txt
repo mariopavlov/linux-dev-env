@@ -1,4 +1,24 @@
 # Personal repos — cloned by `install.sh --update`. One clone URL per line;
 # ghq places each at ~/workspace/<host>/<path>.
+git@github.com:mariopavlov/agents-lab.git
+git@github.com:mariopavlov/ai-agent-memory.git
+git@github.com:mariopavlov/ai-aip.git
+git@github.com:mariopavlov/ai-engineering-cohort-3.git
+git@github.com:mariopavlov/ask-the-web.git
+git@github.com:mariopavlov/book-crafting-interpreter.git
+git@github.com:mariopavlov/bootdev-http-servers-go.git
+git@github.com:mariopavlov/code-lab.git
+git@github.com:mariopavlov/coursera-distributed-java.git
+git@github.com:mariopavlov/frontend-masters-ai-engineering-fundamentals.git
+git@github.com:mariopavlov/interview-prep-cubby.git
+git@github.com:mariopavlov/kata-forge.git
 git@github.com:mariopavlov/linux-dev-env.git
+git@github.com:mariopavlov/loomle-maestro.git
+git@github.com:mariopavlov/mariopavlov.com.git
+git@github.com:mariopavlov/neetcode.git
+git@github.com:mariopavlov/nexus.git
 git@github.com:mariopavlov/perigee.git
+git@github.com:mariopavlov/research.git
+git@github.com:mariopavlov/sandbox-koog.git
+git@github.com:mariopavlov/semantic-web-lab.git
+git@github.com:mariopavlov/socrates-pi.git
