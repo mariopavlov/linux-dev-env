@@ -1,7 +1,6 @@
 # Personal repos — cloned by `install.sh --update`. One clone URL per line;
 # ghq places each at ~/workspace/<host>/<path>.
 git@github.com:mariopavlov/agents-lab.git
-git@github.com:mariopavlov/ai-agent-memory.git
 git@github.com:mariopavlov/ai-aip.git
 git@github.com:mariopavlov/ai-engineering-cohort-3.git
 git@github.com:mariopavlov/ask-the-web.git
