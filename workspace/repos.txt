@@ -10,7 +10,6 @@ git@github.com:mariopavlov/code-lab.git
 git@github.com:mariopavlov/coursera-distributed-java.git
 git@github.com:mariopavlov/fem-kubernetes.git
 git@github.com:mariopavlov/frontend-masters-ai-engineering-fundamentals.git
-git@github.com:mariopavlov/interview-prep-cubby.git
 git@github.com:mariopavlov/kata-forge.git
 git@github.com:mariopavlov/linux-dev-env.git
 git@github.com:mariopavlov/loomle-maestro.git
