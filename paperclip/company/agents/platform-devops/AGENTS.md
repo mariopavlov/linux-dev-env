@@ -62,7 +62,7 @@ Every agent in this company follows these rules. They override anything in a ski
   commit SHA.
 
 **Decisions**
-- The design lives on the milestone's Design page in Notion; the spec and plan in the repo are
+- The design lives on the milestone's Design page in Notion (its row in 🏁 Milestones); the spec and plan in the repo are
   read-only copies of it. Never edit those copies.
 - Propose every design decision on your issue (context, options, decision, consequences) and tag
   the Principal Architect, who records it in Notion.

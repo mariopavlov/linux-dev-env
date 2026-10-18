@@ -291,10 +291,12 @@ design review of a `/health` endpoint:
 
 - Notion holds the design and the record; Keystone runs the sub-tasks; Todoist holds only Mario's
   real actions. No two-way sync of tasks.
-- Each milestone has a Design page under its Notion project page: Brief (Mario), Questions &
-  answers, Decisions, Spec, Plan, Progress log. It and the sub-area's Decisions and Ubiquitous
-  Language databases are the source of truth; the repo gets read-only copies of the approved spec
-  and plan.
+- Milestones live in one shared Notion database, 🏁 Milestones (1 - PROJECTS), related to
+  Projects. Each row's page is the milestone's Design page: Brief (Mario), Questions & answers,
+  Decisions, Spec, Plan, Progress log. Its `Status` (Planned → Brief ready → Agent's turn ⇄ Your
+  turn → Building → Done) and `Last update` are kept by the Principal. The Design page and the
+  project's decision and term databases are the source of truth; the repo gets read-only copies
+  of the approved spec and plan.
 - Hand-over is manual and simple: the agent finishes reading and writing, comments the Notion
   link and sets the issue `blocked`; Mario answers in Notion and comments "done" (or "approved"
   at Gate 2) on the issue, which wakes the agent. No timers, no email.
