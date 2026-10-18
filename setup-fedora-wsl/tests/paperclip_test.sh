@@ -28,7 +28,7 @@ cat > "$HOME/.local/bin/paperclipai" <<'SHIM'
 #!/usr/bin/env bash
 echo "$*" >> "$LOG_DIR/paperclipai.log"
 case "$1" in
-    --version) echo "${MOCK_VERSION:-2026.1012.0}" ;;
+    --version) echo "${MOCK_VERSION:-2026.1012.0} (managed npm pinned; payload $HOME/.paperclip/cli/installs/npm/x)" ;;
     onboard)
         mkdir -p "$HOME/.paperclip/instances/default"
         printf '{"server":{"port":3100},"telemetry":{"enabled":true}}\n' > "$HOME/.paperclip/instances/default/config.json"
@@ -80,7 +80,7 @@ assert_contains "$LOG_DIR/paperclipai.log" "onboard --yes --no-install-service"
 assert_contains "$UNIT" "User=tester"
 assert_contains "$UNIT" "ExecStart=$HOME/.local/bin/paperclipai run --instance default"
 assert_contains "$UNIT" "Environment=PAPERCLIP_TELEMETRY_DISABLED=1"
-assert_contains "$UNIT" "Environment=PATH=$HOME/.local/bin:$HOME/.local/share/mise/shims:/usr/local/bin:/usr/bin:/bin"
+assert_contains "$UNIT" "Environment=PATH=$HOME/.local/bin:$HOME/.opencode/bin:$HOME/.local/share/mise/shims:/usr/local/bin:/usr/bin:/bin"
 assert_contains "$UNIT" "Restart=on-failure"
 assert_contains "$LOG_DIR/systemctl.log" "daemon-reload"
 assert_contains "$LOG_DIR/systemctl.log" "enable --now paperclip.service"

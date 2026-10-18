@@ -34,7 +34,7 @@ shim_node() {
 needs_install() {
     [[ -x "$SHIM" ]] || return 0
     [[ -e "$(shim_node)" ]] || return 0
-    [[ "$("$SHIM" --version 2>/dev/null)" == "$PAPERCLIP_VERSION" ]] || return 0
+    [[ "$("$SHIM" --version 2>/dev/null | awk '{print $1}')" == "$PAPERCLIP_VERSION" ]] || return 0
     return 1
 }
 
