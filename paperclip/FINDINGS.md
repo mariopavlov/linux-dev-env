@@ -169,6 +169,6 @@ instructions forced all four reviews regardless of size. Led to flow v2 (spec §
   build issue of the approved plan is merged.
 - Agent commits were authored as Mario. **Fix:** `configure.sh` sets `GIT_AUTHOR_NAME` /
   `GIT_COMMITTER_NAME` to "<agent> (Paperclip)" with Mario's email (keeps his contribution graph)
-  and every commit carries `Agent: <role>`.
+  and every commit carries `Co-Authored-By: <agent> (Paperclip)` (replacing the `Agent:` trailer and Paperclip's bare `Co-Authored-By: Paperclip` line).
 - Quota after v2: Claude week 8 % → 11 %, Codex 5-hour 3 %. The Principal is the cost centre.
   Open lever for later: reviewers on Sonnet, more review on Codex.

@@ -114,7 +114,7 @@ credits, not on Claude or Codex quota.
   (`m0 → main`), the only PR you merge. Task PRs are drafts the Principal merges.
 - **Don't comment on an issue while its agent is running** — Paperclip cancels and restarts the
   run. Wait for its end-of-run comment.
-- Agents use your `gh` login; their commits show "<agent> (Paperclip)" as author with your email.
+- Agents use your `gh` login; their commits show "<agent> (Paperclip)" as author with your email (so they count on your contribution graph) and `Co-Authored-By: <agent> (Paperclip)`, which GitHub displays as the co-author.
 
 ## Calling the Teacher
 

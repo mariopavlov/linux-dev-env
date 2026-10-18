@@ -282,7 +282,7 @@ design review of a `/health` endpoint:
 - Task PRs are drafts; the milestone branch requires the `paperclip/approval` status, set only by
   the Principal. Required approvals on `main` stay 0 — Mario reviews and merges milestone PRs.
 - No bot identity. Agent commits keep Mario's email (contribution graph) with the agent's name as
-  author and an `Agent: <role>` trailer.
+  author and a `Co-Authored-By: <agent> (Paperclip)` trailer.
 - Build issues always get an isolated workspace; agents use `gh`, never Paperclip's GitHub
   connector.
 - No Product Owner agent for now: Mario owns what and why; revisit with a multi-project backlog.
