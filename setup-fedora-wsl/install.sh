@@ -30,13 +30,14 @@ Usage: install.sh [STEPS...]
 
 Steps
   --all        Run every install step, in order:
-               base → mise → langs → dotfiles → claude → agents
+               base → mise → langs → dotfiles → claude → agents → paperclip
   --base       System layer: dnf packages, Fish + Fisher, Git config
   --mise       mise + every tool in dotfiles/dot_config/mise/config.toml
   --langs      C/C++ toolchain, Rust (rustup), SDKMan, pynvim venv
   --dotfiles   Apply dotfiles via Chezmoi (../dotfiles/)
   --claude     Symlink Claude Code config from claude-skills/ into ~/.claude/
   --agents     Claude Code, Codex, OpenCode, Herdr, integrations, Fish completion
+  --paperclip  Paperclip agent orchestration as a system service (localhost:3100)
 
 Maintenance
   --update     Update everything already installed. Not part of --all:
@@ -69,6 +70,7 @@ RUN_LANGS=false
 RUN_DOTFILES=false
 RUN_CLAUDE=false
 RUN_AGENTS=false
+RUN_PAPERCLIP=false
 RUN_UPDATE=false
 REPO_SETS=()
 
@@ -81,13 +83,15 @@ while [[ $# -gt 0 ]]; do
     arg="$1"; shift
     case "$arg" in
         --all)      RUN_BASE=true; RUN_MISE=true; RUN_LANGS=true
-                    RUN_DOTFILES=true; RUN_CLAUDE=true; RUN_AGENTS=true ;;
+                    RUN_DOTFILES=true; RUN_CLAUDE=true; RUN_AGENTS=true
+                    RUN_PAPERCLIP=true ;;
         --base)     RUN_BASE=true ;;
         --mise)     RUN_MISE=true ;;
         --langs)    RUN_LANGS=true ;;
         --dotfiles) RUN_DOTFILES=true ;;
         --claude)   RUN_CLAUDE=true ;;
         --agents)   RUN_AGENTS=true ;;
+        --paperclip) RUN_PAPERCLIP=true ;;
         --update)   RUN_UPDATE=true ;;
         --repos)    [[ $# -gt 0 ]] || { log_error "--repos needs a set name"; exit 1; }
                     REPO_SETS+=("$1"); shift ;;
@@ -179,6 +183,7 @@ if $RUN_UPDATE; then
     is_installed opencode && { opencode upgrade    || log_warn "opencode upgrade failed"; }
     is_installed herdr    && { herdr self update   || log_warn "herdr self update failed"; }
     is_installed codex    && log_info "codex: self-updates on launch"
+    is_installed paperclipai && log_info "paperclipai: pinned in packages/paperclip.sh — bump PAPERCLIP_VERSION and run --paperclip"
     log_success "Agent CLIs updated"
 
     echo ""
@@ -236,6 +241,10 @@ if $RUN_AGENTS; then
     run_step "Agentic development tools" bash "$SCRIPT_DIR/packages/agents.sh"
 fi
 
+if $RUN_PAPERCLIP; then
+    run_step "Paperclip" bash "$SCRIPT_DIR/packages/paperclip.sh"
+fi
+
 # ── Summary ───────────────────────────────────────────────────────────────────
 echo ""
 echo -e "${BOLD}${GREEN}Setup complete!${RESET}"
@@ -263,6 +272,9 @@ fi
 if $RUN_AGENTS; then
     log_info "Agents: run 'claude', 'codex', or 'opencode' inside Herdr"
     log_info "Herdr: run 'herdr' to start or reattach; Fish completion is installed"
+fi
+if $RUN_PAPERCLIP; then
+    log_info "Paperclip: http://localhost:3100 — 'sudo systemctl status paperclip' for the service"
 fi
 
 if $RUN_MISE; then
