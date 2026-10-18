@@ -135,7 +135,9 @@ Accepted for the pilot per the spec (no cloud credentials); revisit before crede
 blocks deleting `heartbeat_runs`). Workaround used on 2026-10-18 after a `paperclipai db:backup`:
 delete that company's rows from `cost_events` (embedded Postgres on :54329, user/db `paperclip`),
 then `DELETE /api/companies/<id>` succeeds. Archived spike, v1 and duplicate companies were removed
-this way; the company was re-created as Keystone to get the `KEY` prefix.
+this way; the company was re-created as Keystone to get the `KEY` prefix. Deleting a **project**
+that has had runs hits the same bug (`cost_events_project_id_projects_id_fk`); same workaround,
+scoped by `project_id`.
 
 ## 11. Smoke runs v1 and v2 (paperclip-smoke, 2026-10-18)
 
