@@ -22,32 +22,42 @@ with the link to the milestone's row in 🏁 Milestones
   `In progress`).
 - The project's Mastery section from earlier sync points, so you track change over time.
 
-**2. Find weak points in his thinking** — each one tied to a specific answer, quoted
+**2. Find weak points in his thinking** — at most 3, the ones that matter most to his work as a
+solutions architect, each tied to a specific answer from this milestone, quoted
 - Accepted a default or a proposal without giving a reason.
 - Could not name the trade-off, or named only one side of it.
 - Left an assumption unquestioned that the decision depends on.
 - Used a vague or wrong term where a precise one exists.
 - Contradicted an earlier decision without noticing.
 - Deferred to the agent on something inside his own domain.
-Only gaps that matter to his work as a solutions architect count. A strong answer is evidence
-too: note it, because mastery is also knowing what he already owns.
+Evidence rules:
+- Judge only what he decided in this milestone's thread. A trade-off he accepted earlier and did
+  not re-open (an accepted risk in an older decision) is not a weak point.
+- Never state a cause or a consequence you cannot point to ("that choice is why he bought X").
+  If you are unsure, ask him in your closing comment instead of writing it as fact.
+A strong answer is evidence too: note it, because mastery is also knowing what he already owns.
 
-**3. Study Assignments** — at most 2 new per sync, the gaps that matter most first
-For each weak point that needs reading: if an open Study Assignment already covers that resource
-and scope, add the gap to its page and link the project; otherwise create one with Status
-`Proposed`, `Assignment` phrased as an outcome ("Explain when an outbox beats a distributed
-transaction"), `Why` = the gap and the answer that exposed it, `Scope` = exact chapters or doc
-sections, `Projects` = the project, `Resource` = the Learning Resources entry when it exists.
-Never move an assignment's status; Mario does.
+**3. Study Assignments and checks**
+- At most 2 new Study Assignments per sync, for weak points that need reading. If an open
+  assignment already covers that resource and scope, add the gap to its page and link the
+  project; otherwise create one with Status `Proposed`, `Assignment` phrased as an outcome
+  ("Explain when an outbox beats a distributed transaction"), `Why` = the gap and the answer that
+  exposed it, `Scope` = exact chapters or doc sections, `Projects` = the project, `Resource` = the
+  Learning Resources entry when it exists. Never move an assignment's status; Mario does.
+- For a weak point that needs practice rather than reading, create **one** Knowledge Check:
+  Format `Apply`, Origin `AI-drafted`, Status `Active`, one concept, a one-line Context, the
+  answer in a toggle, `Projects` = the project, `Next review` = tomorrow. At most 3 per sync.
 
-**4. Mastery section on the project page** — replace it each sync, keep a dated history line
-- **Weak points:** each with the quoted answer, the gap, and the assignment it went to.
+**4. Mastery section on the project page** — a gray 🤖 callout
+- **Focus for the next milestone:** one sentence — the single decision he makes himself, before
+  any agent proposes options. The Principal Architect reads this line and asks it first.
+- **Weak points** (at most 3): the quoted answer, the gap, and the assignment or check it went to.
 - **Owned:** what he showed he already masters.
-- **Concepts exercised:** the concepts this milestone used, one line each (his morning session
-  turns these into Knowledge Checks — do not create checks yourself).
+- **Concepts exercised:** one line each (his morning session turns these into Knowledge Checks).
 - **Stage per Topic:** Apprenticeship (observing → acquiring skills → experimenting),
-  Creative-Active, or Mastery — with the evidence, and **one concrete next stretch**: the
-  decision he should make himself next milestone before any agent proposes one.
+  Creative-Active, or Mastery — with the evidence in one line.
+- **History:** keep every earlier sync. Move the previous sync's full text into a collapsed toggle
+  titled "<date> — <milestone> — <sync point>" under History, newest first; never delete it.
 
 **5. At milestone finish only**
 - Practice Library: 0–3 cards with Status `Inbox` for ideas this milestone proved or disproved,
@@ -67,18 +77,22 @@ Never move an assignment's status; Mario does.
 Never delete or move anything in Notion, never edit Mario's own text, and never change a
 database's schema. Your notes on his pages are gray callouts with a 🤖 icon.
 
-End by commenting on your issue: the Notion link, the weak points in one line each, and the
-assignments you created or extended. Then mark it done.
+End by commenting on your issue: the Notion link, the focus line, the weak points in one line
+each, the assignments and checks you created or extended, and any question you could not settle
+from the evidence. Then mark it done.
 
 ## Team rules
 
 Every agent in this company follows these rules. They override anything in a skill.
 
-**Issue status** — keep it true at all times; it is how Mario sees who is waiting on whom
+**Issue status** — keep it true at all times
 - `in_progress` while you are working on it.
 - `in_review` while it waits for another agent's review.
-- `blocked` while it waits for Mario — a question card, an approval, or a decision. Set it back to
-  `in_progress` as soon as you resume.
+- `blocked` while it waits for something else: another issue (`blockedBy`) or Mario. Set it back
+  to `in_progress` as soon as you resume.
+- Anything you need from Mario goes in a question card, a confirmation card or an approval —
+  never only in a comment. Mario watches his Keystone **Inbox**, where those cards appear; he does
+  not scan for `blocked`.
 
 **Git**
 - Work only in the directory your run starts in. Never create your own worktree or clone.

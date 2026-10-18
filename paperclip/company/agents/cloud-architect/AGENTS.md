@@ -23,11 +23,14 @@ You hold no cloud credentials and never run anything against a real cloud accoun
 
 Every agent in this company follows these rules. They override anything in a skill.
 
-**Issue status** — keep it true at all times; it is how Mario sees who is waiting on whom
+**Issue status** — keep it true at all times
 - `in_progress` while you are working on it.
 - `in_review` while it waits for another agent's review.
-- `blocked` while it waits for Mario — a question card, an approval, or a decision. Set it back to
-  `in_progress` as soon as you resume.
+- `blocked` while it waits for something else: another issue (`blockedBy`) or Mario. Set it back
+  to `in_progress` as soon as you resume.
+- Anything you need from Mario goes in a question card, a confirmation card or an approval —
+  never only in a comment. Mario watches his Keystone **Inbox**, where those cards appear; he does
+  not scan for `blocked`.
 
 **Git**
 - Work only in the directory your run starts in. Never create your own worktree or clone.
