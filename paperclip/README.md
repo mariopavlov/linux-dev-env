@@ -25,9 +25,12 @@ Why things are the way they are: `FINDINGS.md`.
 | Refactorer | Codex · gpt-6-astra · low | Right after implementation: removes comments and needless abstraction; never touches tests |
 | QA Engineer | Claude · Sonnet 5.5 · medium | Checks the refactored code against spec, plan and implementation; PASS/FAIL |
 | Cloud Architect | Claude · Sonnet 5.5 · high | Reviews specs and plans for cloud-native fit (8 skills) |
-| Security·Codex, Security·Claude | Codex · gpt-6-astra · high; Claude · Sonnet 5.5 · high | Independent threat models of specs and plans |
+| Security·Codex, Security·Claude | Codex · gpt-6-astra · high; Claude · Sonnet 5.5 · high | Independent threat models of specs and plans, with Security·DeepSeek |
 | DDD Reviewer | Claude · Sonnet 5.5 · high | Reviews specs and plans for the domain model |
 | Teacher | Claude · Sonnet 5.5 · high | Teaches Mario, on request only |
+| Coordinator | OpenCode · Ollama nemotron-3-super · low | Daily sweep: nudges stalled issues, digest of what waits for Mario, escalates decisions |
+| Research Scout | OpenCode · Ollama deepseek-v4.1-flash · medium | Reads docs and code on request ("Research: …"), returns a sourced one-page brief |
+| Security·DeepSeek | OpenCode · Ollama deepseek-v4-pro · high | Third independent security reviewer (third model family) |
 
 Everyone reports to the Principal Architect. Specialists review code only when the Principal asks.
 
@@ -58,8 +61,15 @@ Mid-build questions reach you as blocked issues in the **Blocked inbox**.
 worktrees under `<repo>/.paperclip/worktrees/`), pinned skill sources (Superpowers, Azure, AWS,
 Terraform), each agent's skills, its working directory (`~/.paperclip/agent-homes/<slug>`),
 `ENABLE_CLAUDEAI_MCP_SERVERS=false` for Claude agents (so no agent sees Mario's Gmail, Drive and
-other claude.ai connectors), concurrency (Claude 1, Codex 2), the Principal Architect's daily heartbeat, Agent Chat,
+other claude.ai connectors), concurrency (Claude 1, Codex 2), the Coordinator's daily heartbeat, Agent Chat,
 the local `teacher` skill, every agent's instructions, and its model and reasoning effort (`MODEL`, `EFFORT` — pinned so upgrades cannot change them silently). New skill repos are added at the commit in `SOURCES`. Paperclip's API cannot move an existing source to another commit (delete only disables it), so to bump a pin change it in `SOURCES` *and* in the UI (Skills → sources); `configure.sh` warns while the two differ.
+
+## Ollama agents
+
+The Coordinator, Research Scout and Security·DeepSeek run in OpenCode on **Ollama Cloud** models
+through the local Ollama daemon (`ollama signin` once per machine; provider config in
+`dotfiles/dot_config/opencode/opencode.jsonc`). They draw on the Ollama Pro plan's $60/month
+credits, not on Claude or Codex quota.
 
 ## Credentials
 

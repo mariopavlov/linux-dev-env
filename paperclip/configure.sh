@@ -35,6 +35,9 @@ declare -A NAME=(
     [ddd-reviewer]="DDD Reviewer"
     [qa]="QA Engineer"
     [teacher]="Teacher"
+    [coordinator]="Coordinator"
+    [research-scout]="Research Scout"
+    [security-deepseek]="Security·DeepSeek"
 )
 
 declare -A MODEL=(
@@ -49,6 +52,9 @@ declare -A MODEL=(
     [refactorer]="gpt-6-astra"
     [platform-devops]="gpt-6-astra"
     [security-codex]="gpt-6-astra"
+    [coordinator]="ollama/nemotron-3-super:cloud"
+    [research-scout]="ollama/deepseek-v4.1-flash:cloud"
+    [security-deepseek]="ollama/deepseek-v4-pro:0813-cloud"
 )
 
 declare -A EFFORT=(
@@ -63,6 +69,9 @@ declare -A EFFORT=(
     [platform-devops]="medium"
     [refactorer]="low"
     [security-codex]="high"
+    [coordinator]="low"
+    [research-scout]="medium"
+    [security-deepseek]="high"
 )
 
 SUPERPOWERS="brainstorming writing-plans executing-plans test-driven-development systematic-debugging verification-before-completion requesting-code-review receiving-code-review"
@@ -80,6 +89,9 @@ declare -A SKILLS=(
     [ddd-reviewer]="domain-modeling"
     [qa]="code-review verification-before-completion systematic-debugging"
     [teacher]="teacher"
+    [coordinator]=""
+    [research-scout]=""
+    [security-deepseek]="requesting-code-review"
 )
 
 # repo|commit|path prefix|skill names
@@ -92,7 +104,7 @@ SOURCES=(
     "hashicorp/agent-skills|f706481af9b8fedb66de909f6243ad29601afa0c|plugins/terraform/skills|$TERRAFORM"
 )
 
-is_claude() { [[ "$(jq -r --arg n "${NAME[$1]}" '.[] | select(.name==$n) | .adapterType' <<<"$AGENTS")" == "claude_local" ]]; }
+adapter_of() { jq -r --arg n "${NAME[$1]}" '.[] | select(.name==$n) | .adapterType' <<<"$AGENTS"; }
 
 api GET /health >/dev/null || { echo "Paperclip is not reachable at $API" >&2; exit 1; }
 
@@ -145,24 +157,48 @@ SKILL_KEYS="$(api GET "/companies/$COMPANY/skills" | jq -c '[(if type=="array" t
 
 log "Agents"
 AGENTS="$(api GET "/companies/$COMPANY/agents")"
+missing=()
+for slug in "${!NAME[@]}"; do
+    jq -e --arg n "${NAME[$slug]}" 'any(.[]; .name==$n)' <<<"$AGENTS" >/dev/null || missing+=("$slug")
+done
+if (( ${#missing[@]} > 0 )); then
+    bash "$PAPERCLIP_DIR/build.sh" --check
+    agents_csv="$(IFS=,; echo "${missing[*]}")"
+    paperclipai company import "$PAPERCLIP_DIR/company" --target existing -C "$COMPANY" \
+        --agents "$agents_csv" --collision skip --yes >/dev/null
+    echo "  imported: $agents_csv"
+    AGENTS="$(api GET "/companies/$COMPANY/agents")"
+fi
 for slug in "${!NAME[@]}"; do
     id="$(jq -r --arg n "${NAME[$slug]}" '.[] | select(.name==$n) | .id' <<<"$AGENTS")"
     [[ -n "$id" ]] || { echo "agent not found: ${NAME[$slug]}" >&2; exit 1; }
+
+    manager_slug="$(sed -n 's/^reportsTo: "\(.*\)"$/\1/p' "$PAPERCLIP_DIR/company/agents/$slug/AGENTS.md")"
+    if [[ -n "$manager_slug" ]]; then
+        manager_id="$(jq -r --arg n "${NAME[$manager_slug]}" '.[] | select(.name==$n) | .id' <<<"$AGENTS")"
+        current_manager="$(jq -r --arg n "${NAME[$slug]}" '.[] | select(.name==$n) | .reportsTo // ""' <<<"$AGENTS")"
+        [[ "$current_manager" == "$manager_id" ]] \
+            || api PATCH "/agents/$id" "$(jq -nc --arg m "$manager_id" '{reportsTo:$m}')" >/dev/null
+    fi
 
     home="$AGENT_HOMES/$slug"
     mkdir -p "$home"
     author="${NAME[$slug]} (Paperclip)"
     env="$(jq -nc --arg n "$author" --arg e "$GIT_EMAIL" \
         '{GIT_AUTHOR_NAME:$n, GIT_AUTHOR_EMAIL:$e, GIT_COMMITTER_NAME:$n, GIT_COMMITTER_EMAIL:$e}')"
-    if is_claude "$slug"; then
-        env="$(jq -c '. + {ENABLE_CLAUDEAI_MCP_SERVERS:"false"}' <<<"$env")"
-        effort="$(jq -nc --arg e "${EFFORT[$slug]}" '{effort:$e}')"
-        concurrency=1
-    else
-        effort="$(jq -nc --arg e "${EFFORT[$slug]}" '{modelReasoningEffort:$e}')"
-        concurrency=2
-    fi
-    if [[ "$slug" == "ceo-principal-architect" ]]; then
+    case "$(adapter_of "$slug")" in
+        claude_local)
+            env="$(jq -c '. + {ENABLE_CLAUDEAI_MCP_SERVERS:"false"}' <<<"$env")"
+            effort="$(jq -nc --arg e "${EFFORT[$slug]}" '{effort:$e}')"
+            concurrency=1 ;;
+        codex_local)
+            effort="$(jq -nc --arg e "${EFFORT[$slug]}" '{modelReasoningEffort:$e}')"
+            concurrency=2 ;;
+        opencode_local)
+            effort="$(jq -nc --arg e "${EFFORT[$slug]}" '{variant:$e}')"
+            concurrency=2 ;;
+    esac
+    if [[ "$slug" == "coordinator" ]]; then
         heartbeat="{\"enabled\":true,\"intervalSec\":86400,\"maxConcurrentRuns\":$concurrency}"
     else
         heartbeat="{\"enabled\":false,\"maxConcurrentRuns\":$concurrency}"
