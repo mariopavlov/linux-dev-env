@@ -309,6 +309,20 @@ design review of a `/health` endpoint:
   Teacher), Read (Research Scout); none for the rest; no delete, move, schema, calendar or session
   tools for anyone.
 
+## 11d. Keystone-first milestones (Mario, 2026-10-18, supersedes the Q&A parts of 11c)
+
+- A milestone starts as a rough 🏁 Milestones row: Mario adds it (`Idea`), the Principal creates
+  it after a Keystone chat agrees on it (`Idea`), or the Principal suggests a missing one
+  (`Proposed`; only Mario accepts or drops it).
+- Mario starts the work with a Keystone task to pick up the milestone and clean up the
+  requirements. Brainstorm (one question card), spec reviews and Gate 2 (a confirmation card)
+  happen in Keystone, as in §11a.
+- After Gate 2 the Principal updates the row as the reference record: final title, summary and
+  done-when; page body = requirements, decisions (recorded in the project's decision log and
+  ADRs), tasks, links, progress log. The spec and plan live in the repo.
+- Row statuses: Proposed → Idea → Designing → Building → In review → Done, or Dropped. The Mentor
+  reads Mario's answers from the Keystone thread.
+
 ## 12. Open
 
 - **GitHub Pro purchase**, then create and verify the `main` ruleset (`gh api repos/mariopavlov/perigee/rulesets`).
