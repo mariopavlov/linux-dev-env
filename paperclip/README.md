@@ -62,7 +62,7 @@ worktrees under `<repo>/.paperclip/worktrees/`), pinned skill sources (Superpowe
 Terraform), each agent's skills, its working directory (`~/.paperclip/agent-homes/<slug>`),
 `ENABLE_CLAUDEAI_MCP_SERVERS=false` for Claude agents (so no agent sees Mario's Gmail, Drive and
 other claude.ai connectors), concurrency (Claude 1, Codex 2), the Coordinator's daily heartbeat, Agent Chat,
-the local `teacher` skill, every agent's instructions, and its model and reasoning effort (`MODEL`, `EFFORT` — pinned so upgrades cannot change them silently). New skill repos are added at the commit in `SOURCES`. Paperclip's API cannot move an existing source to another commit (delete only disables it), so to bump a pin change it in `SOURCES` *and* in the UI (Skills → sources); `configure.sh` warns while the two differ.
+the `teacher` skill (from this repo on GitHub, pinned like the other skill sources — push a change to `claude-skills/dot-claude/skills/teacher` and bump its commit to update it), every agent's instructions, and its model and reasoning effort (`MODEL`, `EFFORT` — pinned so upgrades cannot change them silently). New skill repos are added at the commit in `SOURCES`. Paperclip's API cannot move an existing source to another commit (delete only disables it), so to bump a pin change it in `SOURCES` *and* in the UI (Skills → sources); `configure.sh` warns while the two differ.
 
 ## Branding
 
