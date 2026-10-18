@@ -174,3 +174,14 @@ instructions forced all four reviews regardless of size. Led to flow v2 (spec §
   and every commit ends with `Co-Authored-By: <agent> <marioppavlov@gmail.com>` (replacing Paperclip's bare `Co-Authored-By: Paperclip` line).
 - Quota after v2: Claude week 8 % → 11 %, Codex 5-hour 3 %. The Principal is the cost centre.
   Open lever for later: reviewers on Sonnet, more review on Codex.
+
+## Claude agents fail with "ACP agent reported a terminal service failure" (2026-10-18)
+
+- `claude_local` runs through ACP by default (`engine: auto`). Paperclip 2026.1012.0 ships
+  `@agentclientprotocol/claude-agent-acp` 0.73.0, whose agent SDK bundles Claude Code 2.1.257.
+  That build rejects `claude-opus-5-5` ("version 2.1.28x or newer is required"); the run log
+  shows it under the generic `acpx_turn_failed` / terminal service failure.
+- The sidecar only resolves the system `claude` on Windows, so on Linux the bundled one is used.
+- Fix: `configure.sh` sets `CLAUDE_CODE_EXECUTABLE=$(command -v claude)` in every Claude agent's
+  env, so ACP uses the self-updating system Claude Code. Exact failed-run retries keep their old
+  context; wake the agent on the issue instead.
