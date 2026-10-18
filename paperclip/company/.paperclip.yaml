@@ -1,0 +1,162 @@
+schema: "paperclip/v1"
+agents:
+  ceo-principal-architect:
+    role: "ceo"
+    icon: "crown"
+    adapter:
+      type: "claude_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants:
+      -
+        permissionKey: "tasks:assign"
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "arctic-blue"
+      schemaVersion: 1
+  delivery-lead:
+    role: "cto"
+    icon: "rocket"
+    adapter:
+      type: "claude_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants:
+      -
+        permissionKey: "tasks:assign"
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "deep-tide"
+      schemaVersion: 1
+  developer-1:
+    role: "engineer"
+    icon: "code"
+    adapter:
+      type: "codex_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "lime-lagoon"
+      schemaVersion: 1
+  developer-2:
+    role: "engineer"
+    icon: "terminal"
+    adapter:
+      type: "codex_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "electric-grove"
+      schemaVersion: 1
+  refactorer:
+    role: "engineer"
+    icon: "wand"
+    adapter:
+      type: "codex_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "turquoise-cherry"
+      schemaVersion: 1
+  platform-devops:
+    role: "devops"
+    icon: "package"
+    adapter:
+      type: "codex_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "tangerine-cobalt"
+      schemaVersion: 1
+  cloud-architect:
+    role: "general"
+    icon: "globe"
+    adapter:
+      type: "claude_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "golden-hour"
+      schemaVersion: 1
+  security-codex:
+    role: "security"
+    icon: "shield"
+    adapter:
+      type: "codex_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "cherry-pop"
+      schemaVersion: 1
+  security-claude:
+    role: "security"
+    icon: "lock"
+    adapter:
+      type: "claude_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "violet-ember"
+      schemaVersion: 1
+  ddd-reviewer:
+    role: "general"
+    icon: "hexagon"
+    adapter:
+      type: "claude_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "orchid-peach"
+      schemaVersion: 1
+  qa:
+    role: "qa"
+    icon: "bug"
+    adapter:
+      type: "claude_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "coral-mint"
+      schemaVersion: 1
+  teacher:
+    role: "general"
+    icon: "lightbulb"
+    adapter:
+      type: "claude_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "solar-flare"
+      schemaVersion: 1
