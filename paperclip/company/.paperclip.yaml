@@ -145,6 +145,19 @@ agents:
       characterVersion: "cap-v1"
       paletteId: "bubblegum-sky"
       schemaVersion: 1
+  mentor:
+    role: "general"
+    icon: "target"
+    adapter:
+      type: "claude_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "flamingo-jade"
+      schemaVersion: 1
   coordinator:
     role: "pm"
     icon: "radar"
