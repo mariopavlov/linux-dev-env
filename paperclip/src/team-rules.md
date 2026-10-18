@@ -1,11 +1,23 @@
 Every agent in this company follows these rules. They override anything in a skill.
 
+**Issue status** — keep it true at all times; it is how Mario sees who is waiting on whom
+- `in_progress` while you are working on it.
+- `in_review` while it waits for another agent's review.
+- `blocked` while it waits for Mario — a question card, an approval, or a decision. Set it back to
+  `in_progress` as soon as you resume.
+
 **Git**
 - Work only in the directory your run starts in — Paperclip has already created your issue's
-  worktree and branch. Never create your own worktree or clone.
+  worktree and branch. Never create your own worktree or clone. If your directory is not a
+  worktree on a branch named after your issue, stop, set the issue `blocked` and tell the
+  Principal Architect.
+- Every commit carries the trailer `Agent: <your role>` (author name and email are set for you).
+- GitHub: use the `gh` CLI, which is already logged in. Never search for or request a GitHub
+  connection in Paperclip.
 - Commit and push only on your issue's branch. Never push to, merge into, or open a PR into `main`.
-- The developer of a build issue opens a PR from the issue branch into the milestone branch
-  (`m0` for Perigee M0) when handing off. The Principal Architect rebase-merges it after approval.
+- The developer of a build issue opens a **draft** PR from the issue branch into the milestone
+  branch (`m0` for Perigee M0) when handing off. Only the Principal Architect marks it ready,
+  sets the `paperclip/approval` status, and rebase-merges it, after approving.
   Only Mario merges into `main`. Rebase only; never merge commits; never squash.
 
 **Clean code**

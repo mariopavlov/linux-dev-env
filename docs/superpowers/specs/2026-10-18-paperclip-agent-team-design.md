@@ -274,6 +274,19 @@ design review of a `/health` endpoint:
 6. The Principal sizes each change; small changes skip spec review.
 7. The Cloud Architect carries 8 skills instead of 22.
 
+## 11b. Smoke-test fixes (Mario, 2026-10-18)
+
+- Issue status means one thing everywhere: `in_progress` working, `in_review` awaiting an agent's
+  review, `blocked` awaiting Mario.
+- The Principal asks all its questions in one card; Mario answers them together.
+- Task PRs are drafts; the milestone branch requires the `paperclip/approval` status, set only by
+  the Principal. Required approvals on `main` stay 0 — Mario reviews and merges milestone PRs.
+- No bot identity. Agent commits keep Mario's email (contribution graph) with the agent's name as
+  author and an `Agent: <role>` trailer.
+- Build issues always get an isolated workspace; agents use `gh`, never Paperclip's GitHub
+  connector.
+- No Product Owner agent for now: Mario owns what and why; revisit with a multi-project backlog.
+
 ## 12. Open
 
 - **GitHub Pro purchase**, then create and verify the `main` ruleset (`gh api repos/mariopavlov/perigee/rulesets`).
