@@ -287,6 +287,26 @@ design review of a `/health` endpoint:
   connector.
 - No Product Owner agent for now: Mario owns what and why; revisit with a multi-project backlog.
 
+## 11c. Notion as the design home (Mario, 2026-10-18)
+
+- Notion holds the design and the record; Keystone runs the sub-tasks; Todoist holds only Mario's
+  real actions. No two-way sync of tasks.
+- Each milestone has a Design page under its Notion project page: Brief (Mario), Questions &
+  answers, Decisions, Spec, Plan, Progress log. It and the sub-area's Decisions and Ubiquitous
+  Language databases are the source of truth; the repo gets read-only copies of the approved spec
+  and plan.
+- Hand-over is manual and simple: the agent finishes reading and writing, comments the Notion
+  link and sets the issue `blocked`; Mario answers in Notion and comments "done" (or "approved"
+  at Gate 2) on the issue, which wakes the agent. No timers, no email.
+- New agent: **Mentor** (Claude Opus, high). Goal: Mario's mastery (Robert Greene). After spec
+  approval and after the milestone it finds weak points in his answers, creates or extends Study
+  Assignments (Proposed, at most 2 per sync), keeps a Mastery section (weak points, owned, concepts
+  exercised, stage per Topic with one next stretch) and, at finish, proposes Practice Library
+  cards and Building Blocks.
+- Notion tools per agent through Paperclip tool profiles: Design (Principal), Records (Mentor,
+  Teacher), Read (Research Scout); none for the rest; no delete, move, schema, calendar or session
+  tools for anyone.
+
 ## 12. Open
 
 - **GitHub Pro purchase**, then create and verify the `main` ruleset (`gh api repos/mariopavlov/perigee/rulesets`).

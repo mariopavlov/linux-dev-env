@@ -19,7 +19,7 @@ Why things are the way they are: `FINDINGS.md`.
 
 | Agent | Runtime · model · effort | Role |
 |---|---|---|
-| Principal Architect (CEO) | Claude · Opus 5.5 · high | Brainstorms with Mario, writes spec + plan, sizes the change, runs spec reviews, gets Mario's approval, assigns builds, decides on QA, opens the milestone PR |
+| Principal Architect (CEO) | Claude · Opus 5.5 · high | Designs with Mario on the Notion Design page (questions, decisions, spec, plan), sizes the change, runs spec reviews, gets Mario's approval, assigns builds, decides on QA, opens the milestone PR |
 | Developer 1, 2 | Codex · gpt-6-astra · medium | Implement plan tasks, TDD |
 | Platform Engineer | Codex · gpt-6-astra · medium | Containers, IaC, CI/CD |
 | Refactorer | Codex · gpt-6-astra · low | Right after implementation: removes comments and needless abstraction; never touches tests |
@@ -28,6 +28,7 @@ Why things are the way they are: `FINDINGS.md`.
 | Security·Codex, Security·Claude | Codex · gpt-6-astra · high; Claude · Sonnet 5.5 · high | Independent threat models of specs and plans, with Security·DeepSeek |
 | DDD Reviewer | Claude · Sonnet 5.5 · high | Reviews specs and plans for the domain model |
 | Teacher | Claude · Sonnet 5.5 · high | Teaches Mario, on request only |
+| Mentor | Claude · Opus 5.5 · high | After spec approval and milestone end: finds weak points in Mario's answers, creates Study Assignments, keeps the Mastery section and the project record in Notion |
 | Coordinator | OpenCode · Ollama nemotron-3-super · low | Daily sweep: nudges stalled issues, digest of what waits for Mario, escalates decisions |
 | Research Scout | OpenCode · Ollama deepseek-v4.1-flash · medium | Reads docs and code on request ("Research: …"), returns a sourced one-page brief |
 | Security·DeepSeek | OpenCode · Ollama deepseek-v4-pro · high | Third independent security reviewer (third model family) |
@@ -36,16 +37,21 @@ Everyone reports to the Principal Architect. Specialists review code only when t
 
 ## How work flows
 
-1. **Gate 1 — brainstorm.** Open **Agent Chat** with the Principal Architect and describe what you
-   want. It asks you questions one at a time, then writes spec, decisions and plan in the repo.
-2. **Spec review.** Small changes skip it. Otherwise the Principal sends the spec and plan to the
+The design lives in **Notion**; Keystone runs the sub-tasks.
+
+1. **Start.** Write the Brief on a child page "Design: <milestone>" of the Notion project page, then
+   create one Keystone issue for the Principal Architect with the link.
+2. **Gate 1 — design.** The Principal writes all its questions on the Design page and comments the
+   link on the issue (status `blocked`). Answer on the page, then comment **"done"** on the issue.
+3. **Spec review.** Small changes skip it. Otherwise the Principal sends the spec and plan to the
    specialists the change needs and resolves what it can.
-3. **Gate 2 — Approvals page.** The reviewed spec, plan, review summary and the questions only you
-   can answer. Answer in the thread; request revision to loop back. Nothing is built before this.
-4. **Build.** Each plan task: Codex developer → Refactorer → QA → Principal decides (merge into the
+4. **Gate 2 — spec.** The Principal writes the Spec and Plan on the Design page and comments the
+   link. Comment **"approved"**, or anything else to request changes. On approval it copies both
+   into the repo (read-only copies) and asks the Mentor for a sync.
+5. **Build.** Each plan task: Codex developer → Refactorer → QA → Principal decides (merge into the
    milestone branch, send fixes back, or ask a specialist to review the code).
-5. **Gate 3 — milestone PR on GitHub** (`m0 → main`): demo checklist, runbooks, review digest.
-   You rebase-merge; only you can merge `main`.
+6. **Gate 3 — milestone PR on GitHub** (`m0 → main`): demo checklist, runbooks, review digest.
+   You rebase-merge; only you can merge `main`. The Mentor then runs its finish sync.
 
 Mid-build questions reach you as blocked issues in the **Blocked inbox**.
 
@@ -88,12 +94,11 @@ credits, not on Claude or Codex quota.
   `paperclip/approval` check on the milestone branch is set by the Principal with the same login.
   A least-privilege token or a bot identity is a later step (not used now); such a token would
   need Contents, Pull requests and **Commit statuses** read/write.
-- **Notion** (CEO decision sync, Teacher records) — create an internal integration at
-  notion.so/profile/integrations, share only the Perigee area, Study Assignments, Knowledge Checks
-  and Check Attempts with it, then in Paperclip: Tools → Import MCP JSON with
-  `{"mcpServers":{"notion":{"command":"npx","args":["-y","@notionhq/notion-mcp-server"],"env":{"NOTION_TOKEN":"<token>"}}}}`
-  and grant it to Principal Architect and Teacher only. (Unverified: the tool names this server
-  exposes may differ from those in `teacher/notion.md`; check on the first run.)
+- **Notion:** connect it once in Paperclip (Tools → App gallery → Notion). `configure.sh` then
+  removes the gallery's all-agents profile and binds its own: **Notion · Design** (read, create and
+  update pages, comments) → Principal Architect; **Notion · Records** (read, create and update
+  pages) → Mentor, Teacher; **Notion · Read** → Research Scout. Every other agent gets no Notion
+  tools, and no agent gets delete, move, schema, calendar or session tools.
 
 ## Starting work on a repo
 
@@ -110,7 +115,8 @@ credits, not on Claude or Codex quota.
 - **Status tells you who waits on whom:** `in_progress` an agent is working, `in_review` an agent
   is reviewing, `blocked` **it waits for you** — filter on `blocked` or use the Blocked inbox.
 - **Questions** arrive as one card with all of them; answer them together and add anything else.
-- **Gate 2** is a confirmation card in the task; **Gate 3** is the milestone PR on GitHub
+- **Gates 1 and 2** happen on the Notion Design page; reply "done" or "approved" on the issue.
+  **Gate 3** is the milestone PR on GitHub
   (`m0 → main`), the only PR you merge. Task PRs are drafts the Principal merges.
 - **Don't comment on an issue while its agent is running** — Paperclip cancels and restarts the
   run. Wait for its end-of-run comment.

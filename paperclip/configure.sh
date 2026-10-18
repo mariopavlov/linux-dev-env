@@ -24,6 +24,7 @@ api() {
 log() { printf '▶ %s\n' "$*"; }
 
 declare -A NAME=(
+    [mentor]="Mentor"
     [ceo-principal-architect]="Principal Architect"
     [developer-1]="Developer 1"
     [developer-2]="Developer 2"
@@ -41,6 +42,7 @@ declare -A NAME=(
 )
 
 declare -A MODEL=(
+    [mentor]="claude-opus-5-5"
     [ceo-principal-architect]="claude-opus-5-5"
     [cloud-architect]="claude-sonnet-5-5"
     [ddd-reviewer]="claude-sonnet-5-5"
@@ -58,6 +60,7 @@ declare -A MODEL=(
 )
 
 declare -A EFFORT=(
+    [mentor]="high"
     [ceo-principal-architect]="high"
     [cloud-architect]="high"
     [ddd-reviewer]="high"
@@ -75,6 +78,7 @@ declare -A EFFORT=(
 )
 
 declare -A ICON=(
+    [mentor]="target"
     [ceo-principal-architect]="crown"
     [cloud-architect]="globe"
     [ddd-reviewer]="hexagon"
@@ -92,6 +96,7 @@ declare -A ICON=(
 )
 
 declare -A PALETTE=(
+    [mentor]="flamingo-jade"
     [ceo-principal-architect]="violet-ember"
     [cloud-architect]="ultraviolet-tide"
     [ddd-reviewer]="orchid-peach"
@@ -112,6 +117,7 @@ SUPERPOWERS="brainstorming writing-plans executing-plans test-driven-development
 TERRAFORM="terraform-style-guide terraform-test refactor-module azure-verified-modules"
 
 declare -A SKILLS=(
+    [mentor]=""
     [ceo-principal-architect]="brainstorming writing-plans executing-plans receiving-code-review domain-modeling pr retro"
     [developer-1]="$SUPERPOWERS pr"
     [developer-2]="$SUPERPOWERS pr"
@@ -126,6 +132,16 @@ declare -A SKILLS=(
     [coordinator]=""
     [research-scout]=""
     [security-deepseek]="requesting-code-review"
+)
+
+NOTION_READ="notion-search notion-fetch notion-query-data-sources notion-query-multiple-data-sources notion-get-comments notion-list-page-backlinks notion-get-users notion-get-self notion-get-file-download-urls notion-download-attachment notion-get-async-task"
+NOTION_WRITE="$NOTION_READ notion-create-pages notion-update-page"
+
+# profile key|name|tools|agents — agents not listed get no Notion tools
+NOTION_PROFILES=(
+    "keystone-notion-design|Notion · Design|$NOTION_WRITE notion-create-comment notion-set-discussion-resolved|ceo-principal-architect"
+    "keystone-notion-records|Notion · Records|$NOTION_WRITE|mentor teacher"
+    "keystone-notion-read|Notion · Read|$NOTION_READ|research-scout"
 )
 
 # repo|commit|path prefix|skill names
@@ -266,5 +282,51 @@ for slug in "${!NAME[@]}"; do
     [[ "$status" == "paused" ]] && api POST "/agents/$id/resume" >/dev/null
     printf "  %-24s %-18s %-6s skills=%-3s concurrency=%s instructions=%s\n" "$slug" "${MODEL[$slug]}" "${EFFORT[$slug]}" "$(jq length <<<"$keys")" "$concurrency" "$instructions"
 done
+
+log "Notion access"
+notion="$(api GET "/companies/$COMPANY/tools/connections" | jq -r '(.connections // .)[] | select(.uid | startswith("app-gallery:notion:")) | .id' | head -n1)"
+if [[ -z "$notion" ]]; then
+    echo "  skip (Notion is not connected)"
+else
+    profiles="$(api GET "/companies/$COMPANY/tools/profiles" | jq -c '.profiles')"
+    gallery_profile="$(jq -r --arg k "app:$notion" '.[] | select(.profileKey==$k) | .id' <<<"$profiles")"
+    if [[ -n "$gallery_profile" ]] && jq -e --arg id "$gallery_profile" --arg c "$COMPANY" \
+        'any(.[] | select(.id==$id) | .bindings[]; .targetType=="company" and .targetId==$c)' <<<"$profiles" >/dev/null; then
+        api POST "/companies/$COMPANY/tools/profiles/$gallery_profile/unbind" \
+            "$(jq -nc --arg c "$COMPANY" '{targetType:"company",targetId:$c}')" >/dev/null
+        echo "  unbound the all-agents Notion profile"
+    fi
+    for entry in "${NOTION_PROFILES[@]}"; do
+        IFS='|' read -r key title tools slugs <<<"$entry"
+        wanted_tools="$(printf '%s\n' $tools | jq -R . | jq -sc 'sort')"
+        profile="$(jq -c --arg k "$key" '.[] | select(.profileKey==$k)' <<<"$profiles")"
+        if [[ -z "$profile" ]]; then
+            entries="$(jq -c --arg c "$notion" '[.[] | {selectorType:"tool_name",effect:"include",connectionId:$c,toolName:.}]' <<<"$wanted_tools")"
+            profile="$(api POST "/companies/$COMPANY/tools/profiles" "$(jq -nc --arg k "$key" --arg n "$title" --argjson e "$entries" \
+                '{profileKey:$k,name:$n,status:"active",defaultAction:"deny",entries:$e}')")"
+            profile="$(jq -c '.profile // .' <<<"$profile")"
+            echo "  created $title"
+        elif [[ "$(jq -c '[.entries[].toolName] | sort' <<<"$profile")" != "$wanted_tools" ]]; then
+            for old in $(jq -r '.entries[].id' <<<"$profile"); do api DELETE "/tool-profile-entries/$old" >/dev/null; done
+            for tool in $tools; do
+                api POST "/tool-profiles/$(jq -r .id <<<"$profile")/entries" "$(jq -nc --arg c "$notion" --arg t "$tool" \
+                    '{selectorType:"tool_name",effect:"include",connectionId:$c,toolName:$t}')" >/dev/null
+            done
+            echo "  updated $title"
+        fi
+        profile_id="$(jq -r .id <<<"$profile")"
+        bound="$(jq -c '[(.bindings // [])[] | select(.targetType=="agent") | .targetId]' <<<"$profile")"
+        wanted_ids="$(for slug in $slugs; do jq -r --arg n "${NAME[$slug]}" '.[] | select(.name==$n) | .id' <<<"$AGENTS"; done | jq -R . | jq -sc .)"
+        for agent_id in $(jq -r --argjson b "$bound" '.[] | select(. as $a | $b | index($a) | not)' <<<"$wanted_ids"); do
+            api POST "/companies/$COMPANY/tools/profiles/$profile_id/bind" \
+                "$(jq -nc --arg a "$agent_id" '{targetType:"agent",targetId:$a}')" >/dev/null
+        done
+        for agent_id in $(jq -r --argjson w "$wanted_ids" '.[] | select(. as $a | $w | index($a) | not)' <<<"$bound"); do
+            api POST "/companies/$COMPANY/tools/profiles/$profile_id/unbind" \
+                "$(jq -nc --arg a "$agent_id" '{targetType:"agent",targetId:$a}')" >/dev/null
+        done
+        printf "  %-18s %2s tools → %s\n" "$title" "$(jq length <<<"$wanted_tools")" "$slugs"
+    done
+fi
 
 log "Done — http://localhost:3100"
