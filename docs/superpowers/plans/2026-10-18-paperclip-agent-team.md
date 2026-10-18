@@ -2,7 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Paperclip running persistently on Fedora WSL and reachable from Windows, hosting a reproducible agent company (§5 of the spec) plus a live Teacher skill, smoke-tested end to end and handed the Perigee cloud-native review as its first job.
+**Goal:** Paperclip running persistently on Fedora WSL and reachable from Windows, hosting a reproducible agent company (§5 of the spec) plus a live Teacher skill, smoke-tested end to end and ready to take Perigee work.
+
+**Scope:** this plan runs in `linux-dev-env` and only sets up the machine and the team. All Perigee work (repo cleanup, cloud-native review, M0) happens afterwards inside Paperclip, done by the team — see "After this plan".
 
 **Architecture:** Paperclip is pinned in the shared mise manifest and installed/started by a new `--paperclip` step in `setup-fedora-wsl` as a systemd user service (loopback, `local_trusted`, telemetry off). The company is defined as a Paperclip markdown company package versioned in this repo under `paperclip/company/` and imported with the Paperclip CLI. The Teacher is a Claude Code skill in `claude-skills/` (live lessons) that the thin Paperclip Teacher agent also loads.
 
@@ -22,7 +24,8 @@
 - Only Mario merges to Perigee `main` (ruleset 25333874 enforces PR-only, rebase-only, no force push, no deletion; agent instructions forbid merging to `main`).
 - Task branches merge into a per-milestone integration branch (`m0`) after the Delivery Lead approves — **through a GitHub PR per task** (task branch → `m0`), so review history lives on GitHub.
 - **Review trail visible to Mario on GitHub:** every reviewer's finding is posted on the task PR prefixed with its role (e.g. `[QA]`, `[DDD Reviewer]`, `[Security·Codex]`), because all agents share Mario's GitHub identity; each fix is a separate commit with a `Review-Finding:` trailer naming the reviewer and finding; nothing is squashed (rebase-only keeps fix commits on `m0` and `main`); the `m0 → main` PR description carries a review digest linking every task PR.
-- Runtime split: Claude = CEO/Principal Architect, Delivery Lead, Cloud Architect, QA, DDD Reviewer, Security #2, Teacher. Codex = Developers ×2, Platform/DevOps, Security #1.
+- Runtime split: Claude = CEO/Principal Architect, Delivery Lead, Cloud Architect, QA, DDD Reviewer, Security #2, Teacher. Codex = Developers ×2, Refactorer, Platform/DevOps, Security #1.
+- Clean code (Mario): code is minimal and readable — no code comments, no speculative or complex abstractions. A Refactorer pass runs after a task is working and before review; it never touches tests.
 - Claude review roles: no timer heartbeats; per-agent budgets set. No agent gets cloud credentials.
 - Existing repo style: scripts `set -euo pipefail`, source `lib/utils.sh`, use `log_*` helpers, idempotent with `log_skip`.
 
@@ -51,7 +54,6 @@
 | `paperclip/company/shared/team-rules.md` | Rules every agent's instructions include |
 | `paperclip/README.md` | How to import/re-import the company, configure secrets, operate the gates |
 | `claude-skills/dot-claude/skills/teacher/SKILL.md` | Live Teacher skill (symlinked to `~/.claude/skills` by `--claude`) |
-| Perigee repo: `AGENTS.md`, `CLAUDE.md`, `README.md`, `.claude/settings.json`, `.beads/`, `.codex/`, `.cursor/`, `docs/design/session-state.md` | Beads removal, new git policy (Task 11) |
 
 ---
 
@@ -197,6 +199,7 @@ Use **superpowers:writing-skills** — the skill is tested against baseline beha
   - Decisions: write D-numbered decisions in the repo's decision log (`docs/design/brainstorm-log.md` for Perigee) with context, options, decision, consequences; flag the CEO. Design changes (contradict or extend the approved spec or a D-decision) block the issue and go to Mario via board approval; implementation details are CEO-approved.
   - Ask Mario only by setting the issue `blocked` with one specific question.
   - Every run ends with a comment: what was done, what's next, anything blocked.
+  - Clean code: write the simplest code that passes the tests. No code comments. No abstraction without a second real use (no speculative interfaces, factories, generic helpers). Names carry the meaning comments would have.
   - No cloud credentials; never request them.
 - [ ] **Step 2: CEO / Principal Solutions Architect.** Runtime per FINDINGS (`claude_local`), model Opus. Instructions: turn Mario's requirement into design + strategy; read the existing spec/decisions first; get specialist input by creating review sub-issues for Cloud Architect, DDD Reviewer, Security pair; submit strategy for board approval; owns the design-change vs implementation-detail call; after Mario approves decisions, sync them to Notion (Perigee Decisions data source `collection://8898ce19-e31c-422e-9e62-8d428d4ecf72`, area page `3f334fd6f0938131abe4d325d80b6332`). Notion MCP in its `cwd` per FINDINGS Step 4. Heartbeat: none (wakes on assignment/approval).
 - [ ] **Step 3: Delivery Lead.** Runtime `claude_local` with Superpowers (writing-plans). Reports to CEO. Instructions: approved strategy → plan in repo (`docs/superpowers/plans/`) → Paperclip issues, one per plan task, with acceptance criteria and the reviewer chain from Task 9; assign Codex developers; collect specialist reviews and give the consolidated approval; rebase-merge approved task PRs into `m0`; open the `m0 → main` PR for Mario with a demo/runbook checklist and a **review digest**: per task — link to the task PR and Paperclip issue, each finding id with reviewer, outcome (fixed / won't fix + reason), and fixing commit SHA. Refuse to approve a task PR while any finding lacks a reply. Heartbeat: one daily check of stalled issues (only Claude agent with a timer).
@@ -205,20 +208,21 @@ Use **superpowers:writing-skills** — the skill is tested against baseline beha
 
 ### Task 6: Production and review agents
 
-**Files:** one agent folder each under `paperclip/company/agents/`: `developer-1`, `developer-2`, `platform-devops`, `cloud-architect`, `security-codex`, `security-claude`, `ddd-reviewer`, `qa`.
+**Files:** one agent folder each under `paperclip/company/agents/`: `developer-1`, `developer-2`, `refactorer`, `platform-devops`, `cloud-architect`, `security-codex`, `security-claude`, `ddd-reviewer`, `qa`.
 
 **Interfaces:**
 - Consumes: `team-rules.md`, `delivery-lead` slug (all report to it, except `cloud-architect` and the security pair which report to `ceo-principal-architect`).
 - Produces: the slugs above for Task 9's review chain.
 
 - [ ] **Step 1: Developers ×2** (`codex_local`, Superpowers if FINDINGS Step 3 passed, else instructions carry TDD + small commits + run tests before handing off). Implement only the assigned issue on its branch; red-green-refactor; hand off by marking done with test evidence in the comment.
+- [ ] **Step 1b: Refactorer** (`codex_local`, reports to `delivery-lead`). Runs after the developer's tests are green, on the same task branch, before review. Removes code comments, dead code and needless abstractions; simplifies names and control flow; behaviour unchanged. Hard rules: never create, edit or delete test files (`*_test.go`, `*.test.ts`, `*.spec.ts`, `__tests__/`, `testdata/`); run the full suite before and after and paste both results; if a cleanup needs a test change, leave it and note it for the developer. Commits: `refactor: <summary>`. Its output is reviewed by the Claude reviewers that follow it in the chain.
 - [ ] **Step 2: Platform/DevOps** (`codex_local`, Superpowers, HashiCorp Terraform skill). Containers, IaC, CI/CD, observability scaffolding; cloud-agnostic until a target cloud is decided; no `apply` against real clouds.
 - [ ] **Step 3: Cloud Architect** (`claude_local`, `cwd` enabling Azure, AWS core, HashiCorp Terraform plugins + azure-well-architected skill, per FINDINGS Step 2). Reviews designs for cloud-native fit (12-factor, statelessness, config via env, health checks, horizontal scaling, managed-service options per cloud) and reviews all Platform/DevOps output.
 - [ ] **Step 4: Security pair.** `security-codex` (`codex_local`) and `security-claude` (`claude_local`): threat model (STRIDE) for designs, code and IaC review, secrets handling, dependency risk. Each reviews the other's output; `security-claude` is the Claude reviewer for Codex security findings.
 - [ ] **Step 5: DDD Reviewer** (`claude_local`). Reviews developer code against bounded contexts, aggregates, domain events and the ubiquitous language (`docs/design/ubiquitous-language.md` for Perigee); rejects leaks across contexts.
 - [ ] **Step 6: QA** (`claude_local`, Superpowers verification skills). Tests against spec acceptance criteria, runs the suite, checks demo readiness and runbooks; rejects with a reproducible failing case.
 - [ ] **Step 7: Budgets and heartbeats.** All Claude agents in this task: no timer heartbeat. Monthly budgets (cents) per FINDINGS Step 7 — starting point: Claude reviewers equal shares of a cap Mario sets; Codex agents uncapped by budget but paused when idle. Record the numbers in the agent files.
-- [ ] **Step 8: Validate and commit.** Import preview shows 10 agents (2 from Task 5 + 8), correct reports-to tree. `git commit -am "paperclip: production and review agents"` (add new files first).
+- [ ] **Step 8: Validate and commit.** Import preview shows 11 agents (2 from Task 5 + 9), correct reports-to tree. `git commit -am "paperclip: production and review agents"` (add new files first).
 
 ### Task 7: Paperclip Teacher agent (in-context mode)
 
@@ -229,7 +233,7 @@ Use **superpowers:writing-skills** — the skill is tested against baseline beha
 - Consumes: `claude-skills/dot-claude/skills/teacher/` (Task 4), FINDINGS Step 5 (wake mechanism).
 
 - [ ] **Step 1: Write the agent.** `claude_local`, reports to CEO but takes work only from Mario. Skills: the `teacher` skill (attach the same directory — one source of truth). Instructions: in-context mode only (full lessons happen live in Claude Code); read the issue, its parent and linked docs; teach in comments; record to Notion per `notion.md`. Wake: per FINDINGS Step 5 (mention, or Mario assigns a "help me understand" sub-issue). No heartbeat.
-- [ ] **Step 2: Validate and commit.** Import preview shows 11 agents. Commit.
+- [ ] **Step 2: Validate and commit.** Import preview shows 12 agents. Commit.
 
 ### Task 8: Agents' GitHub token
 
@@ -246,8 +250,8 @@ Use **superpowers:writing-skills** — the skill is tested against baseline beha
 - Consumes: `paperclip/company/` (Tasks 5–7), FINDINGS, `GITHUB_TOKEN` (Task 8).
 - Produces: live company in Paperclip; review chain configuration used by every delivery issue.
 
-- [ ] **Step 1: Import.** `paperclipai company import <path to paperclip/company>` (exact form per FINDINGS). Expected: 11 agents, paused, timer heartbeats disabled (Paperclip's import default).
-- [ ] **Step 2: Default review chain** (pattern chosen in FINDINGS Step 6). Developer issues: DDD Reviewer → QA → Delivery Lead approval. Platform/DevOps issues: Cloud Architect → Security-claude → Delivery Lead. Security-codex output: Security-claude. Design/strategy: Mario (board).
+- [ ] **Step 1: Import.** `paperclipai company import <path to paperclip/company>` (exact form per FINDINGS). Expected: 12 agents, paused, timer heartbeats disabled (Paperclip's import default).
+- [ ] **Step 2: Default review chain** (pattern chosen in FINDINGS Step 6). Developer issues: Developer (green) → Refactorer → DDD Reviewer → QA → Delivery Lead approval. Platform/DevOps issues: Refactorer → Cloud Architect → Security-claude → Delivery Lead. Security-codex output: Security-claude. Design/strategy: Mario (board).
 - [ ] **Step 3: Unpause agents** except none — all active, timers only on Delivery Lead.
 - [ ] **Step 4: Write `paperclip/README.md`.** Re-import procedure, where each setting lives, the two gates (Approvals page = front gate, `m0 → main` PR = back gate), Blocked inbox, how to call the Teacher (live: `teacher` skill in Claude Code; in-context: per FINDINGS).
 - [ ] **Step 5: Commit.** `git add paperclip/README.md && git commit -m "paperclip: operating guide"`
@@ -260,24 +264,17 @@ Repo: new private `mariopavlov/paperclip-smoke` (ask Mario before creating) with
 - [ ] **Step 2: Plan → tasks → build.** Expected: Delivery Lead creates issue(s), a Codex developer implements on a task branch, DDD Reviewer and QA review, Lead approves and merges into `m0`, then opens `m0 → main` PR.
 - [ ] **Step 3: Review rule holds.** Check every Codex-executed issue shows a Claude review decision with a comment before approval. Fail = any Codex issue approved without one.
 - [ ] **Step 3b: Review trail on GitHub.** Seed one deliberate defect in the requirement (e.g. ask QA to insist on a `Content-Type: application/json` check the developer is told to omit) so at least one finding is raised. Expected on the task PR: role-tagged finding comment, a `fix(review):` commit with `Review-Finding:` trailer, executor reply with the SHA; on the `m0 → main` PR: digest row for that finding; after Mario's rebase-merge, `git log main --format='%s%n%(trailers:key=Review-Finding)'` shows the fix commit and trailer.
+- [ ] **Step 3c: Clean-code pass.** Expected on the task branch: a `refactor:` commit by the Refactorer whose diff touches no test files (`git diff --name-only <before>..<after> | grep -E '_test\.go$'` → empty), suite green before and after, and no comments in the changed non-test code (`git diff main..m0 -- '*.go' ':!*_test.go' | grep -E '^\+\s*//'` → empty).
 - [ ] **Step 4: Main gate holds (Review Focus 3).** From a shell using the agents' token: `git push https://x-access-token:$TOKEN@github.com/mariopavlov/paperclip-smoke HEAD:main` → expected rejection (`GH013`/protected). Mario merges the PR himself with rebase.
 - [ ] **Step 5: Budget cap behaviour (Review Focus 4).** Set QA's budget just above current spend, assign it a review; expected auto-pause, issue stays `in_review`, not done. Restore the budget.
 - [ ] **Step 6: Teacher in-context.** Mario calls the Teacher on the `/health` issue ("why a separate readiness vs liveness check?"). Expected: it diagnoses first, answers in comments, writes a Knowledge Check to Notion.
 - [ ] **Step 7: Record cost.** Note Claude vs Codex usage for the run in `paperclip/FINDINGS.md` (new "Smoke test" section). Commit.
 
-### Task 11: Prepare the Perigee repo
+## After this plan: first Paperclip work on Perigee
 
-Work on branch `chore/paperclip-team` in `~/workspace/github.com/mariopavlov/perigee`; Mario merges the PR.
+Not executed from this repo. Mario gives these to the team in Paperclip, in order, once Task 10 passes.
 
-- [ ] **Step 1: Remove Beads.** Delete `.beads/`; remove the `bd prime` SessionStart hook from `.claude/settings.json`; remove Beads integrations under `.codex/` and `.cursor/`; delete `BEGIN/END BEADS` blocks in `AGENTS.md` and `CLAUDE.md`; replace README's "Issue tracking: Beads" section with "Work tracking: Paperclip" (agents' issues live in Paperclip; Mario's checkpoints in Todoist). Unset `core.hooksPath` if it points at `.beads/hooks`.
-  Verify: `grep -ri "beads\|\bbd " --exclude-dir=.git .` → only historical mentions in `docs/design/` decision log entries.
-- [ ] **Step 2: Rewrite the Git Policy** in `AGENTS.md` and README "Git workflow": agents commit and push on task branches; Delivery Lead merges approved branches into milestone branch (`m0`); only Mario merges to `main`, via PR, rebase only.
-- [ ] **Step 3: Update `docs/design/session-state.md`.** Next steps become: cloud-native review by the Paperclip team (D25+), then revise M0 plan, then build M0 via Paperclip. Remove the Beads issue-creation step.
-- [ ] **Step 4: Create `m0`.** `git push origin main:refs/heads/m0` after the PR merges.
-- [ ] **Step 5: PR.** Commit, push the branch, `gh pr create` to `main`; Mario reviews and rebase-merges.
-
-### Task 12: Kick off Perigee
-
-- [ ] **Step 1:** In Paperclip, create project "Perigee" with workspace = local path `~/workspace/github.com/mariopavlov/perigee`, isolated execution workspaces on.
-- [ ] **Step 2: Mario gives the CEO the requirement** (draft for him to edit): *"Perigee must be cloud native: containerised, stateless services, config from the environment, health/readiness endpoints, horizontally scalable, observable; deployable later to Azure or AWS (target open). Review the approved spec and the M0 plan for this. Propose changes as decisions D25+, then a revised M0 plan."*
-- [ ] **Step 3:** Expected: CEO creates review sub-issues (Cloud Architect, DDD, Security pair), proposes D25+, submits strategy to the Approvals page. Mario approves or requests revision. M0 then runs under the team; the checkpoint review (spec §9 step 4) happens when Mario merges `m0 → main`.
+1. **Project setup (Mario, Paperclip UI):** project "Perigee", workspace = local path `~/workspace/github.com/mariopavlov/perigee`, isolated execution workspaces on.
+2. **First issue — repo cleanup (team, PR to `main` that Mario merges):** remove Beads (`.beads/`, the `bd prime` SessionStart hook in `.claude/settings.json`, `.codex/` and `.cursor/` integrations, `BEGIN/END BEADS` blocks in `AGENTS.md`/`CLAUDE.md`, README section, `core.hooksPath`); rewrite the Git Policy (agents commit/push on task branches, task PRs into milestone branch, only Mario merges `main`, rebase only); add the clean-code rule; update `docs/design/session-state.md` next steps; create `m0` after merge.
+3. **Requirement to the CEO** (draft for Mario to edit): *"Perigee must be cloud native: containerised, stateless services, config from the environment, health/readiness endpoints, horizontally scalable, observable; deployable later to Azure or AWS (target open). Review the approved spec and the M0 plan for this. Propose changes as decisions D25+, then a revised M0 plan."*
+4. **M0** runs under the team; the checkpoint review (spec §9 step 4) happens when Mario merges `m0 → main`.

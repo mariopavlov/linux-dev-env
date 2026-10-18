@@ -124,6 +124,12 @@ Claude's calls (Mario can override):
   every fix is its own commit with a `Review-Finding:` trailer; nothing is squashed. The `m0 → main`
   PR carries a digest of all findings and fixes, so Mario sees what was found and fixed at the
   final review.
+- **Clean code (Mario's decision, added during planning).** Code must be minimal and readable:
+  no code comments, no complex or speculative abstractions. All agents follow it, and a
+  Refactorer (Codex, reviewed by the Claude reviewers after it) cleans each task once its tests
+  are green, without touching tests.
+- **Scope split (Mario).** `linux-dev-env` sets up the machine and the team only. Perigee work —
+  including its repo cleanup — is done by the team inside Paperclip.
 - **Mid-flight design decisions block only their own issue.** The CEO judges whether a decision
   changes the design (anything that contradicts or extends the approved spec or a D-decision) or
   is an implementation detail. Implementation details: CEO approves, work continues. Design
@@ -140,6 +146,7 @@ Claude's calls (Mario can override):
 | **Delivery Lead** | Claude + Superpowers | Plan → tasks (Paperclip issues); assigns; collects specialist reviews into the single approval Paperclip allows per stage; escalates blockers to Mario | Owns the last review stage before Mario |
 | **Developers** (start with 2) | Codex + Superpowers | Implement tasks on isolated worktree branches, TDD per Superpowers | — |
 | **Cloud Architect** | Claude + Azure/AWS/Terraform skills | Cloud-native fit, managed-service choices, deployment targets | Platform/DevOps work |
+| **Refactorer** | Codex | After a task is green and before review: removes code comments, dead code and needless abstractions; behaviour unchanged; **never touches tests** | — |
 | **Platform/DevOps Engineer** | Codex + Superpowers, Terraform/K8s skills | Containers, IaC, CI/CD, observability scaffolding | — |
 | **Security Engineer #1** | Codex | Threat model, code/IaC review, secrets handling | Security #2 output |
 | **Security Engineer #2** | Claude | Same scope, independent review | Security #1 output; all Codex code |
@@ -159,6 +166,7 @@ Mario: requirement ──► CEO/Principal Architect: design + strategy + D-deci
 Delivery Lead: plan → Paperclip issues → assigns
 Codex Developer / DevOps: implement on task branch (worktree), commit + push branch
 Review chain (Paperclip execution policy, one approver per stage):
+  stage 0  Refactorer (Codex) — clean-up pass, tests untouched
   stage 1  domain specialist(s) — DDD Reviewer / Cloud Architect / Security pair
   stage 2  QA
   stage 3  Delivery Lead (consolidated approval)
