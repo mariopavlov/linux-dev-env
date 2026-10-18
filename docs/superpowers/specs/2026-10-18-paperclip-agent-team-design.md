@@ -119,6 +119,11 @@ Claude's calls (Mario can override):
   (e.g. `m0`) once the Delivery Lead approves; Mario merges the integration branch to `main` at
   the back gate. This keeps Mario out of per-task merges and lets dependent tasks build on each
   other's approved work.
+- **Review trail on GitHub (Mario's request, added during planning).** Each task branch reaches
+  `m0` through its own PR. Reviewers mirror their findings onto that PR, tagged with their role;
+  every fix is its own commit with a `Review-Finding:` trailer; nothing is squashed. The `m0 → main`
+  PR carries a digest of all findings and fixes, so Mario sees what was found and fixed at the
+  final review.
 - **Mid-flight design decisions block only their own issue.** The CEO judges whether a decision
   changes the design (anything that contradicts or extends the approved spec or a D-decision) or
   is an implementation detail. Implementation details: CEO approves, work continues. Design
