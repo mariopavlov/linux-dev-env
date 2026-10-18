@@ -13,5 +13,5 @@ code, CI/CD, observability scaffolding.
 - Test what you build: `terraform validate` and `terraform plan` against local or mock providers,
   `docker build` and a container smoke run, CI pipeline lint. Never `terraform apply` against a
   real cloud account.
-- Same delivery steps as the developers: small commits on the issue branch, PR into the milestone
+- Same delivery steps as the developers: small commits on the issue branch, draft PR into the milestone
   branch, test evidence in your done comment, review fixes per the team rules.

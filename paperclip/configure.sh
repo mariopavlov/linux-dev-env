@@ -11,6 +11,7 @@ PAPERCLIP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 API="${PAPERCLIP_API:-http://127.0.0.1:3100/api}"
 COMPANY_NAME="Mario Solutions Architecture"
 AGENT_HOMES="$HOME/.paperclip/agent-homes"
+GIT_EMAIL="$(git config --global user.email)"
 
 api() {
     local method="$1" path="$2" body="${3:-}"
@@ -117,11 +118,13 @@ for slug in "${!NAME[@]}"; do
 
     home="$AGENT_HOMES/$slug"
     mkdir -p "$home"
+    author="${NAME[$slug]} (Paperclip)"
+    env="$(jq -nc --arg n "$author" --arg e "$GIT_EMAIL" \
+        '{GIT_AUTHOR_NAME:$n, GIT_AUTHOR_EMAIL:$e, GIT_COMMITTER_NAME:$n, GIT_COMMITTER_EMAIL:$e}')"
     if is_claude "$slug"; then
-        env='{"ENABLE_CLAUDEAI_MCP_SERVERS":"false"}'
+        env="$(jq -c '. + {ENABLE_CLAUDEAI_MCP_SERVERS:"false"}' <<<"$env")"
         concurrency=1
     else
-        env='{}'
         concurrency=2
     fi
     if [[ "$slug" == "ceo-principal-architect" ]]; then

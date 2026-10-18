@@ -75,9 +75,24 @@ the local `teacher` skill, and every agent's instructions. To bump a skill repo,
 
 ## Starting work on a repo
 
-Project → New: workspace = the local repo path (Linux filesystem), execution workspaces
-**isolated**, strategy **git worktree**, base ref = the milestone branch (e.g. `m0`). Add
-`.paperclip/` and `.claude/` to the repo's `.gitignore`.
+1. `bash paperclip/setup-repo.sh <owner/repo> <milestone-branch> <local-path>` — rebase-only
+   merges, the `main` ruleset, the milestone branch, and its `paperclip/approval` check. Add any
+   `.gitignore` entries it reports (`.paperclip/`, `.claude/`).
+2. Paperclip → Project → New: workspace = the local repo path (Linux filesystem), execution
+   workspaces **isolated**, strategy **git worktree**, base ref = the milestone branch.
+
+## Working with the team
+
+- **Start work** with a task in the project, assigned to the Principal Architect (or Agent Chat
+  with it). Describe the problem in your own words.
+- **Status tells you who waits on whom:** `in_progress` an agent is working, `in_review` an agent
+  is reviewing, `blocked` **it waits for you** — filter on `blocked` or use the Blocked inbox.
+- **Questions** arrive as one card with all of them; answer them together and add anything else.
+- **Gate 2** is a confirmation card in the task; **Gate 3** is the milestone PR on GitHub
+  (`m0 → main`), the only PR you merge. Task PRs are drafts the Principal merges.
+- **Don't comment on an issue while its agent is running** — Paperclip cancels and restarts the
+  run. Wait for its end-of-run comment.
+- Agents use your `gh` login; their commits show "<agent> (Paperclip)" as author with your email.
 
 ## Calling the Teacher
 

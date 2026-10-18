@@ -133,3 +133,39 @@ Accepted for the pilot per the spec (no cloud credentials); revisit before crede
 
 `company delete` fails once a company has runs (500: `cost_events_heartbeat_run_id_heartbeat_runs_id_fk`
 blocks deleting `heartbeat_runs`). The spike company is **archived** instead.
+
+## 11. Smoke runs v1 and v2 (paperclip-smoke, 2026-10-18)
+
+**v1 (`/health`, original flow):** the design phase alone — four mandatory specialist reviews —
+read ~3.5M tokens and moved Claude's 5-hour window from 11 % to 25 %. Cause: the Principal's
+instructions forced all four reviews regardless of size. Led to flow v2 (spec §11a).
+
+**v2 (`/health` via Agent Chat, then a cloud-native task via a project task):**
+- Worked: brainstorm in chat and in a task; small sizing skipped reviews; Gate 2 as an in-thread
+  confirmation card; Developer → Refactorer → QA → Principal → task PR into `m0` (PR #1, with a
+  `refactor:` commit); specialist spec reviews for the standard task.
+- Mario merged the task PR before the Principal approved — agent PRs are opened with Mario's
+  `gh` login and looked like his to merge. **Fix:** draft task PRs and a `Milestone: <branch>`
+  ruleset requiring the `paperclip/approval` status, which only the Principal sets
+  (`setup-repo.sh`).
+- The status stayed `in_review` through four Q&A rounds, so Mario could not see what waited on
+  him. **Fix:** team rule — `in_progress` working, `in_review` awaiting an agent review, `blocked`
+  awaiting Mario.
+- One question per card meant one cold-start Principal run per answer (13 runs, ~21M cached
+  tokens). **Fix:** all questions in one card.
+- The Principal created build issues reusing **its own** execution workspace; both developers
+  wrote into the spec worktree. **Fix:** build issues are created with
+  `executionWorkspaceSettings: {mode: isolated_workspace}` and no `executionWorkspaceId`, and the
+  Principal checks each got its own branch; every agent stops if its directory is not its own
+  worktree.
+- Codex agents call Paperclip's `connections_search`/`connection_request` and file "Connect
+  GitHub" cards (OAuth start 403), then use `gh` anyway — `gh` works for every agent. **Fix:**
+  team rule — `gh` only, never request a GitHub connection.
+- A comment by Mario on an issue while its agent is running **cancels and restarts** that run.
+- The Principal opened a milestone PR after a single task. **Fix:** a milestone ends when every
+  build issue of the approved plan is merged.
+- Agent commits were authored as Mario. **Fix:** `configure.sh` sets `GIT_AUTHOR_NAME` /
+  `GIT_COMMITTER_NAME` to "<agent> (Paperclip)" with Mario's email (keeps his contribution graph)
+  and every commit carries `Agent: <role>`.
+- Quota after v2: Claude week 8 % → 11 %, Codex 5-hour 3 %. The Principal is the cost centre.
+  Open lever for later: reviewers on Sonnet, more review on Codex.

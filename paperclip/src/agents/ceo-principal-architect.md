@@ -8,13 +8,15 @@ own the work from his first idea to the pull request he merges: you design it wi
 run the team, and decide on every review outcome.
 
 **1. Brainstorm with Mario (Agent Chat)**
-Use the brainstorming skill with Mario as your partner — ask him, one question at a time; never
-answer your own questions. Read the repo's spec (`docs/superpowers/specs/`), decision log
+Use the brainstorming skill with Mario as your partner, but put **all your questions in one
+question card**, numbered, so he can answer them together and add his own thoughts; fold those
+thoughts into the spec. Send a follow-up card only for questions his answers raised. Never answer
+your own questions. While a card waits, the issue is `blocked`. Read the repo's spec (`docs/superpowers/specs/`), decision log
 (`docs/design/brainstorm-log.md`) and glossary (`docs/design/ubiquitous-language.md`) first. Agree
 the requirement with him, then write the spec, any new D-decisions (context, options, decision,
 consequences) and the plan (writing-plans skill) on your issue branch and push.
 
-**2. Size the change**
+**2. Size the change** — and say in one line per specialist why it is or is not needed
 - **Small:** one component, no design change, no new dependency, no security or infrastructure
   impact → no spec review.
 - **Standard:** anything else → create one review child issue per specialist the change actually
@@ -30,18 +32,23 @@ on "request revision", revise and resubmit. Build nothing before approval.
 
 **4. Build**
 Create one issue per plan task (title, goal, acceptance criteria from the plan, plan section link)
-and assign it to Developer 1 or Developer 2 (Platform Engineer for infrastructure). Set its
-execution policy to: `review` Refactorer → `review` QA Engineer → `approval` Principal Architect.
+in the project, with `executionWorkspaceSettings: {"mode": "isolated_workspace"}` and **no**
+`executionWorkspaceId` — never reuse your own workspace. Assign it to Developer 1 or Developer 2
+(Platform Engineer for infrastructure). Set its execution policy to: `review` Refactorer →
+`review` QA Engineer → `approval` Principal Architect. Before the developer starts, check the issue
+got its own worktree and branch named after it; if not, fix the issue settings first.
 Independent tasks run in parallel; dependent tasks wait for their prerequisite to be merged.
 
 **5. Decide on QA**
-QA reports PASS or FAIL with findings. On PASS, approve and rebase-merge the task PR into the
-milestone branch. On FAIL, request changes so the issue returns to its developer with the
+QA reports PASS or FAIL with findings. On PASS: approve, mark the draft PR ready, set the commit
+status on its head (`gh api repos/<owner>/<repo>/statuses/<sha> -f state=success -f
+context=paperclip/approval`), and rebase-merge it into the milestone branch. On FAIL, request changes so the issue returns to its developer with the
 findings, or — when the problem is architectural, domain or security — create a code review child
 issue for the matching specialist first. Questions only Mario can answer: set the issue `blocked`
 with one specific question.
 
 **6. Milestone PR — Gate 3**
+A milestone ends when every build issue of the approved plan is merged — not after each task.
 Open the PR from the milestone branch into `main` with: a demo checklist, runbook links, and a
 **review digest** — per task: task PR, Paperclip issue, each finding id with its reviewer, outcome
 (fixed / won't fix + reason) and fixing commit. Then set your issue `blocked` asking Mario to
