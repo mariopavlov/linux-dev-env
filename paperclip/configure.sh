@@ -25,7 +25,6 @@ log() { printf '▶ %s\n' "$*"; }
 
 declare -A NAME=(
     [ceo-principal-architect]="Principal Architect"
-    [delivery-lead]="Delivery Lead"
     [developer-1]="Developer 1"
     [developer-2]="Developer 2"
     [refactorer]="Refactorer"
@@ -39,18 +38,15 @@ declare -A NAME=(
 )
 
 SUPERPOWERS="brainstorming writing-plans executing-plans test-driven-development systematic-debugging verification-before-completion requesting-code-review receiving-code-review"
-AZURE="azure-kubernetes azure-storage azure-messaging azure-reliability azure-compliance azure-cloud-migrate azure-well-architected azure-architecture azure-kubernetes-service"
-AWS="aws-containers aws-compute aws-database aws-networking aws-security aws-storage aws-messaging-and-streaming aws-well-architected-review"
 TERRAFORM="terraform-style-guide terraform-test refactor-module azure-verified-modules"
 
 declare -A SKILLS=(
-    [ceo-principal-architect]="brainstorming writing-plans"
-    [delivery-lead]="writing-plans executing-plans requesting-code-review"
+    [ceo-principal-architect]="brainstorming writing-plans executing-plans receiving-code-review"
     [developer-1]="$SUPERPOWERS"
     [developer-2]="$SUPERPOWERS"
     [refactorer]="systematic-debugging verification-before-completion receiving-code-review"
     [platform-devops]="$SUPERPOWERS $TERRAFORM"
-    [cloud-architect]="$AZURE $AWS $TERRAFORM requesting-code-review"
+    [cloud-architect]="azure-well-architected azure-architecture azure-kubernetes-service azure-reliability aws-well-architected-review aws-containers aws-security terraform-style-guide"
     [security-codex]="requesting-code-review"
     [security-claude]="requesting-code-review"
     [ddd-reviewer]="requesting-code-review"
@@ -61,9 +57,9 @@ declare -A SKILLS=(
 # repo|commit|path prefix|skill names
 SOURCES=(
     "obra/superpowers|bb92a77741419a4ab5f06e711a283343f1ada0c3|skills|$SUPERPOWERS"
-    "microsoft/azure-skills|cf79ce8778ad063eeac19dbe8bf982d71b466ce0|skills|azure-kubernetes azure-storage azure-messaging azure-reliability azure-compliance azure-cloud-migrate"
+    "microsoft/azure-skills|cf79ce8778ad063eeac19dbe8bf982d71b466ce0|skills|azure-reliability"
     "MicrosoftDocs/Agent-Skills|ba74e8fcc5cf4864798beaf95e53d7c4840bac5e|skills|azure-well-architected azure-architecture azure-kubernetes-service"
-    "aws/agent-toolkit-for-aws|44ba1a5451913998815111cc2d518f5c45f95ef7|plugins/aws-core/skills|$AWS"
+    "aws/agent-toolkit-for-aws|44ba1a5451913998815111cc2d518f5c45f95ef7|plugins/aws-core/skills|aws-well-architected-review aws-containers aws-security"
     "hashicorp/agent-skills|f706481af9b8fedb66de909f6243ad29601afa0c|plugins/terraform/skills|$TERRAFORM"
 )
 
@@ -71,9 +67,9 @@ is_claude() { [[ "$(jq -r --arg n "${NAME[$1]}" '.[] | select(.name==$n) | .adap
 
 api GET /health >/dev/null || { echo "Paperclip is not reachable at $API" >&2; exit 1; }
 
-log "Instance: isolated workspaces"
+log "Instance: isolated workspaces, agent chat"
 api PATCH /instance/settings/experimental \
-    '{"enableIsolatedWorkspaces":true,"enableIsolatedWorkspacesByDefault":true}' >/dev/null
+    '{"enableIsolatedWorkspaces":true,"enableIsolatedWorkspacesByDefault":true,"enableAgentChat":true}' >/dev/null
 
 log "Company: $COMPANY_NAME"
 company_id() { api GET /companies | jq -r --arg n "$COMPANY_NAME" '.[] | select(.name==$n and .status!="archived") | .id' | head -n1; }
@@ -127,7 +123,7 @@ for slug in "${!NAME[@]}"; do
         env='{}'
         concurrency=2
     fi
-    if [[ "$slug" == "delivery-lead" ]]; then
+    if [[ "$slug" == "ceo-principal-architect" ]]; then
         heartbeat="{\"enabled\":true,\"intervalSec\":86400,\"maxConcurrentRuns\":$concurrency}"
     else
         heartbeat="{\"enabled\":false,\"maxConcurrentRuns\":$concurrency}"
