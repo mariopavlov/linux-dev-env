@@ -1,0 +1,250 @@
+# Paperclip Agent Team on Fedora WSL — Design
+
+**Date:** 2026-10-18 · **Status:** approved 2026-10-18 · **Author:** Mario + Claude (brainstorm)
+
+## 1. Intent
+
+Mario is a solutions architect. Today he drives every agent session by hand (Superpowers in
+Claude Code), which makes him the bottleneck in the middle of every piece of work. He wants a
+standing **team of AI agents** that takes approved requirements and delivers a good product
+without him, while he keeps control of the two ends:
+
+- **Front gate — requirements.** Nothing gets built until Mario approves what and why.
+- **Back gate — final review.** Depending on the work: a live demo, runbooks for a client, and
+  the merge to `main`.
+
+Because Mario steps out of the middle, quality has to come from **review depth**: a bench of
+domain specialists that review each other's work. This is a permanent working setup for all of
+his work (personal and, later, client), not a one-off experiment.
+
+Alongside the team he wants a **Teacher**: an agent he calls directly to learn a topic or to
+understand something the team proposed. Previous attempts at teaching agents failed in specific
+ways (see §7), and fixing those is the point.
+
+The platform is **Paperclip** (`github.com/paperclipai/paperclip`, MIT, latest v2026.1012.0), run
+on Mario's **Fedora WSL2** machine, reached from a Windows browser, using his existing **Claude**
+and **ChatGPT/Codex subscriptions** (no API keys).
+
+## 2. Goals, non-goals, anti-goals
+
+**Goals**
+- Paperclip installed on Fedora WSL, running persistently, reachable from Windows at `http://localhost:3100`.
+- A Paperclip company with the roles in §5, using Claude Code and Codex on subscription logins.
+- Every Codex-produced artifact is reviewed by at least one Claude agent before it reaches Mario.
+- Mario's only mandatory touchpoints: approving requirements/strategy, approving decisions that
+  change the design, merging to `main`, and the final demo/runbook review.
+- A Teacher Mario can invoke at any time that teaches like a real mentor (§7).
+- First workload: **Perigee** (personal project). First checkpoint: **Perigee M0** merged (§9).
+
+**Non-goals (for now)**
+- Client work (WKL) on this team. WKL stays hand-driven until the setup is proven.
+- Cloud credentials for any agent. Nothing deploys during the pilot.
+- Notifications (Slack/Discord). Mario polls the Approvals and Blocked inboxes.
+- Quota optimisation (e.g. shifting more work to Codex). Measure first, optimise later.
+- Exposing Paperclip beyond localhost.
+
+**Anti-goals — failure even if it technically works**
+- Mario is still pulled into routine back-and-forth mid-flight.
+- Codex output reaches Mario (or `main`) without a Claude review.
+- Any agent can push to or merge into `main`.
+- A Teacher that assumes mastery after one answer, asks vague questions, or starts a plan in the
+  middle of a topic.
+- Quota burns out so fast that the team stalls for most of the week.
+- Decisions made by agents that never land in the repo decision log.
+
+## 3. Constraints
+
+- **Host:** Fedora on WSL2 (`setup-fedora-wsl/`). Repos live on the Linux filesystem under
+  `~/workspace/<host>/<path>` (ghq layout), never on `/mnt/c` (Paperclip issue #1684).
+- **Runtime:** Node.js ≥ 24.11 (Paperclip's engines field). Node is managed by mise in this repo
+  (`dotfiles/dot_config/mise/config.toml`); make sure the pinned version satisfies this.
+  Paperclip ships embedded Postgres; no Docker needed.
+- **Subscriptions only:** Claude Code uses Mario's Claude subscription login; Codex uses his
+  ChatGPT login (`~/.codex/auth.json`, which Paperclip symlinks per agent). Codex is the more
+  generous plan; Claude quota is the scarcer resource.
+- **WSL DNS:** Paperclip issue #7373 reports WSL2 DNS failing under load and breaking
+  `claude_local` runs; apply the fallback-nameserver fix if seen.
+- **No secrets in this repo** (existing rule): tokens go through 1Password / `op run` or
+  Paperclip company secrets.
+- **Paperclip limits to design around:** one approval per review stage; no outbound webhooks;
+  CEO is the mandatory org-chart root; Claude Code plugins/MCP are not configurable per agent
+  through Paperclip (use a per-agent `cwd` with its own config); Codex MCP setup is undocumented;
+  permission bypass defaults to on for both adapters.
+
+## 4. Decisions made in the brainstorm
+
+Mario's decisions:
+
+1. **Platform:** Paperclip, on Fedora WSL, UI accessed from Windows.
+2. **Mario's role:** owns requirements and final review (demo, runbooks); wants out of the middle.
+3. **Specialist bench** per solutions-architecture domain, strong enough that review replaces him.
+4. **Developers are Codex only**, using Superpowers.
+5. **Runtime split:** Claude for judgment/coordination/review roles, Codex for production roles.
+   Cloud skills (Azure/AWS) sit on a Claude agent.
+6. **Rule: every Codex output gets at least one Claude reviewer.**
+7. **Security is a pair:** one Codex, one Claude.
+8. **Teacher:** invoked directly by Mario, both from inside work items and standalone (§7).
+9. **Pilot on Perigee**, not WKL. First checkpoint is Perigee M0; the setup continues afterwards.
+10. **Perigee must become cloud native** (Mario will scale and deploy it later). The approved spec
+    and M0 plan must be reviewed and adapted before M0 is built — this is the team's first job.
+11. **Git:** agents commit and push on task branches; **only Mario merges to `main`**.
+12. **Beads is scrapped** in Perigee; Paperclip issues track all agent work.
+13. **Knowledge:** the repo is the source of truth (D-numbered decision log); one agent — the
+    CEO/Principal Architect — syncs approved decisions to Notion.
+
+Claude's calls (Mario can override):
+
+- **CEO = Principal Solutions Architect** and a separate **Delivery Lead** (CTO-shaped) under it,
+  instead of a generic CEO + CTO pair, to avoid two coordinators burning quota.
+- **Teacher on Claude**, because teaching quality matters most and it runs rarely.
+- **Quota fit for Claude Max 5x ($100) + Codex $100 (Mario's plans).** Keep the roster, but Claude
+  review roles have no timer heartbeats (they wake only on assignment/review), Claude agents run
+  at most one or two at a time, and each Claude agent gets a Paperclip budget. Mario's own
+  hand-driven work shares the same Claude quota. If the pilot shows Claude stalling, merge QA +
+  DDD Reviewer first.
+- **Teacher writes to Notion learning databases** (Study Assignments, Knowledge Checks) directly —
+  the one exception to "only the CEO touches Notion".
+- **Paperclip runs in `local_trusted` mode** (loopback only, no login), as a systemd **user**
+  service in Fedora, telemetry off.
+- **`main` gate: enforced by GitHub *and* by agent instructions (Mario's decision).** Perigee
+  is back at `mariopavlov/perigee` (private); Mario is buying GitHub Pro so private-repo rulesets
+  are enforced. Ruleset on `main`: require a pull request, block direct pushes, force-pushes and
+  deletion. Limit: agents act through a token in Mario's name, so GitHub cannot tell an agent's
+  merge from Mario's — the ruleset stops direct pushes to `main`, and **merging stays forbidden
+  by agent instructions** (and by not giving agents a merge workflow). A bot identity for agents
+  would close this gap; deferred until client work.
+- **Permission bypass accepted** inside per-agent worktrees for Perigee, because no agent holds
+  cloud credentials. Revisit before any agent gets credentials.
+- **Milestone integration branch.** Task branches merge into a per-milestone integration branch
+  (e.g. `m0`) once the Delivery Lead approves; Mario merges the integration branch to `main` at
+  the back gate. This keeps Mario out of per-task merges and lets dependent tasks build on each
+  other's approved work.
+- **Mid-flight design decisions block only their own issue.** The CEO judges whether a decision
+  changes the design (anything that contradicts or extends the approved spec or a D-decision) or
+  is an implementation detail. Implementation details: CEO approves, work continues. Design
+  changes: the issue goes to a board approval for Mario and stays blocked; other work continues.
+- **If Superpowers can't run under Codex in Paperclip, developers stay Codex** and the TDD /
+  worktree discipline is written into their instructions instead. The spike is not a go/no-go
+  gate for the whole setup.
+
+## 5. The team
+
+| Role | Runtime | Responsibilities | Reviews whom |
+|---|---|---|---|
+| **CEO / Principal Solutions Architect** | Claude | Turns Mario's requirements into design + strategy; writes D-numbered decisions; submits strategy for board (Mario) approval; syncs approved decisions to Notion | Final technical sign-off on design changes |
+| **Delivery Lead** | Claude + Superpowers | Plan → tasks (Paperclip issues); assigns; collects specialist reviews into the single approval Paperclip allows per stage; escalates blockers to Mario | Owns the last review stage before Mario |
+| **Developers** (start with 2) | Codex + Superpowers | Implement tasks on isolated worktree branches, TDD per Superpowers | — |
+| **Cloud Architect** | Claude + Azure/AWS/Terraform skills | Cloud-native fit, managed-service choices, deployment targets | Platform/DevOps work |
+| **Platform/DevOps Engineer** | Codex + Superpowers, Terraform/K8s skills | Containers, IaC, CI/CD, observability scaffolding | — |
+| **Security Engineer #1** | Codex | Threat model, code/IaC review, secrets handling | Security #2 output |
+| **Security Engineer #2** | Claude | Same scope, independent review | Security #1 output; all Codex code |
+| **Data/Domain (DDD) Reviewer** | Claude | Bounded contexts, aggregates, event store, migrations against the spec | Developer code |
+| **QA Engineer** | Claude | Tests against the spec, acceptance criteria, demo readiness, runbook checks | Developer and Platform output |
+| **Teacher** | Claude | See §7. Reports to nobody in the delivery flow; invoked by Mario only | — |
+
+Skills per agent are attached through Paperclip (Claude: `--add-dir`; Codex: `~/.codex/skills`).
+Claude Code **plugins** (Azure, AWS, HashiCorp) need a per-agent `cwd` whose project-level config
+enables them — see the Agent Skills Setup page in Notion for the plugin list.
+
+## 6. How work flows
+
+```
+Mario: requirement ──► CEO/Principal Architect: design + strategy + D-decisions
+                         └─► Board approval (Mario)  ◄── front gate
+Delivery Lead: plan → Paperclip issues → assigns
+Codex Developer / DevOps: implement on task branch (worktree), commit + push branch
+Review chain (Paperclip execution policy, one approver per stage):
+  stage 1  domain specialist(s) — DDD Reviewer / Cloud Architect / Security pair
+  stage 2  QA
+  stage 3  Delivery Lead (consolidated approval)
+Changes requested at any stage ──► back to the executor
+Mario: demo / runbook review + merge to main  ◄── back gate
+```
+
+- Because each Paperclip review stage takes one approval, multi-specialist review is either
+  chained stages or specialists commenting and the Delivery Lead approving on their behalf.
+  Builder picks; prefer whichever keeps every Claude review visible on the issue.
+- Agents mark issues `blocked` when they need Mario; the Blocked inbox is his only mid-flight
+  touchpoint.
+- Decisions taken mid-flight are written to the repo decision log by the agent that made them
+  and flagged for the CEO; the CEO syncs approved ones to Notion.
+
+## 7. The Teacher
+
+**Build (Mario's decision): live chat + Paperclip.** Full lessons happen live in a Claude Code
+session (the Teacher as a skill/agent Mario runs directly). A thin Paperclip Teacher agent handles
+in-context "explain this issue" requests. Both share the same instructions and the same Notion
+learning memory.
+
+**Two ways Mario calls it:**
+1. **In context** — on a Paperclip issue (a proposal, design, review comment) Mario doesn't fully
+   understand: @-mention the Teacher or assign it a "help me understand" sub-issue. It reads the
+   issue and its links and teaches just enough for Mario to judge the proposal. (Whether an
+   @-mention alone wakes an agent is contradicted in Paperclip's docs — verify; fall back to
+   assignment.)
+2. **Standalone (live Claude Code session)** — "teach me this domain/technology" (e.g. a client's business domain being
+   modelled, Keycloak, OIDC). Runs the full mentor loop below.
+
+**What makes it a teacher (the bar previous attempts failed):**
+- **Diagnose before planning.** Several concrete probes of rising difficulty before any plan;
+  "I don't know" is data, not something to skip past. Never conclude mastery from one answer.
+- **Map prerequisites and start at the first gap**, even two levels below the topic asked for.
+  Show Mario the map.
+- **Specific, not vague.** Questions name concrete scenarios and expect concrete answers.
+- **Personal.** Examples and assignments come from Mario's real work (the issue at hand, Perigee,
+  past client work), not textbook cases.
+- **Progress is earned** through Recall → Explain → Apply (Mario's existing ladder). Move on only
+  when he can explain and apply.
+- **Real assignments and homework**, then tests; follow up on gaps with targeted study.
+- **Remembers.** Writes Study Assignments and Knowledge Checks to the Notion learning databases
+  and reads them back to resume where Mario left off.
+
+## 8. Installation and access
+
+- Install Paperclip in Fedora WSL as part of this repo's `setup-fedora-wsl` flow (fits the
+  `--agents` step); Claude Code and Codex CLIs are already installed there.
+- Mode `local_trusted`, bind loopback, port 3100. Windows reaches it via WSL localhost
+  forwarding (or `networkingMode=mirrored`). Verify from a Windows browser.
+- Run as a systemd user service (WSL systemd must be enabled) so it survives terminal exits.
+- `PAPERCLIP_TELEMETRY_DISABLED=1`.
+- Data lives in `~/.paperclip/instances/default/`; include it in whatever backup Mario uses.
+
+## 9. First job: Perigee
+
+Current state: spec approved (`docs/superpowers/specs/2026-10-08-perigee-mvp-design.md`),
+decisions D1–D24 (`docs/design/brainstorm-log.md`), M0 plan written but not approved, no product
+code. Stack: Go (DDD + hexagonal), React/TS.
+
+1. **Repo prep:** remove Beads (`.beads/`, the `bd prime` SessionStart hook in `.claude/settings.json`,
+   Codex/Cursor integrations, BEGIN/END BEADS blocks in AGENTS.md/CLAUDE.md, README section).
+   Rewrite the Git Policy in AGENTS.md: agents commit/push on task branches, Mario alone merges
+   `main`. Enable branch protection.
+2. **Cloud-native review:** Mario gives the CEO the requirement — *Perigee must be cloud native,
+   scalable and deployable later; target cloud open.* Specialists review the spec and M0 plan in
+   their domains; the CEO proposes changes as D25+; Mario approves; the M0 plan is revised.
+3. **Build M0** through the full flow in §6.
+4. **Checkpoint:** M0 merged by Mario. Review what worked, quota burn per role (Claude especially),
+   review quality, and how often Mario was pulled mid-flight. Then adjust roles and continue.
+
+## 10. Left to the builder
+
+- Company/agent definitions: where they live (suggest a separate repo exported/imported with
+  Paperclip's markdown company packages so the team is reproducible), and each agent's
+  instructions file.
+- How the multi-specialist review is wired (chained stages vs. Lead-consolidated).
+- Heartbeat schedules vs. event-only wakes per role, and per-agent budgets.
+- Which concrete skills each agent gets, within §5.
+- How the Teacher's Notion access is configured.
+
+## 11. Risks to verify early
+
+- Claude Code plugins + MCP on a Paperclip-spawned Claude agent (Cloud Architect).
+- Superpowers working under Codex in Paperclip (skills via symlink).
+- @-mention wake behaviour (Teacher in-context mode).
+- Claude subscription quota under ~7 Claude agents.
+- WSL DNS under parallel runs (#7373).
+- Codex sandbox config can't be saved (#16224) — acceptable now, blocking before credentials.
+
+## 12. Open
+
+- **GitHub Pro purchase**, then create and verify the `main` ruleset (`gh api repos/mariopavlov/perigee/rulesets`).
