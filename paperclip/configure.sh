@@ -8,7 +8,7 @@ set -euo pipefail
 
 PAPERCLIP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 API="${PAPERCLIP_API:-http://127.0.0.1:3100/api}"
-COMPANY_NAME="Mario's Assistant"
+COMPANY_NAME="Keystone"
 AGENT_HOMES="$HOME/.paperclip/agent-homes"
 GIT_EMAIL="$(git config --global user.email)"
 
