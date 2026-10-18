@@ -19,7 +19,7 @@ Why things are the way they are: `FINDINGS.md`.
 
 | Agent | Runtime · model · effort | Role |
 |---|---|---|
-| Principal Architect (CEO) | Claude · Opus 5.5 · high | Designs with Mario on the Notion Design page (questions, decisions, spec, plan), sizes the change, runs spec reviews, gets Mario's approval, assigns builds, decides on QA, opens the milestone PR |
+| Principal Architect (CEO) | Claude · Opus 5.5 · high | Picks up milestones from Notion, brainstorms with Mario in Keystone, writes spec + plan, records the agreed milestone back in Notion, sizes the change, runs spec reviews, gets Mario's approval, assigns builds, decides on QA, opens the milestone PR |
 | Developer 1, 2 | Codex · gpt-6-astra · medium | Implement plan tasks, TDD |
 | Platform Engineer | Codex · gpt-6-astra · medium | Containers, IaC, CI/CD |
 | Refactorer | Codex · gpt-6-astra · low | Right after implementation: removes comments and needless abstraction; never touches tests |
@@ -37,23 +37,25 @@ Everyone reports to the Principal Architect. Specialists review code only when t
 
 ## How work flows
 
-The design lives in **Notion**; Keystone runs the sub-tasks.
+Milestones start and end in **Notion** (🏁 Milestones in 1 - PROJECTS); the conversation and the
+work happen in **Keystone**.
 
-1. **Start.** Open the milestone's row in Notion's 🏁 Milestones database (1 - PROJECTS, linked to
-   its project), write the Brief, set **Brief ready**, then create one Keystone issue for the
-   Principal Architect with the row's link. The row's `Status` shows whose turn it is; the
-   *🔴 Your turn* view lists everything waiting on you.
-2. **Gate 1 — design.** The Principal writes all its questions on the row's page, sets it to
-   `Your turn` and comments the link on the issue (status `blocked`). Answer on the page, then comment **"done"** on the issue.
+1. **A milestone is born** as a row with a rough title and description: you add it (Status
+   `Idea`), the Principal creates it after you agree in a chat (`Idea`), or the Principal suggests
+   one (`Proposed` — you move it to `Idea` or `Dropped`).
+2. **Gate 1 — brainstorm.** Create a Keystone task for the Principal: "Pick up <milestone link> and
+   clean up the requirements". It sets the row to `Designing` and asks all its questions in one
+   card (issue `blocked`).
 3. **Spec review.** Small changes skip it. Otherwise the Principal sends the spec and plan to the
    specialists the change needs and resolves what it can.
-4. **Gate 2 — spec.** The Principal writes the Spec and Plan on the row's page and comments the
-   link. Comment **"approved"**, or anything else to request changes. On approval it copies both
-   into the repo (read-only copies) and asks the Mentor for a sync.
+4. **Gate 2 — spec.** One confirmation card with spec, plan, review summary and open questions.
+   On approval the Principal rewrites the milestone's title, summary and done-when, fills its page
+   (requirements, decisions, tasks, links, progress log) and sets it to `Building`.
 5. **Build.** Each plan task: Codex developer → Refactorer → QA → Principal decides (merge into the
    milestone branch, send fixes back, or ask a specialist to review the code).
-6. **Gate 3 — milestone PR on GitHub** (`m0 → main`): demo checklist, runbooks, review digest.
-   You rebase-merge; only you can merge `main`. The Mentor then runs its finish sync.
+6. **Gate 3 — milestone PR on GitHub** (`m0 → main`): demo checklist, runbooks, review digest;
+   the row is `In review`. You rebase-merge; only you can merge `main`. The row becomes `Done` and
+   the Mentor runs its finish sync.
 
 Mid-build questions reach you as blocked issues in the **Blocked inbox**.
 
@@ -117,7 +119,7 @@ credits, not on Claude or Codex quota.
 - **Status tells you who waits on whom:** `in_progress` an agent is working, `in_review` an agent
   is reviewing, `blocked` **it waits for you** — filter on `blocked` or use the Blocked inbox.
 - **Questions** arrive as one card with all of them; answer them together and add anything else.
-- **Gates 1 and 2** happen on the milestone's row in Notion's 🏁 Milestones; reply "done" or "approved" on the issue.
+- **Gates 1 and 2** are cards in the Keystone task; the milestone row in Notion is the record.
   **Gate 3** is the milestone PR on GitHub
   (`m0 → main`), the only PR you merge. Task PRs are drafts the Principal merges.
 - **Don't comment on an issue while its agent is running** — Paperclip cancels and restarts the
