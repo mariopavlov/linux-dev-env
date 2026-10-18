@@ -1,0 +1,19 @@
+[Unit]
+Description=Paperclip agent orchestration (local_trusted, loopback :3100)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=@USER@
+WorkingDirectory=@HOME@
+Environment=HOME=@HOME@
+Environment=PATH=@HOME@/.local/bin:@HOME@/.local/share/mise/shims:/usr/local/bin:/usr/bin:/bin
+Environment=PAPERCLIP_TELEMETRY_DISABLED=1
+ExecStart=@HOME@/.local/bin/paperclipai run --instance default
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=300
+
+[Install]
+WantedBy=multi-user.target
