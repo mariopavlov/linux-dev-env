@@ -94,8 +94,8 @@ Mario's decisions:
 
 Claude's calls (Mario can override):
 
-- **CEO = Principal Solutions Architect** and a separate **Delivery Lead** (CTO-shaped) under it,
-  instead of a generic CEO + CTO pair, to avoid two coordinators burning quota.
+- **CEO = Principal Solutions Architect.** (Originally with a separate Delivery Lead; removed in
+  flow v2 at Mario's request — the Principal plans and delivers.)
 - **Teacher on Claude**, because teaching quality matters most and it runs rarely.
 - **Quota fit for Claude Max 5x ($100) + Codex $100 (Mario's plans).** Keep the roster, but Claude
   review roles have no timer heartbeats (they wake only on assignment/review), Claude agents run
@@ -116,7 +116,7 @@ Claude's calls (Mario can override):
 - **Permission bypass accepted** inside per-agent worktrees for Perigee, because no agent holds
   cloud credentials. Revisit before any agent gets credentials.
 - **Milestone integration branch.** Task branches merge into a per-milestone integration branch
-  (e.g. `m0`) once the Delivery Lead approves; Mario merges the integration branch to `main` at
+  (e.g. `m0`) once the Principal Architect approves; Mario merges the integration branch to `main` at
   the back gate. This keeps Mario out of per-task merges and lets dependent tasks build on each
   other's approved work.
 - **Review trail on GitHub (Mario's request, added during planning).** Each task branch reaches
@@ -140,47 +140,48 @@ Claude's calls (Mario can override):
 
 ## 5. The team
 
-| Role | Runtime | Responsibilities | Reviews whom |
-|---|---|---|---|
-| **CEO / Principal Solutions Architect** | Claude | Turns Mario's requirements into design + strategy; writes D-numbered decisions; submits strategy for board (Mario) approval; syncs approved decisions to Notion | Final technical sign-off on design changes |
-| **Delivery Lead** | Claude + Superpowers | Plan → tasks (Paperclip issues); assigns; collects specialist reviews into the single approval Paperclip allows per stage; escalates blockers to Mario | Owns the last review stage before Mario |
-| **Developers** (start with 2) | Codex + Superpowers | Implement tasks on isolated worktree branches, TDD per Superpowers | — |
-| **Cloud Architect** | Claude + Azure/AWS/Terraform skills | Cloud-native fit, managed-service choices, deployment targets | Platform/DevOps work |
-| **Refactorer** | Codex | After a task is green and before review: removes code comments, dead code and needless abstractions; behaviour unchanged; **never touches tests** | — |
-| **Platform/DevOps Engineer** | Codex + Superpowers, Terraform/K8s skills | Containers, IaC, CI/CD, observability scaffolding | — |
-| **Security Engineer #1** | Codex | Threat model, code/IaC review, secrets handling | Security #2 output |
-| **Security Engineer #2** | Claude | Same scope, independent review | Security #1 output; all Codex code |
-| **Data/Domain (DDD) Reviewer** | Claude | Bounded contexts, aggregates, event store, migrations against the spec | Developer code |
-| **QA Engineer** | Claude | Tests against the spec, acceptance criteria, demo readiness, runbook checks | Developer and Platform output |
-| **Teacher** | Claude | See §7. Reports to nobody in the delivery flow; invoked by Mario only | — |
+*Revised 2026-10-18 (flow v2, Mario): the Delivery Lead is removed; the Principal Architect
+brainstorms with Mario, plans and delivers; specialists review specs, not code.*
 
-Skills per agent are attached through Paperclip (Claude: `--add-dir`; Codex: `~/.codex/skills`).
-Claude Code **plugins** (Azure, AWS, HashiCorp) need a per-agent `cwd` whose project-level config
-enables them — see the Agent Skills Setup page in Notion for the plugin list.
+| Role | Runtime | Responsibilities |
+|---|---|---|
+| **CEO / Principal Solutions Architect** | Claude | Brainstorms with Mario in Agent Chat; writes spec, D-decisions and plan; sizes the change and picks spec reviewers; submits the reviewed spec for Mario's approval with his open questions; creates build issues for developers; decides on QA outcomes; opens the milestone PR; syncs approved decisions to Notion |
+| **Developers** (2) | Codex + Superpowers | Implement plan tasks on isolated worktree branches, TDD |
+| **Platform/DevOps Engineer** | Codex + Superpowers, Terraform | Containers, IaC, CI/CD, observability scaffolding |
+| **Refactorer** | Codex | After a task is implemented: removes code comments, dead code and needless abstractions; behaviour unchanged; **never touches tests** |
+| **QA Engineer** | Claude | Reviews the refactored code against spec, plan and implementation; reports PASS/FAIL with findings — the Principal decides what happens next. QA is the Claude review of all Codex output |
+| **Cloud Architect** | Claude + Azure/AWS/Terraform skills (8) | Reviews specs and plans for cloud-native fit; reviews code only when the Principal asks |
+| **Security Engineer #1 / #2** | Codex / Claude | Independent threat models of specs and plans; code only when the Principal asks |
+| **Data/Domain (DDD) Reviewer** | Claude | Reviews specs and plans for bounded contexts, aggregates, ubiquitous language; code only when the Principal asks |
+| **Teacher** | Claude | See §7. Invoked by Mario only |
+
+Skills reach agents only as Paperclip skill sources (plugins do not load inside issue worktrees —
+`paperclip/FINDINGS.md` §2).
 
 ## 6. How work flows
 
 ```
-Mario: requirement ──► CEO/Principal Architect: design + strategy + D-decisions
-                         └─► Board approval (Mario)  ◄── front gate
-Delivery Lead: plan → Paperclip issues → assigns
-Codex Developer / DevOps: implement on task branch (worktree), commit + push branch
-Review chain (Paperclip execution policy, one approver per stage):
-  stage 0  Refactorer (Codex) — clean-up pass, tests untouched
-  stage 1  domain specialist(s) — DDD Reviewer / Cloud Architect / Security pair
-  stage 2  QA
-  stage 3  Delivery Lead (consolidated approval)
-Changes requested at any stage ──► back to the executor
-Mario: demo / runbook review + merge to main  ◄── back gate
+Gate 1  Mario ⇄ Principal Architect in Agent Chat: brainstorm → spec + plan (+ D-decisions)
+        Principal sizes the change:
+          small    — one component, no design change, no new dependency → no spec review
+          standard — anything else → spec + plan reviewed by only the specialists it needs
+                     (Cloud Architect / DDD Reviewer / Security pair)
+Gate 2  Board approval (Mario): reviewed spec + plan + review summary + questions only Mario
+        can answer. Mario answers in the approval thread; "request revision" loops back.
+        Nothing is built before this approval.
+Build   per plan task: Codex Developer / Platform Engineer → Refactorer (same branch, tests
+        untouched) → QA (on the refactored code; PASS/FAIL vs spec, plan, implementation)
+        → Principal decides: accept and merge into the milestone branch / send fixes to the
+        developer / ask a specialist to review the code
+        Mid-build questions for Mario → issue blocked → Blocked inbox
+Gate 3  Milestone PR (m0 → main) with demo checklist, runbooks, review digest → Mario merges
 ```
 
-- Because each Paperclip review stage takes one approval, multi-specialist review is either
-  chained stages or specialists commenting and the Delivery Lead approving on their behalf.
-  Builder picks; prefer whichever keeps every Claude review visible on the issue.
-- Agents mark issues `blocked` when they need Mario; the Blocked inbox is his only mid-flight
-  touchpoint.
-- Decisions taken mid-flight are written to the repo decision log by the agent that made them
-  and flagged for the CEO; the CEO syncs approved ones to Notion.
+- Paperclip mechanics per build issue: execution policy `review` Refactorer → `review` QA →
+  `approval` Principal Architect. QA never requests changes itself; it records PASS/FAIL so the
+  Principal decides.
+- Review trail on GitHub is unchanged: findings tagged with the reviewer's role, one
+  `fix(review):` commit per finding with a `Review-Finding:` trailer, digest in the milestone PR.
 
 ## 7. The Teacher
 
@@ -257,6 +258,21 @@ code. Stack: Go (DDD + hexagonal), React/TS.
 - Claude subscription quota under ~7 Claude agents.
 - WSL DNS under parallel runs (#7373).
 - Codex sandbox config can't be saved (#16224) — acceptable now, blocking before credentials.
+
+## 11a. Flow v2 decisions (Mario, 2026-10-18)
+
+Made after the first smoke run spent ~3.5M tokens and 14 % of Claude's 5-hour window on the
+design review of a `/health` endpoint:
+
+1. Brainstorm happens between Mario and the Principal Architect (Paperclip Agent Chat), not inside
+   the Principal alone.
+2. The Principal writes the plan and runs the implementation agents; no Delivery Lead.
+3. Specialist reviews run on the spec and plan, not on the implementation.
+4. After implementation: Refactorer (tests untouched), then QA on the refactored code against
+   spec, plan and implementation; the Principal decides whether specialists review the code.
+5. A spec-approval gate brings the specialists' open questions to Mario before anything is built.
+6. The Principal sizes each change; small changes skip spec review.
+7. The Cloud Architect carries 8 skills instead of 22.
 
 ## 12. Open
 

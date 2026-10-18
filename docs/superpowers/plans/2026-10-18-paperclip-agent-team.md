@@ -278,3 +278,35 @@ Not executed from this repo. Mario gives these to the team in Paperclip, in orde
 2. **First issue — repo cleanup (team, PR to `main` that Mario merges):** remove Beads (`.beads/`, the `bd prime` SessionStart hook in `.claude/settings.json`, `.codex/` and `.cursor/` integrations, `BEGIN/END BEADS` blocks in `AGENTS.md`/`CLAUDE.md`, README section, `core.hooksPath`); rewrite the Git Policy (agents commit/push on task branches, task PRs into milestone branch, only Mario merges `main`, rebase only); add the clean-code rule; update `docs/design/session-state.md` next steps; create `m0` after merge.
 3. **Requirement to the CEO** (draft for Mario to edit): *"Perigee must be cloud native: containerised, stateless services, config from the environment, health/readiness endpoints, horizontally scalable, observable; deployable later to Azure or AWS (target open). Review the approved spec and the M0 plan for this. Propose changes as decisions D25+, then a revised M0 plan."*
 4. **M0** runs under the team; the checkpoint review (spec §9 step 4) happens when Mario merges `m0 → main`.
+
+## Rework: flow v2 (added 2026-10-18, after the first smoke run)
+
+Spec §5, §6 and §11a supersede the review-chain and Delivery Lead parts of Tasks 5, 6, 9 and 10.
+
+### Task R1: Rework agents for flow v2
+- Delete `paperclip/src/agents/delivery-lead.md`; `build.sh` removes `company/agents/<slug>/` with
+  no source (test: a stale agent dir is deleted by a build and reported by `--check`).
+- `ceo-principal-architect`: Agent Chat brainstorm → spec + plan + D-decisions; sizing (small /
+  standard); spec review by chosen specialists; board approval with review summary and Mario's
+  questions; build issues with execution policy `review` Refactorer → `review` QA → `approval`
+  Principal; decide on QA outcome; merge task PRs into the milestone branch; milestone PR with
+  digest; daily heartbeat for stalled issues.
+- Developers / Platform: hand off to the Refactorer stage; fix what the Principal sends back.
+- Refactorer: runs right after implementation, tests untouched.
+- QA: reviews refactored code vs spec, plan, implementation; records PASS/FAIL and always
+  approves its stage so the Principal decides.
+- Cloud Architect, DDD Reviewer, Security pair: review specs and plans; code only on request.
+- Everyone reports to the Principal Architect. Team rules: Principal replaces Delivery Lead.
+- `bash paperclip/build.sh && bash paperclip/tests/build_test.sh` → PASS.
+
+### Task R2: configure.sh for flow v2
+- Remove Delivery Lead; Principal gets the daily heartbeat and `writing-plans`, `executing-plans`.
+- Cloud Architect skills: `azure-well-architected azure-architecture azure-kubernetes-service
+  azure-reliability aws-well-architected-review aws-containers aws-security terraform-style-guide`.
+- Enable `enableAgentChat`.
+- Archive the v1 company and import v2 fresh (company delete fails once runs exist — FINDINGS §10).
+
+### Task R3: Smoke test v2
+Mario brainstorms `/health` with the Principal in Agent Chat → Gate 2 approval → build issue →
+Refactorer → QA → Principal decision → task PR into `m0` with review trail → `m0 → main` PR →
+Mario merges. Record token use per agent and Claude window movement in FINDINGS.
