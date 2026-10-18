@@ -41,16 +41,16 @@ SUPERPOWERS="brainstorming writing-plans executing-plans test-driven-development
 TERRAFORM="terraform-style-guide terraform-test refactor-module azure-verified-modules"
 
 declare -A SKILLS=(
-    [ceo-principal-architect]="brainstorming writing-plans executing-plans receiving-code-review"
-    [developer-1]="$SUPERPOWERS"
-    [developer-2]="$SUPERPOWERS"
+    [ceo-principal-architect]="brainstorming writing-plans executing-plans receiving-code-review domain-modeling pr retro"
+    [developer-1]="$SUPERPOWERS pr"
+    [developer-2]="$SUPERPOWERS pr"
     [refactorer]="systematic-debugging verification-before-completion receiving-code-review"
     [platform-devops]="$SUPERPOWERS $TERRAFORM"
     [cloud-architect]="azure-well-architected azure-architecture azure-kubernetes-service azure-reliability aws-well-architected-review aws-containers aws-security terraform-style-guide"
     [security-codex]="requesting-code-review"
     [security-claude]="requesting-code-review"
-    [ddd-reviewer]="requesting-code-review"
-    [qa]="verification-before-completion systematic-debugging requesting-code-review"
+    [ddd-reviewer]="domain-modeling"
+    [qa]="code-review verification-before-completion systematic-debugging"
     [teacher]="teacher"
 )
 
@@ -60,6 +60,7 @@ SOURCES=(
     "microsoft/azure-skills|cf79ce8778ad063eeac19dbe8bf982d71b466ce0|skills|azure-reliability"
     "MicrosoftDocs/Agent-Skills|ba74e8fcc5cf4864798beaf95e53d7c4840bac5e|skills|azure-well-architected azure-architecture azure-kubernetes-service"
     "aws/agent-toolkit-for-aws|44ba1a5451913998815111cc2d518f5c45f95ef7|plugins/aws-core/skills|aws-well-architected-review aws-containers aws-security"
+    "mattpocock/skills|49dd158d1076134a641b33efb035946536778336|skills/engineering|domain-modeling code-review pr retro"
     "hashicorp/agent-skills|f706481af9b8fedb66de909f6243ad29601afa0c|plugins/terraform/skills|$TERRAFORM"
 )
 
@@ -135,9 +136,20 @@ for slug in "${!NAME[@]}"; do
         '[.[] | select(. != "") as $s | ($all[] | select(.slug==$s) | .key)] | unique')"
     api POST "/agents/$id/skills/sync" "$(jq -nc --argjson k "$keys" '{mode:"replace",desiredSkills:$k}')" >/dev/null
 
+    wanted="$(awk 'f>=2 {print; next} /^---$/ {f++}' "$PAPERCLIP_DIR/company/agents/$slug/AGENTS.md")"
+    entry="$(api GET "/agents/$id/instructions-bundle/file?path=AGENTS.md")"
+    if [[ "$wanted" != "$(jq -r '.content' <<<"$entry")" ]]; then
+        api PUT "/agents/$id/instructions-bundle/file" "$(jq -nc --arg c "$wanted" \
+            --argjson base "$(jq '.revision.id' <<<"$entry")" \
+            '{path:"AGENTS.md",content:$c,baseRevisionId:$base}')" >/dev/null
+        instructions="updated"
+    else
+        instructions="current"
+    fi
+
     status="$(jq -r --arg n "${NAME[$slug]}" '.[] | select(.name==$n) | .status' <<<"$AGENTS")"
     [[ "$status" == "paused" ]] && api POST "/agents/$id/resume" >/dev/null
-    printf '  %-24s skills=%-3s concurrency=%s\n' "$slug" "$(jq length <<<"$keys")" "$concurrency"
+    printf "  %-24s skills=%-3s concurrency=%s instructions=%s\n" "$slug" "$(jq length <<<"$keys")" "$concurrency" "$instructions"
 done
 
 if [[ -n "${GITHUB_TOKEN:-}" ]]; then

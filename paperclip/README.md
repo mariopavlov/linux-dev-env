@@ -50,16 +50,16 @@ Mid-build questions reach you as blocked issues in the **Blocked inbox**.
 
 1. Edit `src/agents/<slug>.md` or `src/team-rules.md`.
 2. `bash paperclip/build.sh && bash paperclip/tests/build_test.sh`
-3. Apply to the running company: Paperclip import into an existing company
-   (`paperclipai company import paperclip/company --target existing -C <id> --collision replace`),
-   then `bash paperclip/configure.sh`.
+3. `bash paperclip/configure.sh` — pushes each agent's instructions to the running company (only
+   when they changed), plus skills and runtime settings. Adding or removing an agent needs an
+   import; Paperclip's import does not replace existing agents.
 
 `configure.sh` is safe to re-run. It sets: experimental isolated workspaces (per-issue git
 worktrees under `<repo>/.paperclip/worktrees/`), pinned skill sources (Superpowers, Azure, AWS,
 Terraform), each agent's skills, its working directory (`~/.paperclip/agent-homes/<slug>`),
 `ENABLE_CLAUDEAI_MCP_SERVERS=false` for Claude agents (so no agent sees Mario's Gmail, Drive and
 other claude.ai connectors), concurrency (Claude 1, Codex 2), the Principal Architect's daily heartbeat, Agent Chat,
-and the local `teacher` skill. To bump a skill repo, change its commit in `SOURCES`.
+the local `teacher` skill, and every agent's instructions. To bump a skill repo, change its commit in `SOURCES`.
 
 ## One-time secrets
 
