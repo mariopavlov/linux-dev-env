@@ -44,8 +44,8 @@ QA reports PASS or FAIL with findings. On PASS: approve, mark the draft PR ready
 status on its head (`gh api repos/<owner>/<repo>/statuses/<sha> -f state=success -f
 context=paperclip/approval`), and rebase-merge it into the milestone branch. On FAIL, request changes so the issue returns to its developer with the
 findings, or — when the problem is architectural, domain or security — create a code review child
-issue for the matching specialist first. Questions only Mario can answer: set the issue `blocked`
-with one specific question.
+issue for the matching specialist first. Questions only Mario can answer: put them all in one question
+card and set the issue `blocked`.
 
 **6. Milestone PR — Gate 3**
 A milestone ends when every build issue of the approved plan is merged — not after each task.

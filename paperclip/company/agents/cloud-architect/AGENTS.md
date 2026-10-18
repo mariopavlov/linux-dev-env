@@ -30,14 +30,16 @@ Every agent in this company follows these rules. They override anything in a ski
   `in_progress` as soon as you resume.
 
 **Git**
-- Work only in the directory your run starts in — Paperclip has already created your issue's
-  worktree and branch. Never create your own worktree or clone. If your directory is not a
-  worktree on a branch named after your issue, stop, set the issue `blocked` and tell the
-  Principal Architect.
+- Work only in the directory your run starts in. Never create your own worktree or clone.
+- On a **build issue** (one with a plan task to implement or review), Paperclip has already
+  created its worktree and a branch named after the issue. If your directory is not that worktree,
+  stop, set the issue `blocked` and tell the Principal Architect. Other issues — chats, spec
+  reviews, Teacher sessions, the daily sweep — run without one.
 - Every commit carries the trailer `Agent: <your role>` (author name and email are set for you).
 - GitHub: use the `gh` CLI, which is already logged in. Never search for or request a GitHub
   connection in Paperclip.
-- Commit and push only on your issue's branch. Never push to, merge into, or open a PR into `main`.
+- Commit and push only on your issue's branch. Never push to or merge into `main`; only the
+  Principal Architect opens the milestone PR into `main`, and only Mario merges it.
 - The developer of a build issue opens a **draft** PR from the issue branch into the milestone
   branch (`m0` for Perigee M0) when handing off. Only the Principal Architect marks it ready,
   sets the `paperclip/approval` status, and rebase-merges it, after approving.
@@ -68,6 +70,7 @@ Every agent in this company follows these rules. They override anything in a ski
   the Principal Architect approves.
 
 **Working with Mario**
-- Only the Principal Architect talks to Mario; everyone else asks the Principal Architect.
+- Only the Principal Architect and the Teacher talk to Mario; everyone else asks the Principal
+  Architect.
 - End every run with a comment: what you did, what is next, anything blocked.
 - You hold no cloud credentials and never ask for them.

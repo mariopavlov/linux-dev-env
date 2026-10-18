@@ -28,10 +28,11 @@ cat > "$HOME/.local/bin/paperclipai" <<'SHIM'
 #!/usr/bin/env bash
 echo "$*" >> "$LOG_DIR/paperclipai.log"
 case "$1" in
-    --version) echo "2026.1012.0" ;;
+    --version) echo "${MOCK_VERSION:-2026.1012.0}" ;;
     onboard)
         mkdir -p "$HOME/.paperclip/instances/default"
         printf '{"server":{"port":3100},"telemetry":{"enabled":true}}\n' > "$HOME/.paperclip/instances/default/config.json"
+        bash -c 'echo $$ > "$LOG_DIR/grandchild.pid"; exec sleep 300' &
         sleep 300 ;;
 esac
 exit 0
@@ -57,7 +58,7 @@ MOCK
 
 cat > "$MOCK_BIN/codex" <<'MOCK'
 #!/usr/bin/env bash
-if [[ "${CODEX_LOGGED_IN:-0}" == "1" ]]; then echo "Logged in using ChatGPT"; else echo "Not logged in"; fi
+if [[ "${CODEX_LOGGED_IN:-0}" == "1" ]]; then echo "Logged in using ChatGPT" >&2; else echo "Not logged in" >&2; exit 1; fi
 MOCK
 chmod +x "$MOCK_BIN"/*
 
@@ -99,5 +100,21 @@ touch "$FAKE_NODE"
 : > "$LOG_DIR/systemctl.log"
 bash "$SETUP_DIR/install.sh" --paperclip >/dev/null 2>&1
 assert_contains "$LOG_DIR/systemctl.log" "enable --now paperclip.service"
+
+GRANDCHILD="$(cat "$LOG_DIR/grandchild.pid")"
+kill -0 "$GRANDCHILD" 2>/dev/null && fail "onboarding left a process behind (pid $GRANDCHILD)"
+
+: > "$LOG_DIR/systemctl.log"
+CODEX_LOGGED_IN=1 bash "$SETUP_DIR/packages/paperclip.sh" >/dev/null 2>&1
+grep -qF "restart paperclip.service" "$LOG_DIR/systemctl.log" && fail "restarted although nothing changed"
+
+: > "$LOG_DIR/systemctl.log"
+MOCK_VERSION=old CODEX_LOGGED_IN=1 bash "$SETUP_DIR/packages/paperclip.sh" >/dev/null 2>&1
+assert_contains "$LOG_DIR/systemctl.log" "restart paperclip.service"
+
+: > "$LOG_DIR/systemctl.log"
+echo "# drift" >> "$UNIT"
+CODEX_LOGGED_IN=1 bash "$SETUP_DIR/packages/paperclip.sh" >/dev/null 2>&1
+assert_contains "$LOG_DIR/systemctl.log" "restart paperclip.service"
 
 printf '%s\n' "paperclip_test.sh: PASS"

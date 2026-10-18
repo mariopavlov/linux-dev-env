@@ -59,19 +59,22 @@ worktrees under `<repo>/.paperclip/worktrees/`), pinned skill sources (Superpowe
 Terraform), each agent's skills, its working directory (`~/.paperclip/agent-homes/<slug>`),
 `ENABLE_CLAUDEAI_MCP_SERVERS=false` for Claude agents (so no agent sees Mario's Gmail, Drive and
 other claude.ai connectors), concurrency (Claude 1, Codex 2), the Principal Architect's daily heartbeat, Agent Chat,
-the local `teacher` skill, and every agent's instructions. To bump a skill repo, change its commit in `SOURCES`.
+the local `teacher` skill, and every agent's instructions. New skill repos are added at the commit in `SOURCES`. Paperclip's API cannot move an existing source to another commit (delete only disables it), so to bump a pin change it in `SOURCES` *and* in the UI (Skills → sources); `configure.sh` warns while the two differ.
 
-## One-time secrets
+## Credentials
 
-- **GitHub** — fine-grained token, resource owner `mariopavlov`, only the repos the team works
-  on, permissions Contents RW, Pull requests RW, Metadata R, 90-day expiry:
-  `GITHUB_TOKEN=github_pat_… bash paperclip/configure.sh`. Then, on each work project, add the
-  project env `GH_TOKEN` → secret `GITHUB_TOKEN` (Project → Settings → Environment).
+- **GitHub:** agents use **your `gh` login** (`~/.config/gh/hosts.yml`) — nothing to configure.
+  Consequence: GitHub sees agents as you. The `main` ruleset blocks direct pushes, but an agent
+  could still merge a PR into `main`; that is prevented only by the agents' instructions. The
+  `paperclip/approval` check on the milestone branch is set by the Principal with the same login.
+  A least-privilege token or a bot identity is a later step (not used now); such a token would
+  need Contents, Pull requests and **Commit statuses** read/write.
 - **Notion** (CEO decision sync, Teacher records) — create an internal integration at
   notion.so/profile/integrations, share only the Perigee area, Study Assignments, Knowledge Checks
   and Check Attempts with it, then in Paperclip: Tools → Import MCP JSON with
   `{"mcpServers":{"notion":{"command":"npx","args":["-y","@notionhq/notion-mcp-server"],"env":{"NOTION_TOKEN":"<token>"}}}}`
-  and grant it to Principal Architect and Teacher only.
+  and grant it to Principal Architect and Teacher only. (Unverified: the tool names this server
+  exposes may differ from those in `teacher/notion.md`; check on the first run.)
 
 ## Starting work on a repo
 

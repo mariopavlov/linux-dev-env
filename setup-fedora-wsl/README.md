@@ -222,9 +222,19 @@ the loopback-bound server. If it does not, set `localhostForwarding=true` (or
 `networkingMode=mirrored`) under `[wsl2]` in `%UserProfile%\.wslconfig` and run `wsl --shutdown`.
 Check from PowerShell with `curl.exe -s -o NUL -w "%{http_code}" http://localhost:3100` — expect `200`.
 
-**After a WSL restart** the service starts when the distro boots. WSL boots on the first `wsl`
-command, so if nothing else starts it, open a terminal once (or add `wsl -d <distro> --exec true` as a
-Windows logon task).
+**After a WSL restart or Windows reboot** the service starts when the distro boots, but Windows
+only boots WSL when something runs `wsl`. Register a logon task once, from PowerShell, so the
+distro boots and stays up (a running client keeps WSL's idle timeout from stopping it):
+
+```powershell
+$a = New-ScheduledTaskAction -Execute "wsl.exe" -Argument "-d FedoraLinux-44 --exec sleep infinity"
+$t = New-ScheduledTaskTrigger -AtLogOn
+$s = New-ScheduledTaskSettingsSet -ExecutionTimeLimit 0 -Hidden
+Register-ScheduledTask -TaskName "WSL Paperclip" -Action $a -Trigger $t -Settings $s
+```
+
+Use your distro name from `wsl -l -v`. Verify after `wsl --shutdown` or a reboot, *before* opening a
+terminal: `curl.exe -s -o NUL -w "%{http_code}" http://localhost:3100` → `200`.
 
 **Operating it:**
 

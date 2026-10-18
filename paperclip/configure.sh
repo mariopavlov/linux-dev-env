@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 # Imports the company package (once) and applies everything the package format cannot carry:
 # instance flags, pinned skill sources, per-agent skills, working directories, environment,
-# heartbeats and concurrency, and the agents' GitHub token. Safe to re-run.
+# heartbeats and concurrency, and agent instructions. Safe to re-run.
 #
 #   bash paperclip/configure.sh
-#   GITHUB_TOKEN=github_pat_… bash paperclip/configure.sh    also stores the company secret
 set -euo pipefail
 
 PAPERCLIP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -85,12 +84,18 @@ fi
 echo "  id: $COMPANY"
 
 log "Skill sources"
-existing_sources="$(api GET "/companies/$COMPANY/skill-sources" | jq -r '(if type=="array" then . else (.sources // .items // []) end)[] | .repositoryUrl')"
+existing_sources="$(api GET "/companies/$COMPANY/skill-sources" | jq -c '[(if type=="array" then . else (.sources // .items // []) end)[] | {url: (.repositoryUrl | ascii_downcase), id, commit: .lastScanCommit}]')"
 for entry in "${SOURCES[@]}"; do
     IFS='|' read -r repo sha prefix names <<<"$entry"
     url="https://github.com/$repo"
-    if grep -qix "$url" <<<"$existing_sources"; then
-        echo "  skip $repo"
+    existing="$(jq -c --arg u "${url,,}" '.[] | select(.url==$u)' <<<"$existing_sources")"
+    if [[ -n "$existing" ]]; then
+        pinned="$(jq -r .commit <<<"$existing")"
+        if [[ "$pinned" == "$sha" ]]; then
+            echo "  skip $repo@${sha:0:7}"
+        else
+            echo "  WARN $repo is pinned at ${pinned:0:7}, configured ${sha:0:7} — Paperclip's API cannot re-pin a source; change it in the UI (Skills → sources)"
+        fi
         continue
     fi
     paths="$(printf '%s\n' $names | jq -R --arg p "$prefix" '"\($p)/\(.)/SKILL.md"' | jq -sc .)"
@@ -135,6 +140,10 @@ for slug in "${!NAME[@]}"; do
     api PATCH "/agents/$id" "$(jq -nc --arg cwd "$home" --argjson env "$env" --argjson hb "$heartbeat" \
         '{adapterConfig:{cwd:$cwd, env:$env}, runtimeConfig:{heartbeat:$hb}}')" >/dev/null
 
+    for wanted_skill in ${SKILLS[$slug]}; do
+        jq -e --arg s "$wanted_skill" 'any(.[]; .slug==$s)' <<<"$SKILL_KEYS" >/dev/null \
+            || echo "  WARN $slug: skill '$wanted_skill' not found in the company"
+    done
     keys="$(printf '%s\n' ${SKILLS[$slug]} | jq -R . | jq -sc --argjson all "$SKILL_KEYS" \
         '[.[] | select(. != "") as $s | ($all[] | select(.slug==$s) | .key)] | unique')"
     api POST "/agents/$id/skills/sync" "$(jq -nc --argjson k "$keys" '{mode:"replace",desiredSkills:$k}')" >/dev/null
@@ -154,16 +163,5 @@ for slug in "${!NAME[@]}"; do
     [[ "$status" == "paused" ]] && api POST "/agents/$id/resume" >/dev/null
     printf "  %-24s skills=%-3s concurrency=%s instructions=%s\n" "$slug" "$(jq length <<<"$keys")" "$concurrency" "$instructions"
 done
-
-if [[ -n "${GITHUB_TOKEN:-}" ]]; then
-    log "Secret: GITHUB_TOKEN"
-    if api GET "/companies/$COMPANY/secrets" | jq -e '(if type=="array" then . else (.secrets // .items // []) end)[] | select(.key=="GITHUB_TOKEN")' >/dev/null; then
-        echo "  exists (rotate in the UI)"
-    else
-        api POST "/companies/$COMPANY/secrets" \
-            "$(jq -nc --arg v "$GITHUB_TOKEN" '{name:"GITHUB_TOKEN",key:"GITHUB_TOKEN",value:$v}')" >/dev/null
-        echo "  stored"
-    fi
-fi
 
 log "Done — http://localhost:3100"
