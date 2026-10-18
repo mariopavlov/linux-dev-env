@@ -11,6 +11,7 @@ API="${PAPERCLIP_API:-http://127.0.0.1:3100/api}"
 COMPANY_NAME="Keystone"
 AGENT_HOMES="$HOME/.paperclip/agent-homes"
 GIT_EMAIL="$(git config --global user.email)"
+CLAUDE_BIN="$(command -v claude)" || { echo "claude CLI not found on PATH" >&2; exit 1; }
 
 api() {
     local method="$1" path="$2" body="${3:-}"
@@ -238,7 +239,7 @@ for slug in "${!NAME[@]}"; do
         '{GIT_AUTHOR_NAME:$n, GIT_AUTHOR_EMAIL:$e, GIT_COMMITTER_NAME:$n, GIT_COMMITTER_EMAIL:$e}')"
     case "$(adapter_of "$slug")" in
         claude_local)
-            env="$(jq -c '. + {ENABLE_CLAUDEAI_MCP_SERVERS:"false"}' <<<"$env")"
+            env="$(jq -c --arg c "$CLAUDE_BIN" '. + {ENABLE_CLAUDEAI_MCP_SERVERS:"false", CLAUDE_CODE_EXECUTABLE:$c}' <<<"$env")"
             effort="$(jq -nc --arg e "${EFFORT[$slug]}" '{effort:$e}')"
             concurrency=1 ;;
         codex_local)
