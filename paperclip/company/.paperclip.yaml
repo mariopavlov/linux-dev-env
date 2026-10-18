@@ -15,21 +15,6 @@ agents:
       characterVersion: "cap-v1"
       paletteId: "arctic-blue"
       schemaVersion: 1
-  delivery-lead:
-    role: "cto"
-    icon: "rocket"
-    adapter:
-      type: "claude_local"
-    permissions:
-      canCreateAgents: false
-      canCreateSkills: false
-    permissionGrants:
-      -
-        permissionKey: "tasks:assign"
-    appearance:
-      characterVersion: "cap-v1"
-      paletteId: "deep-tide"
-      schemaVersion: 1
   developer-1:
     role: "engineer"
     icon: "code"

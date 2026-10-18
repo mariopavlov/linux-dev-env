@@ -31,6 +31,15 @@ if bash "$PAPERCLIP_DIR/build.sh" --src "$TEST_ROOT/src" --out "$TEST_ROOT/out" 
     fail "--check passed on stale output"
 fi
 
+bash "$PAPERCLIP_DIR/build.sh" --src "$TEST_ROOT/src" --out "$TEST_ROOT/out"
+rm "$TEST_ROOT/src/agents/beta.md"
+if bash "$PAPERCLIP_DIR/build.sh" --src "$TEST_ROOT/src" --out "$TEST_ROOT/out" --check 2>/dev/null; then
+    fail "--check passed with an orphaned agent dir"
+fi
+bash "$PAPERCLIP_DIR/build.sh" --src "$TEST_ROOT/src" --out "$TEST_ROOT/out"
+[[ ! -e "$TEST_ROOT/out/agents/beta" ]] || fail "orphaned agent dir not removed"
+[[ -f "$TEST_ROOT/out/agents/alpha/AGENTS.md" ]] || fail "removed the wrong agent"
+
 bash "$PAPERCLIP_DIR/build.sh" --check || fail "committed company/ is stale — run paperclip/build.sh"
 
 printf '%s\n' "build_test.sh: PASS"

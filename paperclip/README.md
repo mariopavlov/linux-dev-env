@@ -17,22 +17,34 @@ Why things are the way they are: `FINDINGS.md`.
 
 ## The team
 
-| Agent | Runtime | Reports to | Role |
-|---|---|---|---|
-| Principal Architect | Claude | — (CEO) | Requirements → design, D-decisions, board approval, Notion sync |
-| Delivery Lead | Claude | Principal Architect | Plan → issues, review chains, merges into milestone branch, milestone PR |
-| Developer 1, 2 | Codex | Delivery Lead | Implement issues, TDD |
-| Refactorer | Codex | Delivery Lead | First review stage: removes comments and needless abstraction; never touches tests |
-| Platform Engineer | Codex | Delivery Lead | Containers, IaC, CI/CD |
-| Cloud Architect | Claude | Principal Architect | Cloud-native design review; reviews Platform work |
-| Security·Codex, Security·Claude | Codex, Claude | Principal Architect | Independent threat models and reviews |
-| DDD Reviewer | Claude | Delivery Lead | Bounded contexts, aggregates, ubiquitous language |
-| QA Engineer | Claude | Delivery Lead | Acceptance criteria, edge cases, demo/runbook checks |
-| Teacher | Claude | Principal Architect | Teaches Mario, on request only |
+| Agent | Runtime | Role |
+|---|---|---|
+| Principal Architect (CEO) | Claude | Brainstorms with Mario, writes spec + plan, sizes the change, runs spec reviews, gets Mario's approval, assigns builds, decides on QA, opens the milestone PR |
+| Developer 1, 2 | Codex | Implement plan tasks, TDD |
+| Platform Engineer | Codex | Containers, IaC, CI/CD |
+| Refactorer | Codex | Right after implementation: removes comments and needless abstraction; never touches tests |
+| QA Engineer | Claude | Checks the refactored code against spec, plan and implementation; PASS/FAIL |
+| Cloud Architect | Claude | Reviews specs and plans for cloud-native fit (8 skills) |
+| Security·Codex, Security·Claude | Codex, Claude | Independent threat models of specs and plans |
+| DDD Reviewer | Claude | Reviews specs and plans for the domain model |
+| Teacher | Claude | Teaches Mario, on request only |
 
-Review chains (set by the Delivery Lead on each issue): code — Refactorer → DDD Reviewer → QA →
-Delivery Lead approval; infrastructure — Refactorer → Cloud Architect → Security·Claude →
-Delivery Lead approval.
+Everyone reports to the Principal Architect. Specialists review code only when the Principal asks.
+
+## How work flows
+
+1. **Gate 1 — brainstorm.** Open **Agent Chat** with the Principal Architect and describe what you
+   want. It asks you questions one at a time, then writes spec, decisions and plan in the repo.
+2. **Spec review.** Small changes skip it. Otherwise the Principal sends the spec and plan to the
+   specialists the change needs and resolves what it can.
+3. **Gate 2 — Approvals page.** The reviewed spec, plan, review summary and the questions only you
+   can answer. Answer in the thread; request revision to loop back. Nothing is built before this.
+4. **Build.** Each plan task: Codex developer → Refactorer → QA → Principal decides (merge into the
+   milestone branch, send fixes back, or ask a specialist to review the code).
+5. **Gate 3 — milestone PR on GitHub** (`m0 → main`): demo checklist, runbooks, review digest.
+   You rebase-merge; only you can merge `main`.
+
+Mid-build questions reach you as blocked issues in the **Blocked inbox**.
 
 ## Changing the team
 
@@ -46,7 +58,7 @@ Delivery Lead approval.
 worktrees under `<repo>/.paperclip/worktrees/`), pinned skill sources (Superpowers, Azure, AWS,
 Terraform), each agent's skills, its working directory (`~/.paperclip/agent-homes/<slug>`),
 `ENABLE_CLAUDEAI_MCP_SERVERS=false` for Claude agents (so no agent sees Mario's Gmail, Drive and
-other claude.ai connectors), concurrency (Claude 1, Codex 2), the Delivery Lead's daily heartbeat,
+other claude.ai connectors), concurrency (Claude 1, Codex 2), the Principal Architect's daily heartbeat, Agent Chat,
 and the local `teacher` skill. To bump a skill repo, change its commit in `SOURCES`.
 
 ## One-time secrets
@@ -66,15 +78,6 @@ and the local `teacher` skill. To bump a skill repo, change its commit in `SOURC
 Project → New: workspace = the local repo path (Linux filesystem), execution workspaces
 **isolated**, strategy **git worktree**, base ref = the milestone branch (e.g. `m0`). Add
 `.paperclip/` and `.claude/` to the repo's `.gitignore`.
-
-## Your two gates
-
-- **Front gate — Approvals page.** The Principal Architect submits each strategy for your
-  approval; design changes found mid-flight also arrive here. Approve, reject, or request revision.
-- **Back gate — the milestone PR on GitHub.** The Delivery Lead opens `m0 → main` with a demo
-  checklist, runbooks and a review digest (every finding, who raised it, the fixing commit). You
-  run the demo and rebase-merge. Only you can merge `main` (ruleset).
-- **Blocked inbox.** Agents ask you questions only by blocking an issue with one question.
 
 ## Calling the Teacher
 

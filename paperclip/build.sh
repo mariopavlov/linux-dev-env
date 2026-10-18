@@ -42,4 +42,15 @@ for source in "$SRC"/agents/*.md; do
     fi
 done
 
+for dir in "$OUT"/agents/*/; do
+    slug="$(basename "$dir")"
+    [[ -f "$SRC/agents/$slug.md" ]] && continue
+    if $CHECK; then
+        echo "orphaned: $dir" >&2
+        stale=1
+    else
+        rm -rf "$dir"
+    fi
+done
+
 exit "$stale"
