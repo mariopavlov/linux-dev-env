@@ -33,8 +33,18 @@ project scope (`claude plugin install <p> --scope project`). Asked it to list sk
   `superpowers` gave all 15 skills plus its SessionStart hook.
 - **User-scope plugins do not load** (Superpowers was missing until enabled in the `cwd`).
 
-**Decision:** each Claude agent gets its own `cwd` folder with project-scope plugins:
-Superpowers for all, plus Azure / AWS / Terraform for the Cloud Architect.
+**Correction (SPI-11, issue run inside a project worktree):** the agent's `pwd` is the issue's
+worktree, not its adapter `cwd`, so **no plugins load during real work** — neither project-scope
+plugins from the adapter `cwd` nor user-scope ones. Only Paperclip-attached skills appear.
+
+**Decision:** all skills reach all agents (Claude and Codex) as **Paperclip company skill sources**,
+pinned to a commit and attached per agent: Superpowers for every delivery agent; Azure
+(`microsoft/azure-skills`, `MicrosoftDocs/Agent-Skills` well-architected), AWS
+(`aws/agent-toolkit-for-aws`) and Terraform (`hashicorp/agent-skills`) skills for the Cloud
+Architect; Terraform for Platform/DevOps. No cloud MCP servers in the pilot — agents hold no cloud
+credentials, so the skill text is what review needs. MCP servers that are needed (Notion) go
+through Paperclip's governed tools (`POST /api/companies/{id}/tools/mcp/import-json`) and are
+granted only to the agents that need them.
 
 ## 3. Codex agent: Superpowers
 
@@ -62,12 +72,12 @@ bypass on, any agent could read or act on Mario's mail and files.
 re-probed. Gmail became unreachable ("No matching deferred tools"); only the Paperclip, Azure and
 unauthenticated synced-plugin stubs remained.
 
-**Decision:** every Claude agent runs with `ENABLE_CLAUDEAI_MCP_SERVERS=false` and
-`syncClaudeAiSkills: false` in its `cwd` settings. The agents that need Notion (CEO for decision
-sync, Teacher for learning records) get it through a project-scoped `.mcp.json` using Notion's
-official MCP server with a Notion **internal integration token** stored as a Paperclip secret — the
+**Decision:** every Claude agent runs with `ENABLE_CLAUDEAI_MCP_SERVERS=false` in its adapter
+`env` (SPI-11 confirmed no connectors inside a worktree with it set). The agents that need Notion
+(CEO for decision sync, Teacher for learning records) get Notion's official MCP server through
+Paperclip's governed tools, authenticated with a Notion **internal integration token** — the
 integration only sees the pages Mario shares with it (Perigee area, Study Assignments, Knowledge
-Checks), not the whole workspace.
+Checks, Check Attempts), not the whole workspace.
 
 ## 5. Wake on @-mention
 
