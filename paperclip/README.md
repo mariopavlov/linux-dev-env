@@ -64,6 +64,15 @@ Terraform), each agent's skills, its working directory (`~/.paperclip/agent-home
 other claude.ai connectors), concurrency (Claude 1, Codex 2), the Coordinator's daily heartbeat, Agent Chat,
 the local `teacher` skill, every agent's instructions, and its model and reasoning effort (`MODEL`, `EFFORT` — pinned so upgrades cannot change them silently). New skill repos are added at the commit in `SOURCES`. Paperclip's API cannot move an existing source to another commit (delete only disables it), so to bump a pin change it in `SOURCES` *and* in the UI (Skills → sources); `configure.sh` warns while the two differ.
 
+## Branding
+
+- Company **Keystone**, issue prefix **`KEY`**. Paperclip derives the prefix from the company name
+  once, at creation; it cannot be changed later.
+- Logo: `branding/keystone-logo.svg` (source) and `.png` (uploaded by `configure.sh` when the
+  company has none).
+- Agent icons and avatar palettes are set by `configure.sh` (`ICON`, `PALETTE`), grouped by runtime:
+  violet/blue palettes for Claude, warm for Codex, green for Ollama.
+
 ## Ollama agents
 
 The Coordinator, Research Scout and Security·DeepSeek run in OpenCode on **Ollama Cloud** models

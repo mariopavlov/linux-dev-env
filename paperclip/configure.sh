@@ -74,6 +74,40 @@ declare -A EFFORT=(
     [security-deepseek]="high"
 )
 
+declare -A ICON=(
+    [ceo-principal-architect]="crown"
+    [cloud-architect]="globe"
+    [ddd-reviewer]="hexagon"
+    [security-claude]="lock"
+    [qa]="bug"
+    [teacher]="lightbulb"
+    [developer-1]="code"
+    [developer-2]="terminal"
+    [refactorer]="wand"
+    [platform-devops]="package"
+    [security-codex]="shield"
+    [coordinator]="radar"
+    [research-scout]="telescope"
+    [security-deepseek]="fingerprint"
+)
+
+declare -A PALETTE=(
+    [ceo-principal-architect]="violet-ember"
+    [cloud-architect]="ultraviolet-tide"
+    [ddd-reviewer]="orchid-peach"
+    [security-claude]="deep-tide"
+    [qa]="arctic-blue"
+    [teacher]="bubblegum-sky"
+    [developer-1]="tangerine-cobalt"
+    [developer-2]="solar-flare"
+    [refactorer]="coral-current"
+    [platform-devops]="golden-hour"
+    [security-codex]="cherry-pop"
+    [coordinator]="lime-lagoon"
+    [research-scout]="electric-grove"
+    [security-deepseek]="coral-mint"
+)
+
 SUPERPOWERS="brainstorming writing-plans executing-plans test-driven-development systematic-debugging verification-before-completion requesting-code-review receiving-code-review"
 TERRAFORM="terraform-style-guide terraform-test refactor-module azure-verified-modules"
 
@@ -122,6 +156,15 @@ if [[ -z "$COMPANY" ]]; then
 fi
 [[ -n "$COMPANY" ]] || { echo "company import failed" >&2; exit 1; }
 echo "  id: $COMPANY"
+
+log "Logo"
+if [[ "$(api GET "/companies/$COMPANY" | jq -r '.logoAssetId // ""')" == "" ]]; then
+    asset="$(curl -fsS -X POST "$API/companies/$COMPANY/logo" -F "file=@$PAPERCLIP_DIR/branding/keystone-logo.png;type=image/png" | jq -r '.assetId // .id')"
+    api PATCH "/companies/$COMPANY" "$(jq -nc --arg a "$asset" '{logoAssetId:$a}')" >/dev/null
+    echo "  uploaded branding/keystone-logo.png"
+else
+    echo "  skip (logo set)"
+fi
 
 log "Skill sources"
 existing_sources="$(api GET "/companies/$COMPANY/skill-sources" | jq -c '[(if type=="array" then . else (.sources // .items // []) end)[] | {url: (.repositoryUrl | ascii_downcase), id, commit: .lastScanCommit}]')"
@@ -205,7 +248,9 @@ for slug in "${!NAME[@]}"; do
     fi
     api PATCH "/agents/$id" "$(jq -nc --arg cwd "$home" --arg model "${MODEL[$slug]}" --argjson env "$env" --argjson hb "$heartbeat" \
         --argjson effort "$effort" \
-        '{adapterConfig:({cwd:$cwd, model:$model, env:$env} + $effort), runtimeConfig:{heartbeat:$hb}}')" >/dev/null
+        --arg icon "${ICON[$slug]}" --arg palette "${PALETTE[$slug]}" \
+        '{adapterConfig:({cwd:$cwd, model:$model, env:$env} + $effort), runtimeConfig:{heartbeat:$hb},
+          icon:$icon, appearance:{schemaVersion:1, characterVersion:"cap-v1", paletteId:$palette}}')" >/dev/null
 
     for wanted_skill in ${SKILLS[$slug]}; do
         jq -e --arg s "$wanted_skill" 'any(.[]; .slug==$s)' <<<"$SKILL_KEYS" >/dev/null \
