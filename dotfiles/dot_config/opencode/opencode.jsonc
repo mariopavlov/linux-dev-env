@@ -1,0 +1,27 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  // Ollama Cloud through the local Ollama daemon (run `ollama signin` once per machine).
+  // Models are cloud-hosted, so the same config works on every machine.
+  // Variants map to the reasoning effort Paperclip passes with --variant.
+  "provider": {
+    "ollama": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Ollama Cloud",
+      "options": { "baseURL": "http://localhost:11434/v1" },
+      "models": {
+        "nemotron-3-super:cloud": {
+          "name": "Nemotron 3 Super (cloud)",
+          "variants": { "low": { "reasoningEffort": "low" }, "medium": { "reasoningEffort": "medium" }, "high": { "reasoningEffort": "high" } }
+        },
+        "deepseek-v4.1-flash:cloud": {
+          "name": "DeepSeek V4.1 Flash (cloud)",
+          "variants": { "low": { "reasoningEffort": "low" }, "medium": { "reasoningEffort": "medium" }, "high": { "reasoningEffort": "high" } }
+        },
+        "deepseek-v4-pro:0813-cloud": {
+          "name": "DeepSeek V4 Pro (cloud)",
+          "variants": { "low": { "reasoningEffort": "low" }, "medium": { "reasoningEffort": "medium" }, "high": { "reasoningEffort": "high" } }
+        }
+      }
+    }
+  }
+}
