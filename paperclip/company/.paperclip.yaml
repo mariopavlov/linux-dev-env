@@ -13,7 +13,7 @@ agents:
         permissionKey: "tasks:assign"
     appearance:
       characterVersion: "cap-v1"
-      paletteId: "arctic-blue"
+      paletteId: "violet-ember"
       schemaVersion: 1
   developer-1:
     role: "engineer"
@@ -26,7 +26,7 @@ agents:
     permissionGrants: []
     appearance:
       characterVersion: "cap-v1"
-      paletteId: "lime-lagoon"
+      paletteId: "tangerine-cobalt"
       schemaVersion: 1
   developer-2:
     role: "engineer"
@@ -39,7 +39,7 @@ agents:
     permissionGrants: []
     appearance:
       characterVersion: "cap-v1"
-      paletteId: "electric-grove"
+      paletteId: "solar-flare"
       schemaVersion: 1
   refactorer:
     role: "engineer"
@@ -52,7 +52,7 @@ agents:
     permissionGrants: []
     appearance:
       characterVersion: "cap-v1"
-      paletteId: "turquoise-cherry"
+      paletteId: "coral-current"
       schemaVersion: 1
   platform-devops:
     role: "devops"
@@ -65,7 +65,7 @@ agents:
     permissionGrants: []
     appearance:
       characterVersion: "cap-v1"
-      paletteId: "tangerine-cobalt"
+      paletteId: "golden-hour"
       schemaVersion: 1
   cloud-architect:
     role: "general"
@@ -78,7 +78,7 @@ agents:
     permissionGrants: []
     appearance:
       characterVersion: "cap-v1"
-      paletteId: "golden-hour"
+      paletteId: "ultraviolet-tide"
       schemaVersion: 1
   security-codex:
     role: "security"
@@ -104,7 +104,7 @@ agents:
     permissionGrants: []
     appearance:
       characterVersion: "cap-v1"
-      paletteId: "violet-ember"
+      paletteId: "deep-tide"
       schemaVersion: 1
   ddd-reviewer:
     role: "general"
@@ -130,7 +130,7 @@ agents:
     permissionGrants: []
     appearance:
       characterVersion: "cap-v1"
-      paletteId: "coral-mint"
+      paletteId: "arctic-blue"
       schemaVersion: 1
   teacher:
     role: "general"
@@ -143,7 +143,7 @@ agents:
     permissionGrants: []
     appearance:
       characterVersion: "cap-v1"
-      paletteId: "solar-flare"
+      paletteId: "bubblegum-sky"
       schemaVersion: 1
   coordinator:
     role: "pm"
@@ -158,7 +158,7 @@ agents:
     permissionGrants: []
     appearance:
       characterVersion: "cap-v1"
-      paletteId: "arctic-blue"
+      paletteId: "lime-lagoon"
       schemaVersion: 1
   research-scout:
     role: "researcher"
@@ -173,7 +173,7 @@ agents:
     permissionGrants: []
     appearance:
       characterVersion: "cap-v1"
-      paletteId: "golden-hour"
+      paletteId: "electric-grove"
       schemaVersion: 1
   security-deepseek:
     role: "security"
@@ -188,5 +188,5 @@ agents:
     permissionGrants: []
     appearance:
       characterVersion: "cap-v1"
-      paletteId: "deep-tide"
+      paletteId: "coral-mint"
       schemaVersion: 1

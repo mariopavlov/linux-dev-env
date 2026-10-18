@@ -132,7 +132,10 @@ Accepted for the pilot per the spec (no cloud credentials); revisit before crede
 ## 10. Cleanup
 
 `company delete` fails once a company has runs (500: `cost_events_heartbeat_run_id_heartbeat_runs_id_fk`
-blocks deleting `heartbeat_runs`). The spike company is **archived** instead.
+blocks deleting `heartbeat_runs`). Workaround used on 2026-10-18 after a `paperclipai db:backup`:
+delete that company's rows from `cost_events` (embedded Postgres on :54329, user/db `paperclip`),
+then `DELETE /api/companies/<id>` succeeds. Archived spike, v1 and duplicate companies were removed
+this way; the company was re-created as Keystone to get the `KEY` prefix.
 
 ## 11. Smoke runs v1 and v2 (paperclip-smoke, 2026-10-18)
 
