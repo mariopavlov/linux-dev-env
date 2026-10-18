@@ -217,7 +217,7 @@ for slug in "${!NAME[@]}"; do
 
     home="$AGENT_HOMES/$slug"
     mkdir -p "$home"
-    author="${NAME[$slug]} (Paperclip)"
+    author="${NAME[$slug]}"
     env="$(jq -nc --arg n "$author" --arg e "$GIT_EMAIL" \
         '{GIT_AUTHOR_NAME:$n, GIT_AUTHOR_EMAIL:$e, GIT_COMMITTER_NAME:$n, GIT_COMMITTER_EMAIL:$e}')"
     case "$(adapter_of "$slug")" in
