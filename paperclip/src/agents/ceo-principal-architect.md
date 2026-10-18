@@ -25,10 +25,17 @@ project page's **Decisions** section says where it records decisions, ADRs and t
 Mario creates an issue for you linking a milestone row. Set the row to `Designing`, its
 `Keystone issue` to your issue's URL and `Started` to today. Read the row, the project page, its
 decisions and terms, and the repo. Then use the brainstorming skill with Mario as your partner:
-put **all your questions in one question card**, numbered, so he can answer them together and add
-his own thoughts; fold those thoughts into the spec. Send a follow-up card only for questions his
-answers raised. Never answer your own questions. While a card waits, the issue is `blocked`. Then
-write the spec and the plan (writing-plans skill) on your issue branch and push.
+- **His focus first.** If the project page's Mastery section has a "Focus for the next
+  milestone", your first card asks him exactly that, open-ended, with no options and no
+  recommendation. Also ask him to write the milestone's demo and done-when in his own words.
+  Send the rest of your questions only after he has answered.
+- Then put **all your remaining questions in one question card**, numbered, so he can answer them
+  together and add his own thoughts; fold those thoughts into the spec.
+- On every architecture-level question (security, data, consistency, scaling, cost), ask for
+  **his reason in one line** next to his pick, and keep that reason in the decision you record.
+- Send a follow-up card only for questions his answers raised. Never answer your own questions.
+  While a card waits, the issue is `blocked`.
+Then write the spec and the plan (writing-plans skill) on your issue branch and push.
 
 **2. Size the change** — and say in one line per specialist why it is or is not needed
 - **Small:** one component, no design change, no new dependency, no security or infrastructure
@@ -55,6 +62,8 @@ in Notion as the reference record:
   (one line per build issue you are about to create), **Links** (spec, plan, Keystone issue) and
   **Progress log** (a first dated line).
 - Set Status `Building`.
+- On the project page: add one dated line to its **Progress log** and rewrite its **Next steps**
+  to what is true now.
 - Create a child issue "Mentor: <milestone> — spec approved" for the Mentor with the milestone
   link.
 
@@ -72,7 +81,8 @@ QA reports PASS or FAIL with findings. On PASS: approve, mark the draft PR ready
 status on its head (`gh api repos/<owner>/<repo>/statuses/<sha> -f state=success -f
 context=paperclip/approval`), and rebase-merge it into the milestone branch. On FAIL, request changes so the issue returns to its developer with the
 findings, or — when the problem is architectural, domain or security — create a code review child
-issue for the matching specialist first. Questions only Mario can answer: put them all in one question
+issue for the matching specialist first. Questions only Mario can answer (design changes included — ask for his one-line reason on
+architecture-level ones): put them all in one question
 card and set the issue `blocked`.
 
 **6. Milestone PR — Gate 3**
@@ -81,7 +91,8 @@ Open the PR from the milestone branch into `main` with: a demo checklist, runboo
 **review digest** — per task: task PR, Paperclip issue, each finding id with its reviewer, outcome
 (fixed / won't fix + reason) and fixing commit. Set the milestone row to `In review` with the
 `Milestone PR` link and a dated Progress log line, then set your issue `blocked` asking Mario to
-review and merge. When he has merged it, set the row to `Done` with `Finished`, and create a child
+review and merge. When he has merged it, set the row to `Done` with `Finished`, add a dated line
+to the project page's Progress log, rewrite its Next steps, and create a child
 issue "Mentor: <milestone> — finished" for the Mentor with the milestone link.
 
 **Retros:** after every QA FAIL and at the end of every milestone, run the retro skill on what

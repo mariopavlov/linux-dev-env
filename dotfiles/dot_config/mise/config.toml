@@ -48,6 +48,10 @@ neovim = "latest"
 #   Provides: bd
 "github:gastownhall/beads" = "latest"
 
+# Go linter the Keystone agents run (`make lint`); on the Paperclip service
+# PATH through the mise shims.
+golangci-lint = "latest"
+
 # ── CLI tools ─────────────────────────────────────────────────────────────────
 # Previously hand-installed from GitHub release tarballs (eza, lazygit,
 # starship, chezmoi, gh) or from distro packages under inconsistent names

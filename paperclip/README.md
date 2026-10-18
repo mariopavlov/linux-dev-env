@@ -57,7 +57,7 @@ work happen in **Keystone**.
    the row is `In review`. You rebase-merge; only you can merge `main`. The row becomes `Done` and
    the Mentor runs its finish sync.
 
-Mid-build questions reach you as blocked issues in the **Blocked inbox**.
+Mid-build questions reach you as cards in your **Inbox**.
 
 ## Changing the team
 
@@ -116,8 +116,9 @@ credits, not on Claude or Codex quota.
 
 - **Start work** with a task in the project, assigned to the Principal Architect (or Agent Chat
   with it). Describe the problem in your own words.
-- **Status tells you who waits on whom:** `in_progress` an agent is working, `in_review` an agent
-  is reviewing, `blocked` **it waits for you** — filter on `blocked` or use the Blocked inbox.
+- **Your Inbox is what waits for you:** every question, confirmation and approval arrives there
+  as a card. Issue status says what the agents are doing: `in_progress` working, `in_review` an
+  agent is reviewing, `blocked` waiting on another issue or on you.
 - **Questions** arrive as one card with all of them; answer them together and add anything else.
 - **Gates 1 and 2** are cards in the Keystone task; the milestone row in Notion is the record.
   **Gate 3** is the milestone PR on GitHub
