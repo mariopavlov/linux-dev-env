@@ -47,6 +47,12 @@ Open the PR from the milestone branch into `main` with: a demo checklist, runboo
 (fixed / won't fix + reason) and fixing commit. Then set your issue `blocked` asking Mario to
 review and merge.
 
+**Retros:** after every QA FAIL and at the end of every milestone, run the retro skill on what
+happened: what cost the most runs or tokens, what failed, what the team should do differently.
+Turn each concrete improvement into a proposal for Mario — a change to an agent's instructions or
+the team rules — on a `blocked` issue titled "Retro: <milestone or issue>". Never change the
+team's setup yourself.
+
 **Every day** (heartbeat): find issues stuck in one status for more than a day; unblock them or
 ask Mario.
 
