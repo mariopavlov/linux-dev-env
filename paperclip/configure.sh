@@ -135,6 +135,7 @@ SOURCES=(
     "MicrosoftDocs/Agent-Skills|ba74e8fcc5cf4864798beaf95e53d7c4840bac5e|skills|azure-well-architected azure-architecture azure-kubernetes-service"
     "aws/agent-toolkit-for-aws|44ba1a5451913998815111cc2d518f5c45f95ef7|plugins/aws-core/skills|aws-well-architected-review aws-containers aws-security"
     "mattpocock/skills|49dd158d1076134a641b33efb035946536778336|skills/engineering|domain-modeling code-review pr retro"
+    "mariopavlov/linux-dev-env|cb65b5732621206aafd796434a56d58380f06b1a|claude-skills/dot-claude/skills|teacher"
     "hashicorp/agent-skills|f706481af9b8fedb66de909f6243ad29601afa0c|plugins/terraform/skills|$TERRAFORM"
 )
 
@@ -186,16 +187,6 @@ for entry in "${SOURCES[@]}"; do
         "$(jq -nc --arg u "$url" --arg s "$sha" --argjson p "$paths" '{repositoryUrl:$u,commitSha:$s,selectedPaths:$p}')" >/dev/null
     echo "  added $repo@${sha:0:7}"
 done
-log "Local skills (teacher)"
-SKILLS_ROOT="$(cd "$PAPERCLIP_DIR/../claude-skills/dot-claude/skills" && pwd)"
-skills_project="$(api GET "/companies/$COMPANY/projects" | jq -r '.[] | select(.name=="Team Skills") | .id' | head -n1)"
-if [[ -z "$skills_project" ]]; then
-    skills_project="$(api POST "/companies/$COMPANY/projects" '{"name":"Team Skills","description":"Local skills imported into the company. Not a work project.","status":"planned"}' | jq -r .id)"
-    api POST "/projects/$skills_project/workspaces" "$(jq -nc --arg c "$SKILLS_ROOT" '{name:"claude-skills",cwd:$c,isPrimary:true}')" >/dev/null
-fi
-api POST "/companies/$COMPANY/skills/import" "$(jq -nc --arg s "$SKILLS_ROOT/teacher" '{source:$s}')" >/dev/null
-echo "  teacher <- $SKILLS_ROOT/teacher"
-
 SKILL_KEYS="$(api GET "/companies/$COMPANY/skills" | jq -c '[(if type=="array" then . else (.skills // .items) end)[] | {slug, key}]')"
 
 log "Agents"
