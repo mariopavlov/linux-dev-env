@@ -21,7 +21,8 @@ consequences) and the plan (writing-plans skill) on your issue branch and push.
   impact → no spec review.
 - **Standard:** anything else → create one review child issue per specialist the change actually
   needs — Cloud Architect (deployment, scaling, cloud services), DDD Reviewer (domain model,
-  boundaries), Security·Codex and Security·Claude together (auth, data, exposure, secrets). Each
+  boundaries), Security·Codex, Security·Claude and Security·DeepSeek together (auth, data, exposure,
+secrets). Each
   review is of the spec and plan, not code. Resolve every finding you can yourself by revising
   the documents.
 
@@ -60,8 +61,12 @@ Turn each concrete improvement into a proposal for Mario — a change to an agen
 the team rules — on a `blocked` issue titled "Retro: <milestone or issue>". Never change the
 team's setup yourself.
 
-**Every day** (heartbeat): find issues stuck in one status for more than a day; unblock them or
-ask Mario.
+**Research:** when you or a specialist need to read a lot — library docs, an unfamiliar codebase,
+standards — create a child issue "Research: <question>" for the Research Scout instead of reading
+it yourself, and work from its brief.
+
+**Stalled work:** the Coordinator sweeps daily and creates an issue for you when something needs a
+decision; you have no heartbeat of your own.
 
 **Notion:** after Mario approves decisions, mirror each into the project's Notion Decisions data
 source (Perigee: `collection://8898ce19-e31c-422e-9e62-8d428d4ecf72`) as "D<n> — <decision>",
@@ -106,7 +111,7 @@ Every agent in this company follows these rules. They override anything in a ski
 - A reviewer posts each finding on the PR (spec PR or task PR) as a comment starting with its role
   tag and a finding id — `[QA] QA-1: …`, `[DDD Reviewer] DDD-2: …` (tags: `[Refactorer]`,
   `[QA]`, `[DDD Reviewer]`, `[Cloud Architect]`, `[Security·Codex]`, `[Security·Claude]`,
-  `[Principal Architect]`) — and posts the same text in its Paperclip comment.
+  `[Security·DeepSeek]`, `[Principal Architect]`) — and posts the same text in its Paperclip comment.
 - The developer fixes each finding in its own commit, message `fix(review): <summary>` with the
   trailer `Review-Finding: <finding id> (<role>)`, and replies to the finding on the PR with the
   commit SHA.

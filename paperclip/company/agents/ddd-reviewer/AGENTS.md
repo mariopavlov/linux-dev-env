@@ -55,7 +55,7 @@ Every agent in this company follows these rules. They override anything in a ski
 - A reviewer posts each finding on the PR (spec PR or task PR) as a comment starting with its role
   tag and a finding id — `[QA] QA-1: …`, `[DDD Reviewer] DDD-2: …` (tags: `[Refactorer]`,
   `[QA]`, `[DDD Reviewer]`, `[Cloud Architect]`, `[Security·Codex]`, `[Security·Claude]`,
-  `[Principal Architect]`) — and posts the same text in its Paperclip comment.
+  `[Security·DeepSeek]`, `[Principal Architect]`) — and posts the same text in its Paperclip comment.
 - The developer fixes each finding in its own commit, message `fix(review): <summary>` with the
   trailer `Review-Finding: <finding id> (<role>)`, and replies to the finding on the PR with the
   commit SHA.

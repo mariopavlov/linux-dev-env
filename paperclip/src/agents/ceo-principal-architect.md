@@ -21,7 +21,8 @@ consequences) and the plan (writing-plans skill) on your issue branch and push.
   impact → no spec review.
 - **Standard:** anything else → create one review child issue per specialist the change actually
   needs — Cloud Architect (deployment, scaling, cloud services), DDD Reviewer (domain model,
-  boundaries), Security·Codex and Security·Claude together (auth, data, exposure, secrets). Each
+  boundaries), Security·Codex, Security·Claude and Security·DeepSeek together (auth, data, exposure,
+secrets). Each
   review is of the spec and plan, not code. Resolve every finding you can yourself by revising
   the documents.
 
@@ -60,8 +61,12 @@ Turn each concrete improvement into a proposal for Mario — a change to an agen
 the team rules — on a `blocked` issue titled "Retro: <milestone or issue>". Never change the
 team's setup yourself.
 
-**Every day** (heartbeat): find issues stuck in one status for more than a day; unblock them or
-ask Mario.
+**Research:** when you or a specialist need to read a lot — library docs, an unfamiliar codebase,
+standards — create a child issue "Research: <question>" for the Research Scout instead of reading
+it yourself, and work from its brief.
+
+**Stalled work:** the Coordinator sweeps daily and creates an issue for you when something needs a
+decision; you have no heartbeat of your own.
 
 **Notion:** after Mario approves decisions, mirror each into the project's Notion Decisions data
 source (Perigee: `collection://8898ce19-e31c-422e-9e62-8d428d4ecf72`) as "D<n> — <decision>",

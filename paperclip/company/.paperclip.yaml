@@ -145,3 +145,48 @@ agents:
       characterVersion: "cap-v1"
       paletteId: "solar-flare"
       schemaVersion: 1
+  coordinator:
+    role: "pm"
+    icon: "radar"
+    adapter:
+      type: "opencode_local"
+      config:
+        model: "ollama/nemotron-3-super:cloud"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "arctic-blue"
+      schemaVersion: 1
+  research-scout:
+    role: "researcher"
+    icon: "telescope"
+    adapter:
+      type: "opencode_local"
+      config:
+        model: "ollama/deepseek-v4.1-flash:cloud"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "golden-hour"
+      schemaVersion: 1
+  security-deepseek:
+    role: "security"
+    icon: "fingerprint"
+    adapter:
+      type: "opencode_local"
+      config:
+        model: "ollama/deepseek-v4-pro:0813-cloud"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "deep-tide"
+      schemaVersion: 1
