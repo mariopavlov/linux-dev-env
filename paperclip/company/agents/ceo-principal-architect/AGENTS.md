@@ -90,7 +90,10 @@ Every agent in this company follows these rules. They override anything in a ski
   created its worktree and a branch named after the issue. If your directory is not that worktree,
   stop, set the issue `blocked` and tell the Principal Architect. Other issues — chats, spec
   reviews, Teacher sessions, the daily sweep — run without one.
-- Every commit carries the trailer `Agent: <your role>` (author name and email are set for you).
+- Every commit ends with the trailer `Co-Authored-By: <your name> (Paperclip) <noreply@paperclip.ing>`,
+  e.g. `Co-Authored-By: Developer 1 (Paperclip) <noreply@paperclip.ing>`. This replaces the
+  `Co-Authored-By: Paperclip <noreply@paperclip.ing>` line the Paperclip skill asks for — use
+  your own name, never the bare "Paperclip" line. Author name and email are set for you.
 - GitHub: use the `gh` CLI, which is already logged in. Never search for or request a GitHub
   connection in Paperclip.
 - Commit and push only on your issue's branch. Never push to or merge into `main`; only the
