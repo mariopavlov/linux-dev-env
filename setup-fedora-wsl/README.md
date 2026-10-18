@@ -65,13 +65,14 @@ For SSH keys: enable the **1Password SSH agent** in 1Password Settings → Devel
 bash install.sh [flags]
 
 Steps:
-  --all        Run all steps (base → mise → langs → dotfiles → claude → agents)
+  --all        Run all steps (base → mise → langs → dotfiles → claude → agents → paperclip)
   --base       System layer: dnf packages, Fish + Fisher, Git config
   --mise       mise + every tool pinned in dotfiles/dot_config/mise/config.toml
   --langs      C/C++ toolchain, Rust (rustup), SDKMan, pynvim venv
   --dotfiles   Apply dotfiles via Chezmoi
   --claude     Symlink Claude Code config into ~/.claude/
   --agents     Install Claude Code, Codex, OpenCode, Herdr, and integrations
+  --paperclip  Paperclip agent orchestration as a system service (localhost:3100)
 
 Maintenance:
   --update     Update everything installed (not part of --all)
@@ -193,6 +194,54 @@ conversation sessions can be restored after a Herdr/WSL restart. Fish completion
 `~/.config/fish/completions/herdr.fish`. Re-running `--agents` skips installed binaries and refreshes
 the integrations and completion file.
 
+### `--paperclip` (packages/paperclip.sh)
+
+[Paperclip](https://github.com/paperclipai/paperclip) runs Claude Code and Codex agents as a team.
+The step:
+
+1. Installs Paperclip with its own managed installer, pinned by `PAPERCLIP_VERSION` in
+   `packages/paperclip.sh` (CLI shim `~/.local/bin/paperclipai`, payload `~/.paperclip/cli/`). Not
+   through mise: mise's npm backend skips postinstall scripts, and the bundled PostgreSQL needs
+   them. It reinstalls when the version changes or when mise prunes the Node the shim points at.
+2. Onboards the `default` instance once: `local_trusted` mode, bound to `127.0.0.1:3100`, no login.
+   Data lives in `~/.paperclip/instances/default/`, including hourly database backups.
+3. Turns telemetry off in the instance config and in the service environment.
+4. Installs `/etc/systemd/system/paperclip.service` with `User=$USER`, so it starts with WSL. It is a
+   system unit because the per-user systemd manager (`user@1000.service`) fails to start on this
+   WSL ("Failed to spawn executor: Device or resource busy").
+
+**Before starting agents** — log in both CLIs with your subscriptions, never API keys:
+
+```bash
+codex login          # ChatGPT account; writes ~/.codex/auth.json
+claude auth status   # must show "authMethod": "claude.ai"
+```
+
+**From Windows:** open `http://localhost:3100`. WSL's localhost forwarding (on by default) reaches
+the loopback-bound server. If it does not, set `localhostForwarding=true` (or
+`networkingMode=mirrored`) under `[wsl2]` in `%UserProfile%\.wslconfig` and run `wsl --shutdown`.
+Check from PowerShell with `curl.exe -s -o NUL -w "%{http_code}" http://localhost:3100` — expect `200`.
+
+**After a WSL restart** the service starts when the distro boots. WSL boots on the first `wsl`
+command, so if nothing else starts it, open a terminal once (or add `wsl -d <distro> --exec true` as a
+Windows logon task).
+
+**Operating it:**
+
+```bash
+sudo systemctl status paperclip     # state
+journalctl -u paperclip -f          # server logs
+sudo systemctl restart paperclip    # restart (interrupts running agent heartbeats)
+paperclipai doctor                  # config and environment checks
+```
+
+**Upgrading:** bump `PAPERCLIP_VERSION`, run `bash install.sh --paperclip`. `paperclipai update
+--rollback` flips back to the previous payload.
+
+**Agent runs failing on DNS** (Paperclip issue #7373, WSL DNS degrading under load): set
+`generateResolvConf = false` under `[network]` in `/etc/wsl.conf`, write `/etc/resolv.conf` with a
+public fallback nameserver (e.g. `nameserver 1.1.1.1`), and restart WSL. Apply only if you see it.
+
 ---
 
 ## After Running
@@ -297,9 +346,13 @@ setup-fedora-wsl/
 │   ├── mise.sh             # mise + the shared tool manifest
 │   ├── languages.sh        # C/C++, Rust (rustup), SDKMan, pynvim
 │   ├── claude.sh           # Claude Code config symlinks
-│   └── agents.sh           # AI agents, Herdr, integrations, Fish completion
+│   ├── agents.sh           # AI agents, Herdr, integrations, Fish completion
+│   └── paperclip.sh        # Paperclip install, onboarding, system service
+├── systemd/
+│   └── paperclip.service   # Unit template (@USER@/@HOME@ filled in at install)
 └── tests/
-    └── agents_test.sh      # Network-free agentic setup and idempotency test
+    ├── agents_test.sh      # Network-free agentic setup and idempotency test
+    └── paperclip_test.sh   # Network-free Paperclip setup and idempotency test
 ```
 
 ---
