@@ -42,8 +42,11 @@ health_code() {
     curl -s -o /dev/null -w '%{http_code}' "$HEALTH_URL" || true
 }
 
+restart_needed=false
+
 log_step "Paperclip $PAPERCLIP_VERSION"
 if needs_install; then
+    restart_needed=true
     npx -y "paperclipai@$PAPERCLIP_VERSION" install --version "$PAPERCLIP_VERSION" --yes
     log_success "Paperclip $PAPERCLIP_VERSION installed: $SHIM"
 else
@@ -54,15 +57,18 @@ log_step "Paperclip instance"
 if [[ -f "$CONFIG" ]]; then
     log_skip "Paperclip instance ($CONFIG)"
 else
-    PAPERCLIP_TELEMETRY_DISABLED=1 "$SHIM" onboard --yes --no-install-service </dev/null >/dev/null 2>&1 &
+    PAPERCLIP_TELEMETRY_DISABLED=1 setsid "$SHIM" onboard --yes --no-install-service </dev/null >/dev/null 2>&1 &
     onboard_pid=$!
     for _ in $(seq 1 "$HEALTH_TIMEOUT"); do
         [[ -f "$CONFIG" && "$(health_code)" == "200" ]] && break
         sleep 1
     done
-    pkill -P "$onboard_pid" 2>/dev/null || true
-    kill "$onboard_pid" 2>/dev/null || true
+    kill -- "-$onboard_pid" 2>/dev/null || true
     wait "$onboard_pid" 2>/dev/null || true
+    for _ in $(seq 1 30); do
+        pgrep -g "$onboard_pid" >/dev/null 2>&1 || break
+        sleep 1
+    done
     if [[ ! -f "$CONFIG" ]]; then
         log_error "Onboarding did not write $CONFIG"
         exit 1
@@ -80,13 +86,20 @@ node -e '
 log_success "Telemetry disabled in $CONFIG"
 
 log_step "Paperclip system service"
-sed -e "s|@USER@|$USER|g" -e "s|@HOME@|$HOME|g" "$SCRIPT_DIR/systemd/paperclip.service" \
-    | sudo tee "$UNIT_DIR/paperclip.service" >/dev/null
+unit="$(sed -e "s|@USER@|$USER|g" -e "s|@HOME@|$HOME|g" "$SCRIPT_DIR/systemd/paperclip.service")"
+if [[ "$unit" != "$(cat "$UNIT_DIR/paperclip.service" 2>/dev/null)" ]]; then
+    printf '%s\n' "$unit" | sudo tee "$UNIT_DIR/paperclip.service" >/dev/null
+    restart_needed=true
+fi
 sudo systemctl daemon-reload
 sudo systemctl enable --now paperclip.service
+if $restart_needed; then
+    sudo systemctl restart paperclip.service
+    log_info "paperclip.service restarted to pick up the new install or unit"
+fi
 log_success "paperclip.service enabled ($UNIT_DIR/paperclip.service)"
 
-if ! codex login status 2>/dev/null | grep -qi "logged in using"; then
+if ! codex login status >/dev/null 2>&1; then
     log_warn "Codex is not logged in — run 'codex login' (ChatGPT account) before starting Codex agents"
 fi
 
