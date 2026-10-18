@@ -17,17 +17,17 @@ Why things are the way they are: `FINDINGS.md`.
 
 ## The team
 
-| Agent | Runtime | Role |
+| Agent | Runtime · model · effort | Role |
 |---|---|---|
-| Principal Architect (CEO) | Claude | Brainstorms with Mario, writes spec + plan, sizes the change, runs spec reviews, gets Mario's approval, assigns builds, decides on QA, opens the milestone PR |
-| Developer 1, 2 | Codex | Implement plan tasks, TDD |
-| Platform Engineer | Codex | Containers, IaC, CI/CD |
-| Refactorer | Codex | Right after implementation: removes comments and needless abstraction; never touches tests |
-| QA Engineer | Claude | Checks the refactored code against spec, plan and implementation; PASS/FAIL |
-| Cloud Architect | Claude | Reviews specs and plans for cloud-native fit (8 skills) |
-| Security·Codex, Security·Claude | Codex, Claude | Independent threat models of specs and plans |
-| DDD Reviewer | Claude | Reviews specs and plans for the domain model |
-| Teacher | Claude | Teaches Mario, on request only |
+| Principal Architect (CEO) | Claude · Opus 5.5 · high | Brainstorms with Mario, writes spec + plan, sizes the change, runs spec reviews, gets Mario's approval, assigns builds, decides on QA, opens the milestone PR |
+| Developer 1, 2 | Codex · gpt-6-astra · medium | Implement plan tasks, TDD |
+| Platform Engineer | Codex · gpt-6-astra · medium | Containers, IaC, CI/CD |
+| Refactorer | Codex · gpt-6-astra · low | Right after implementation: removes comments and needless abstraction; never touches tests |
+| QA Engineer | Claude · Sonnet 5.5 · medium | Checks the refactored code against spec, plan and implementation; PASS/FAIL |
+| Cloud Architect | Claude · Sonnet 5.5 · high | Reviews specs and plans for cloud-native fit (8 skills) |
+| Security·Codex, Security·Claude | Codex · gpt-6-astra · high; Claude · Sonnet 5.5 · high | Independent threat models of specs and plans |
+| DDD Reviewer | Claude · Sonnet 5.5 · high | Reviews specs and plans for the domain model |
+| Teacher | Claude · Sonnet 5.5 · high | Teaches Mario, on request only |
 
 Everyone reports to the Principal Architect. Specialists review code only when the Principal asks.
 
@@ -59,7 +59,7 @@ worktrees under `<repo>/.paperclip/worktrees/`), pinned skill sources (Superpowe
 Terraform), each agent's skills, its working directory (`~/.paperclip/agent-homes/<slug>`),
 `ENABLE_CLAUDEAI_MCP_SERVERS=false` for Claude agents (so no agent sees Mario's Gmail, Drive and
 other claude.ai connectors), concurrency (Claude 1, Codex 2), the Principal Architect's daily heartbeat, Agent Chat,
-the local `teacher` skill, and every agent's instructions. New skill repos are added at the commit in `SOURCES`. Paperclip's API cannot move an existing source to another commit (delete only disables it), so to bump a pin change it in `SOURCES` *and* in the UI (Skills → sources); `configure.sh` warns while the two differ.
+the local `teacher` skill, every agent's instructions, and its model and reasoning effort (`MODEL`, `EFFORT` — pinned so upgrades cannot change them silently). New skill repos are added at the commit in `SOURCES`. Paperclip's API cannot move an existing source to another commit (delete only disables it), so to bump a pin change it in `SOURCES` *and* in the UI (Skills → sources); `configure.sh` warns while the two differ.
 
 ## Credentials
 

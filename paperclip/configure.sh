@@ -37,6 +37,34 @@ declare -A NAME=(
     [teacher]="Teacher"
 )
 
+declare -A MODEL=(
+    [ceo-principal-architect]="claude-opus-5-5"
+    [cloud-architect]="claude-sonnet-5-5"
+    [ddd-reviewer]="claude-sonnet-5-5"
+    [security-claude]="claude-sonnet-5-5"
+    [qa]="claude-sonnet-5-5"
+    [teacher]="claude-sonnet-5-5"
+    [developer-1]="gpt-6-astra"
+    [developer-2]="gpt-6-astra"
+    [refactorer]="gpt-6-astra"
+    [platform-devops]="gpt-6-astra"
+    [security-codex]="gpt-6-astra"
+)
+
+declare -A EFFORT=(
+    [ceo-principal-architect]="high"
+    [cloud-architect]="high"
+    [ddd-reviewer]="high"
+    [security-claude]="high"
+    [qa]="medium"
+    [teacher]="high"
+    [developer-1]="medium"
+    [developer-2]="medium"
+    [platform-devops]="medium"
+    [refactorer]="low"
+    [security-codex]="high"
+)
+
 SUPERPOWERS="brainstorming writing-plans executing-plans test-driven-development systematic-debugging verification-before-completion requesting-code-review receiving-code-review"
 TERRAFORM="terraform-style-guide terraform-test refactor-module azure-verified-modules"
 
@@ -128,8 +156,10 @@ for slug in "${!NAME[@]}"; do
         '{GIT_AUTHOR_NAME:$n, GIT_AUTHOR_EMAIL:$e, GIT_COMMITTER_NAME:$n, GIT_COMMITTER_EMAIL:$e}')"
     if is_claude "$slug"; then
         env="$(jq -c '. + {ENABLE_CLAUDEAI_MCP_SERVERS:"false"}' <<<"$env")"
+        effort="$(jq -nc --arg e "${EFFORT[$slug]}" '{effort:$e}')"
         concurrency=1
     else
+        effort="$(jq -nc --arg e "${EFFORT[$slug]}" '{modelReasoningEffort:$e}')"
         concurrency=2
     fi
     if [[ "$slug" == "ceo-principal-architect" ]]; then
@@ -137,8 +167,9 @@ for slug in "${!NAME[@]}"; do
     else
         heartbeat="{\"enabled\":false,\"maxConcurrentRuns\":$concurrency}"
     fi
-    api PATCH "/agents/$id" "$(jq -nc --arg cwd "$home" --argjson env "$env" --argjson hb "$heartbeat" \
-        '{adapterConfig:{cwd:$cwd, env:$env}, runtimeConfig:{heartbeat:$hb}}')" >/dev/null
+    api PATCH "/agents/$id" "$(jq -nc --arg cwd "$home" --arg model "${MODEL[$slug]}" --argjson env "$env" --argjson hb "$heartbeat" \
+        --argjson effort "$effort" \
+        '{adapterConfig:({cwd:$cwd, model:$model, env:$env} + $effort), runtimeConfig:{heartbeat:$hb}}')" >/dev/null
 
     for wanted_skill in ${SKILLS[$slug]}; do
         jq -e --arg s "$wanted_skill" 'any(.[]; .slug==$s)' <<<"$SKILL_KEYS" >/dev/null \
@@ -161,7 +192,7 @@ for slug in "${!NAME[@]}"; do
 
     status="$(jq -r --arg n "${NAME[$slug]}" '.[] | select(.name==$n) | .status' <<<"$AGENTS")"
     [[ "$status" == "paused" ]] && api POST "/agents/$id/resume" >/dev/null
-    printf "  %-24s skills=%-3s concurrency=%s instructions=%s\n" "$slug" "$(jq length <<<"$keys")" "$concurrency" "$instructions"
+    printf "  %-24s %-18s %-6s skills=%-3s concurrency=%s instructions=%s\n" "$slug" "${MODEL[$slug]}" "${EFFORT[$slug]}" "$(jq length <<<"$keys")" "$concurrency" "$instructions"
 done
 
 log "Done — http://localhost:3100"
