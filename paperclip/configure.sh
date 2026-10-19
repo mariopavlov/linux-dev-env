@@ -200,8 +200,10 @@ for entry in "${SOURCES[@]}"; do
         continue
     fi
     paths="$(printf '%s\n' $names | jq -R --arg p "$prefix" '"\($p)/\(.)/SKILL.md"' | jq -sc .)"
-    api POST "/companies/$COMPANY/skill-sources" \
-        "$(jq -nc --arg u "$url" --arg s "$sha" --argjson p "$paths" '{repositoryUrl:$u,commitSha:$s,selectedPaths:$p}')" >/dev/null
+    # Paperclip allows 6 repository downloads per caller per sliding minute and answers 429
+    # (no Retry-After header) past that, so the 7th source has to wait out the window.
+    curl -fsS --retry 6 --retry-delay 15 -X POST "$API/companies/$COMPANY/skill-sources" -H 'content-type: application/json' \
+        -d "$(jq -nc --arg u "$url" --arg s "$sha" --argjson p "$paths" '{repositoryUrl:$u,commitSha:$s,selectedPaths:$p}')" >/dev/null
     echo "  added $repo@${sha:0:7}"
 done
 SKILL_KEYS="$(api GET "/companies/$COMPANY/skills" | jq -c '[(if type=="array" then . else (.skills // .items) end)[] | {slug, key}]')"
