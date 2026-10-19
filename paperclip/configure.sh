@@ -201,6 +201,8 @@ for entry in "${SOURCES[@]}"; do
         pinned="$(jq -r .commit <<<"$existing")"
         if [[ "$pinned" == "$sha" ]]; then
             echo "  skip $repo@${sha:0:7}"
+        elif [[ "$(gh api "repos/$repo/compare/$sha...$pinned" --jq .status 2>/dev/null)" == "ahead" ]]; then
+            echo "  skip $repo@${pinned:0:7} (tracks its branch; includes ${sha:0:7})"
         else
             echo "  WARN $repo is pinned at ${pinned:0:7}, configured ${sha:0:7} — Paperclip's API cannot re-pin a source; change it in the UI (Skills → sources)"
         fi
