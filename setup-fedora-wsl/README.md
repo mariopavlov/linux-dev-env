@@ -72,7 +72,7 @@ Steps:
   --dotfiles   Apply dotfiles via Chezmoi
   --claude     Symlink Claude Code config into ~/.claude/
   --agents     Install Claude Code, Codex, OpenCode, Herdr, and integrations
-  --paperclip  Paperclip agent orchestration as a system service (localhost:3100)
+  --paperclip  Paperclip as a system service (localhost:3100) + the Keystone agent team
 
 Maintenance:
   --update     Update everything installed (not part of --all)
@@ -209,6 +209,10 @@ The step:
 4. Installs `/etc/systemd/system/paperclip.service` with `User=$USER`, so it starts with WSL. It is a
    system unit because the per-user systemd manager (`user@1000.service`) fails to start on this
    WSL ("Failed to spawn executor: Device or resource busy").
+5. Waits for the service to be healthy, then runs `../paperclip/configure.sh`: imports the Keystone
+   company and its agents the first time, and on every run pushes their instructions, models, skills
+   and settings. Notion access is skipped until Notion is connected in the UI (Tools → App gallery
+   → Notion); re-run `--paperclip` after connecting it.
 
 **Before starting agents** — log in both CLIs with your subscriptions, never API keys:
 

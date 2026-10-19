@@ -11,6 +11,7 @@ export HOME="$TEST_ROOT/home"
 export USER="tester"
 export SYSTEMD_UNIT_DIR="$TEST_ROOT/etc/systemd/system"
 export PAPERCLIP_HEALTH_TIMEOUT=10
+export PAPERCLIP_CONFIGURE="$TEST_ROOT/configure.sh"
 MOCK_BIN="$TEST_ROOT/bin"
 LOG_DIR="$HOME/.cache/pc-test"
 FAKE_NODE="$TEST_ROOT/node/bin/node"
@@ -62,6 +63,12 @@ if [[ "${CODEX_LOGGED_IN:-0}" == "1" ]]; then echo "Logged in using ChatGPT" >&2
 MOCK
 chmod +x "$MOCK_BIN"/*
 
+cat > "$PAPERCLIP_CONFIGURE" <<'MOCK'
+#!/usr/bin/env bash
+command -v paperclipai >/dev/null || { echo "paperclipai not on PATH" >&2; exit 1; }
+echo configure >> "$LOG_DIR/configure.log"
+MOCK
+
 fail() { echo "FAIL: $*" >&2; exit 1; }
 assert_contains() { grep -qF -- "$2" "$1" || fail "expected '$2' in $1"; }
 count_lines() { [[ -f "$1" ]] && grep -cF -- "$2" "$1" || echo 0; }
@@ -84,6 +91,7 @@ assert_contains "$UNIT" "Environment=PATH=$HOME/.local/bin:$HOME/.opencode/bin:$
 assert_contains "$UNIT" "Restart=on-failure"
 assert_contains "$LOG_DIR/systemctl.log" "daemon-reload"
 assert_contains "$LOG_DIR/systemctl.log" "enable --now paperclip.service"
+[[ "$(count_lines "$LOG_DIR/configure.log" configure)" == 1 ]] || fail "configure.sh not run after install"
 
 grep -qF "codex login" <<<"$OUT" || fail "expected a codex login warning"
 OUT="$(CODEX_LOGGED_IN=1 bash "$SETUP_DIR/packages/paperclip.sh" 2>&1)"
@@ -91,6 +99,7 @@ grep -qF "codex login" <<<"$OUT" && fail "codex warning shown while logged in"
 
 [[ "$(count_lines "$LOG_DIR/npx.log" install)" == 1 ]] || fail "reinstalled although up to date"
 [[ "$(count_lines "$LOG_DIR/paperclipai.log" onboard)" == 1 ]] || fail "onboarded twice"
+[[ "$(count_lines "$LOG_DIR/configure.log" configure)" == 2 ]] || fail "configure.sh not re-run on an up-to-date install"
 
 rm "$FAKE_NODE"
 bash "$SETUP_DIR/packages/paperclip.sh" >/dev/null 2>&1
@@ -98,8 +107,20 @@ bash "$SETUP_DIR/packages/paperclip.sh" >/dev/null 2>&1
 touch "$FAKE_NODE"
 
 : > "$LOG_DIR/systemctl.log"
+: > "$LOG_DIR/configure.log"
 bash "$SETUP_DIR/install.sh" --paperclip >/dev/null 2>&1
 assert_contains "$LOG_DIR/systemctl.log" "enable --now paperclip.service"
+assert_contains "$LOG_DIR/configure.log" "configure"
+
+cat > "$PAPERCLIP_CONFIGURE" <<'MOCK'
+#!/usr/bin/env bash
+exit 1
+MOCK
+bash "$SETUP_DIR/packages/paperclip.sh" >/dev/null 2>&1 && fail "a failing configure.sh did not fail paperclip.sh"
+cat > "$PAPERCLIP_CONFIGURE" <<'MOCK'
+#!/usr/bin/env bash
+echo configure >> "$LOG_DIR/configure.log"
+MOCK
 
 GRANDCHILD="$(cat "$LOG_DIR/grandchild.pid")"
 kill -0 "$GRANDCHILD" 2>/dev/null && fail "onboarding left a process behind (pid $GRANDCHILD)"

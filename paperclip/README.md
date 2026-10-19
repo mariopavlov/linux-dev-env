@@ -1,7 +1,7 @@
 # Paperclip agent team
 
-The agent company that runs on this machine's Paperclip (`http://localhost:3100`, installed by
-`setup-fedora-wsl/install.sh --paperclip`). Design: `docs/superpowers/specs/2026-10-18-paperclip-agent-team-design.md`.
+The agent company that runs on this machine's Paperclip (`http://localhost:3100`, installed and
+configured by `setup-fedora-wsl/install.sh --paperclip`, which ends by running `configure.sh`). Design: `docs/superpowers/specs/2026-10-18-paperclip-agent-team-design.md`.
 Why things are the way they are: `FINDINGS.md`.
 
 ## Layout
