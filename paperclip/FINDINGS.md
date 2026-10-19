@@ -185,3 +185,19 @@ instructions forced all four reviews regardless of size. Led to flow v2 (spec §
 - Fix: `configure.sh` sets `CLAUDE_CODE_EXECUTABLE=$(command -v claude)` in every Claude agent's
   env, so ACP uses the self-updating system Claude Code. Exact failed-run retries keep their old
   context; wake the agent on the issue instead.
+
+## M0 build: sub-agents asking Mario, a hung run, and Codex spend (2026-10-19)
+
+- A team rule told every agent to put what it needs from Mario in a card. Developers and the
+  Platform Engineer then posted cards addressed to the Principal; the Principal's wake was
+  cancelled each time (`issue_assignee_changed`) as the asker set its own issue `blocked`, so the
+  cards fell to Mario. While a card waited, the asker was re-woken about once a minute
+  (`blockers_restored`) — 73 Codex sessions on KEY-21. Fix: only the Principal, Mentor and Teacher
+  create cards; others open a `Question:` child issue for the Principal and `blockedBy` it.
+- KEY-16's Developer 1 run hung for nine hours after opening its PR: no adapter timeout and only a
+  daily sweep. Fix: `timeoutSec` 2700 (5400 for Principal and Mentor), hourly Coordinator.
+- Codex usage since setup: 165 sessions, 7.1M uncached input, 95.5M cached. `codex-acp`'s default
+  mode ("Approve for me", `auto_review`) runs a guardian sub-agent (`codex-auto-review`) that
+  re-reads the whole context per check: 39% of uncached tokens. The wake loop added 14%. Fix:
+  `INITIAL_AGENT_MODE=agent-full-access` for Codex agents (applies to new sessions) and one-shot
+  sessions for single-pass reviewers.
