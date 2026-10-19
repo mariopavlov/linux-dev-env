@@ -1,3 +1,6 @@
 claude-skills/dot-claude/skills/synced/
 claude-skills/dot-claude/skills/.trash/
+# Paperclip symlinks its runtime skill and company skills (<slug>--<hash>) into ~/.claude/skills
+claude-skills/dot-claude/skills/paperclip
+claude-skills/dot-claude/skills/*--*
 .DS_Store
