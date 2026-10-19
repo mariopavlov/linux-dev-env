@@ -37,7 +37,7 @@ Steps
   --dotfiles   Apply dotfiles via Chezmoi (../dotfiles/)
   --claude     Symlink Claude Code config from claude-skills/ into ~/.claude/
   --agents     Claude Code, Codex, OpenCode, Herdr, integrations, Fish completion
-  --paperclip  Paperclip agent orchestration as a system service (localhost:3100)
+  --paperclip  Paperclip as a system service (localhost:3100) + the Keystone agent team
 
 Maintenance
   --update     Update everything already installed. Not part of --all:

@@ -6,6 +6,7 @@
 # skips postinstall scripts, which leaves the embedded PostgreSQL without its
 # shared-library symlinks. Runs as a *system* unit with User=$USER because the
 # per-user systemd manager (user@UID.service) fails to start on this WSL.
+# Ends by running paperclip/configure.sh, which imports the Keystone agent team.
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -19,6 +20,7 @@ CONFIG="$HOME/.paperclip/instances/default/config.json"
 HEALTH_URL="http://127.0.0.1:3100/api/health"
 UNIT_DIR="${SYSTEMD_UNIT_DIR:-/etc/systemd/system}"
 HEALTH_TIMEOUT="${PAPERCLIP_HEALTH_TIMEOUT:-120}"
+CONFIGURE="${PAPERCLIP_CONFIGURE:-$SCRIPT_DIR/../paperclip/configure.sh}"
 
 export PATH="$HOME/.local/bin:$HOME/.local/share/mise/shims:$PATH"
 
@@ -98,6 +100,18 @@ if $restart_needed; then
     log_info "paperclip.service restarted to pick up the new install or unit"
 fi
 log_success "paperclip.service enabled ($UNIT_DIR/paperclip.service)"
+
+log_step "Keystone agent team"
+for _ in $(seq 1 "$HEALTH_TIMEOUT"); do
+    [[ "$(health_code)" == "200" ]] && break
+    sleep 1
+done
+if [[ "$(health_code)" != "200" ]]; then
+    log_error "Paperclip is not healthy at $HEALTH_URL — check 'sudo systemctl status paperclip'"
+    exit 1
+fi
+bash "$CONFIGURE"
+log_success "Keystone agent team configured"
 
 if ! codex login status >/dev/null 2>&1; then
     log_warn "Codex is not logged in — run 'codex login' (ChatGPT account) before starting Codex agents"
