@@ -152,7 +152,7 @@ SOURCES=(
     "MicrosoftDocs/Agent-Skills|ba74e8fcc5cf4864798beaf95e53d7c4840bac5e|skills|azure-well-architected azure-architecture azure-kubernetes-service"
     "aws/agent-toolkit-for-aws|44ba1a5451913998815111cc2d518f5c45f95ef7|plugins/aws-core/skills|aws-well-architected-review aws-containers aws-security"
     "mattpocock/skills|49dd158d1076134a641b33efb035946536778336|skills/engineering|domain-modeling code-review pr retro"
-    "mariopavlov/linux-dev-env|cb65b5732621206aafd796434a56d58380f06b1a|claude-skills/dot-claude/skills|teacher"
+    "mariopavlov/linux-dev-env|146d95ddbac3d4ee74e44c6b90a705232da91e14|claude-skills/dot-claude/skills|teacher"
     "hashicorp/agent-skills|f706481af9b8fedb66de909f6243ad29601afa0c|plugins/terraform/skills|$TERRAFORM"
 )
 
