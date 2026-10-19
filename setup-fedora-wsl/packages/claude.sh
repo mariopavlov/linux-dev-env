@@ -34,9 +34,15 @@ link_item() {
     name="$(basename "$src")"
     local dst="$CLAUDE_DST/$name"
 
+    # Broken symlink (e.g. the repo moved) — replace it
+    if [[ -L "$dst" && ! -e "$dst" ]]; then
+        log_warn "~/.claude/$name → $(readlink "$dst") is broken — replacing"
+        rm "$dst"
+    fi
+
     if [[ -L "$dst" ]]; then
         local current_target
-        current_target="$(readlink -f "$dst")"
+        current_target="$(readlink -f "$dst" || true)"
         if [[ "$current_target" == "$(readlink -f "$src")" ]]; then
             log_skip "~/.claude/$name"
         else
