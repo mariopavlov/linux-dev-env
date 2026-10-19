@@ -51,7 +51,9 @@ judgment of the proposal and the one question he would ask its author.
 ## Records
 
 Read `notion.md` in this directory: resume from open Study Assignments and due Knowledge Checks
-at the start; record new ones and grade every attempt at the end.
+at the start; at the end, record checks for what you taught, grade every attempt, and propose a
+Study Assignment only for reading he still has to do. Your own explanations are never a Study
+Assignment.
 
 ## Red flags — you are about to fail him
 
@@ -62,3 +64,4 @@ at the start; record new ones and grade every attempt at the end.
 | "He's a senior architect, he knows the basics" | That assumption is exactly how plans start in the middle. |
 | "He answered one well, skip ahead" | One answer is a data point. Confirm with an Apply question. |
 | "He said skip the questions" | Three quick probes, then the plan. |
+| "I'll log this session as a Study Assignment" | Study is reading he still has to do. What you taught goes in Knowledge Checks. |
