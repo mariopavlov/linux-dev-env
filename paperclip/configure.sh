@@ -145,6 +145,13 @@ NOTION_PROFILES=(
     "keystone-notion-read|Notion · Read|$NOTION_READ|research-scout"
 )
 
+# Run wall-clock limits: a hung run fails and gets Paperclip's retry instead of running forever.
+RUN_TIMEOUT_SEC=2700
+declare -A LONG_RUN_TIMEOUT_SEC=([ceo-principal-architect]=5400 [mentor]=5400)
+
+# Single-pass reviewers start each run fresh instead of reloading their whole session history.
+ONE_SHOT="refactorer security-codex"
+
 # repo|commit|path prefix|skill names
 SOURCES=(
     "obra/superpowers|bb92a77741419a4ab5f06e711a283343f1ada0c3|skills|$SUPERPOWERS"
@@ -245,6 +252,7 @@ for slug in "${!NAME[@]}"; do
             effort="$(jq -nc --arg e "${EFFORT[$slug]}" '{effort:$e}')"
             concurrency=1 ;;
         codex_local)
+            env="$(jq -c '. + {INITIAL_AGENT_MODE:"agent-full-access"}' <<<"$env")"
             effort="$(jq -nc --arg e "${EFFORT[$slug]}" '{modelReasoningEffort:$e}')"
             concurrency=2 ;;
         opencode_local)
@@ -252,14 +260,16 @@ for slug in "${!NAME[@]}"; do
             concurrency=2 ;;
     esac
     if [[ "$slug" == "coordinator" ]]; then
-        heartbeat="{\"enabled\":true,\"intervalSec\":86400,\"maxConcurrentRuns\":$concurrency}"
+        heartbeat="{\"enabled\":true,\"intervalSec\":3600,\"maxConcurrentRuns\":$concurrency}"
     else
         heartbeat="{\"enabled\":false,\"maxConcurrentRuns\":$concurrency}"
     fi
     api PATCH "/agents/$id" "$(jq -nc --arg cwd "$home" --arg model "${MODEL[$slug]}" --argjson env "$env" --argjson hb "$heartbeat" \
         --argjson effort "$effort" \
         --arg icon "${ICON[$slug]}" --arg palette "${PALETTE[$slug]}" \
-        '{adapterConfig:({cwd:$cwd, model:$model, env:$env} + $effort), runtimeConfig:{heartbeat:$hb},
+        --argjson timeout "${LONG_RUN_TIMEOUT_SEC[$slug]:-$RUN_TIMEOUT_SEC}" \
+        --arg mode "$([[ " $ONE_SHOT " == *" $slug "* ]] && echo oneshot || echo persistent)" \
+        '{adapterConfig:({cwd:$cwd, model:$model, env:$env, timeoutSec:$timeout, mode:$mode} + $effort), runtimeConfig:{heartbeat:$hb},
           icon:$icon, appearance:{schemaVersion:1, characterVersion:"cap-v1", paletteId:$palette}}')" >/dev/null
 
     for wanted_skill in ${SKILLS[$slug]}; do

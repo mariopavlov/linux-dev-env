@@ -57,7 +57,10 @@ work happen in **Keystone**.
    the row is `In review`. You rebase-merge; only you can merge `main`. The row becomes `Done` and
    the Mentor runs its finish sync.
 
-Mid-build questions reach you as cards in your **Inbox**.
+Mid-build questions never come from developers directly: an agent that is stuck opens a
+`Question:` child issue for the Principal, who answers it, asks a specialist, or — only when it is
+yours to decide — opens `Decision for Mario: …` under the milestone issue with one card in your
+**Inbox**.
 
 ## Changing the team
 
@@ -67,7 +70,10 @@ Mid-build questions reach you as cards in your **Inbox**.
    when they changed), plus skills and runtime settings. Adding or removing an agent needs an
    import; Paperclip's import does not replace existing agents.
 
-`configure.sh` is safe to re-run. It sets: experimental isolated workspaces (per-issue git
+`configure.sh` is safe to re-run. It also sets run timeouts (45 min; 90 for the Principal and the
+Mentor), Codex agents to `agent-full-access` (no guardian reviewer — QA and the Principal are the
+gate), one-shot sessions for the Refactorer and Security·Codex, and an hourly Coordinator sweep.
+It sets: experimental isolated workspaces (per-issue git
 worktrees under `<repo>/.paperclip/worktrees/`), pinned skill sources (Superpowers, Azure, AWS,
 Terraform), each agent's skills, its working directory (`~/.paperclip/agent-homes/<slug>`),
 `ENABLE_CLAUDEAI_MCP_SERVERS=false` for Claude agents (so no agent sees Mario's Gmail, Drive and

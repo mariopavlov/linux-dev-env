@@ -323,6 +323,17 @@ design review of a `/health` endpoint:
 - Row statuses: Proposed → Idea → Designing → Building → In review → Done, or Dropped. The Mentor
   reads Mario's answers from the Keystone thread.
 
+## 11e. Question routing, timeouts and Codex cost (Mario, 2026-10-19)
+
+- Only the Principal, Mentor and Teacher create cards for Mario. Any other agent that needs a
+  decision opens a `Question:` child issue assigned to the Principal and blocks on it. The
+  Principal answers implementation details, asks a specialist for security calls, and escalates
+  only Mario's decisions as `Decision for Mario: …` under the milestone issue.
+- Runs time out (45 min; 90 for the Principal and the Mentor); the Coordinator sweeps hourly for
+  stuck and hung work.
+- Codex agents run in `agent-full-access` (no guardian reviewer); the Refactorer and
+  Security·Codex run one-shot sessions.
+
 ## 12. Open
 
 - **GitHub Pro purchase**, then create and verify the `main` ruleset (`gh api repos/mariopavlov/perigee/rulesets`).

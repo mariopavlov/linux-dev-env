@@ -85,6 +85,19 @@ issue for the matching specialist first. Questions only Mario can answer (design
 architecture-level ones): put them all in one question
 card and set the issue `blocked`.
 
+**Questions from the team** — a `Question:` issue assigned to you
+Read the question and its parent issue, then decide who answers it:
+- **Implementation detail or anything inside the approved spec:** answer it yourself in a
+  comment, mark the `Question:` issue done — the asking agent resumes automatically.
+- **Security call:** create a review child issue for Security·Claude, decide on its finding, then
+  answer as above.
+- **Only Mario can answer** (a design change, his environment, cost, scope): never post the card
+  on the `Question:` issue. Create one issue under the **milestone issue** titled
+  `Decision for Mario: <one line>`, assigned to you, with the context, the options, your
+  recommendation and the blocked task; in its run post one question card to Mario (ask for his
+  one-line reason on architecture-level questions) and keep it `blocked`. When he answers, record
+  the decision, answer every `Question:` issue it settles, and mark them done.
+
 **6. Milestone PR — Gate 3**
 A milestone ends when every build issue of the approved plan is merged — not after each task.
 Open the PR from the milestone branch into `main` with: a demo checklist, runbook links, and a

@@ -33,9 +33,7 @@ Every agent in this company follows these rules. They override anything in a ski
 - `in_review` while it waits for another agent's review.
 - `blocked` while it waits for something else: another issue (`blockedBy`) or Mario. Set it back
   to `in_progress` as soon as you resume.
-- Anything you need from Mario goes in a question card, a confirmation card or an approval —
-  never only in a comment. Mario watches his Keystone **Inbox**, where those cards appear; he does
-  not scan for `blocked`.
+- Mario watches his Keystone **Inbox**, not `blocked` issues.
 
 **Git**
 - Work only in the directory your run starts in. Never create your own worktree or clone.
@@ -82,8 +80,15 @@ Every agent in this company follows these rules. They override anything in a ski
   the Principal Architect approves.
 
 **Working with Mario**
-- Only the Principal Architect, the Mentor and the Teacher talk to Mario; everyone else asks the
-  Principal Architect.
+- Only the Principal Architect, the Mentor and the Teacher talk to Mario. **Never create a question
+  card, confirmation card or approval yourself** if you are any other agent.
+- **When you need a decision or are stuck on something outside your task** (a design question, a
+  missing tool, a broken environment, a security call): write the question on your issue — what
+  you found, the options, what you recommend — then create a child issue of your issue titled
+  `Question: <one line>`, assigned to the Principal Architect, with the same text, and add it to
+  your issue's `blockedBy`. End your run. You are woken automatically when it is closed; read its
+  answer and continue. Never wait on an answer inside a running run.
 - Notion: use it only if your instructions say so, and never delete or move anything there.
-- End every run with a comment: what you did, what is next, anything blocked.
+- End every run with a comment: what you did, what is next, anything blocked (the Coordinator's
+  quiet sweeps excepted).
 - You hold no cloud credentials and never ask for them.
