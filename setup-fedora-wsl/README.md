@@ -80,7 +80,8 @@ Create `~/.config/glab-1password/graphwise.json` (or under `$XDG_CONFIG_HOME`):
 {
   "op_executable": "op.exe",
   "secret_reference": "op://VAULT_ID/ITEM_ID/FIELD_ID",
-  "host": "gitlab.ontotext.com"
+  "host": "gitlab.ontotext.com",
+  "paths": ["~/workspace/gitlab.ontotext.com"]
 }
 ```
 
@@ -89,16 +90,31 @@ on WSL's PATH, set `op_executable` to its full `/mnt/c/.../op.exe` path. This
 local file contains a reference, never the PAT; keep it outside the repository.
 The installer preserves an existing profile and does not change saved GitLab credentials.
 
-Start a new Fish session, then opt in per command:
+Start a new Fish session. Inside the configured workspace root, plain `glab`
+automatically uses this profile. You can still select it explicitly from anywhere:
 
 ```fish
 glab --graphwise auth status --hostname gitlab.ontotext.com
 glab --graphwise mr list
 ```
 
-`--graphwise` must be the first argument. The Fish function removes it before
-calling `glab`. Plain `glab` never contacts 1Password through this wrapper.
-Bash and scripts can explicitly use `~/.local/bin/glab-1password mr list`.
+`--graphwise` must be the first argument and is an alias for `--profile graphwise`.
+To add another GitLab account, create a local `personal.json` alongside
+`graphwise.json`, with its own host, secret reference, and `paths`. Select it with
+`glab --profile personal mr list`, or work inside one of its configured roots.
+GitHub repositories still use `gh`.
+
+Paths must be absolute or start with `~/`. Matching includes nested directories
+and worktrees, resolves symlinks, and uses the most specific root. Equal matches
+across profiles require an explicit selection. Outside configured roots, the
+normal CLI runs without a 1Password lookup. Omit `paths` to keep a profile manual.
+An explicit `--repo`/`-R` or `--hostname` skips automatic selection; pair it with
+`--graphwise` or `--profile NAME` when needed. Use `command glab` in Fish to bypass
+the integration entirely. Profile selection supplies credentials; it does not
+select a repository or change the current directory.
+
+Bash and scripts can explicitly use `~/.local/bin/glab-1password mr list` for
+Graphwise, or add `--auto` to use directory selection.
 The token is supplied only to the child process; denied authorization or an
 empty field stops the command without falling back to saved credentials.
 After verifying access, clear any old plaintext token with

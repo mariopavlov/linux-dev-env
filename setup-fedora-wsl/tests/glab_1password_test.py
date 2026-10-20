@@ -52,9 +52,73 @@ sys.exit(int(os.environ.get('TEST_GLAB_STATUS', '0')))
         self.env = {k: v for k, v in os.environ.items() if k not in ('GITLAB_TOKEN', 'GITLAB_ACCESS_TOKEN', 'OAUTH_TOKEN', 'GITLAB_HOST')}
         self.env.update(HOME=str(self.home), XDG_CONFIG_HOME=str(self.home / '.config'), PATH=str(self.bin) + ':/usr/bin:/bin', WSL_DISTRO_NAME='test')
 
-    def invoke(self, *args, fish=False):
+    def invoke(self, *args, fish=False, cwd=None):
         command = ['fish', '--no-config', '-c', 'source "$argv[1]"; glab $argv[2..-1]', str(FUNCTION), *args] if fish else [str(self.helper), *args]
-        return subprocess.run(command, env=self.env, capture_output=True, text=True)
+        return subprocess.run(command, env=self.env, capture_output=True, text=True, cwd=cwd or self.home)
+
+    def add_paths(self, *paths):
+        config = json.loads(self.config.read_text())
+        config['paths'] = list(paths)
+        self.config.write_text(json.dumps(config))
+
+    def test_auto_profile_applies_to_nested_worktrees(self):
+        self.add_paths('~/workspace/gitlab.example.com')
+        worktree = self.home / 'workspace/gitlab.example.com/group/project/.paperclip/worktrees/task'
+        worktree.mkdir(parents=True)
+        result = self.invoke('mr', 'list', fish=True, cwd=worktree)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(json.loads(result.stdout)['authenticated'])
+
+    def test_similar_directory_name_does_not_match(self):
+        self.add_paths('~/workspace/gitlab.example.com')
+        other = self.home / 'workspace/gitlab.example.com-other'
+        other.mkdir(parents=True)
+        result = self.invoke('mr', 'list', fish=True, cwd=other)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertFalse((self.home / 'op-called').exists())
+
+    def test_longest_path_wins_and_explicit_profile_overrides_it(self):
+        self.add_paths('~/workspace')
+        personal = json.loads(self.config.read_text())
+        personal.update(host='personal.example.com', paths=['~/workspace/personal'])
+        (self.config.parent / 'personal.json').write_text(json.dumps(personal))
+        directory = self.home / 'workspace/personal/repo'
+        directory.mkdir(parents=True)
+        result = self.invoke('mr', 'list', fish=True, cwd=directory)
+        self.assertEqual(json.loads(result.stdout)['host'], 'personal.example.com')
+        result = self.invoke('--graphwise', 'mr', 'list', fish=True, cwd=directory)
+        self.assertEqual(json.loads(result.stdout)['host'], 'gitlab.example.com')
+        result = self.invoke('--profile', 'personal', 'mr', 'list', fish=True)
+        self.assertEqual(json.loads(result.stdout)['host'], 'personal.example.com')
+
+    def test_unknown_profile_does_not_fall_back(self):
+        result = self.invoke('--profile', 'missing', 'mr', 'list', fish=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse((self.home / 'glab-called').exists())
+
+    def test_ambiguous_path_fails_without_reading_vault(self):
+        self.add_paths(str(self.home))
+        (self.config.parent / 'personal.json').write_bytes(self.config.read_bytes())
+        result = self.invoke('mr', 'list', fish=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse((self.home / 'op-called').exists())
+        self.assertFalse((self.home / 'glab-called').exists())
+
+    def test_explicit_repository_or_host_skips_path_selection(self):
+        self.add_paths(str(self.home))
+        for args in (('mr', 'list', '--repo', 'other.example.com/group/repo'), ('api', 'user', '--hostname=other.example.com')):
+            result = self.invoke(*args, fish=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertFalse((self.home / 'op-called').exists())
+        result = self.invoke('--graphwise', 'mr', 'list', '--repo', 'gitlab.example.com/group/repo', fish=True)
+        self.assertTrue(json.loads(result.stdout)['authenticated'])
+
+    def test_failed_automatic_lookup_never_falls_back(self):
+        self.add_paths(str(self.home))
+        self.env['TEST_OP_MODE'] = 'failure'
+        result = self.invoke('mr', 'list', fish=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse((self.home / 'glab-called').exists())
 
     def test_explicit_graphwise_flag_passes_token_and_preserves_arguments(self):
         result = self.invoke('--graphwise', 'mr', 'list', '--search', 'two words', fish=True)
