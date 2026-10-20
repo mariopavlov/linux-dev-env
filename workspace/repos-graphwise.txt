@@ -25,3 +25,9 @@ git@gitlab.ontotext.com:managed-services/terraform-azure-graphwise-platform.git
 git@gitlab.ontotext.com:managed-services/migration-to-kubernetes.git
 git@gitlab.ontotext.com:managed-services/clients-ms/ey/ey-deployments-aks.git
 git@gitlab.ontotext.com:mpavlov-work/wkl/wkl-terraform-env.git
+
+## AWS Graphwise Platform
+git@gitlab.ontotext.com:managed-services/terraform-aws-graphwise-platform.git
+## AWS GWP - Sample (branches: rce-poc-aws-01 → ISD-10821-InitialDeployment, hbc-poc → ISD-10824)
+git@gitlab.ontotext.com:managed-services/internal-ms/prs/rce-poc-aws-01.git
+git@gitlab.ontotext.com:managed-services/clients-ms/hbc-poc.git
