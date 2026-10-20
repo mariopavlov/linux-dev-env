@@ -71,7 +71,11 @@ bash install.sh --glab-graphwise
 ```
 
 Neither `--all`, `--dotfiles`, nor `--update` installs this integration. Run the
-explicit flag again to update it. Its files live under `config/glab-graphwise/`,
+explicit flag again to update it and regenerate Fish completions at
+`~/.config/fish/completions/glab.fish` (or under `$XDG_CONFIG_HOME`). Completion
+generation and Tab completion bypass 1Password; commands and flags complete
+without unlocking the vault. Suggestions that require API authentication may be
+unavailable. Its source files live under `config/glab-graphwise/`,
 outside the shared Chezmoi source.
 
 Create `~/.config/glab-1password/graphwise.json` (or under `$XDG_CONFIG_HOME`):

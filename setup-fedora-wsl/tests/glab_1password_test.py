@@ -39,6 +39,9 @@ sys.stdout.buffer.write(b'' if mode == 'empty' else b'fixture-secret\\r\\n')
 import json, os, sys
 from pathlib import Path
 Path(os.environ['HOME'], 'glab-called').touch()
+if sys.argv[1:] == ['completion', '-s', 'fish']:
+    print('complete -c glab -f -a mr')
+    sys.exit(int(os.environ.get('TEST_GLAB_STATUS', '0')))
 print(json.dumps({'args': sys.argv[1:], 'authenticated': os.environ.get('GITLAB_TOKEN') == 'fixture-secret', 'host': os.environ.get('GITLAB_HOST')}))
 sys.exit(int(os.environ.get('TEST_GLAB_STATUS', '0')))
 ''')
@@ -166,6 +169,40 @@ sys.exit(int(os.environ.get('TEST_GLAB_STATUS', '0')))
             function = self.home / '.config/fish/functions/glab.fish'
             self.assertEqual(function.read_bytes(), FUNCTION.read_bytes())
             self.assertFalse((self.home / 'op-called').exists())
+
+    def test_installer_generates_fish_completion_without_reading_vault(self):
+        package = ROOT / 'setup-fedora-wsl/packages/glab-graphwise.sh'
+        result = subprocess.run(['bash', str(package)], env=self.env, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        completion = self.home / '.config/fish/completions/glab.fish'
+        self.assertTrue(completion.exists())
+        self.assertIn('complete -c glab -f -a mr', completion.read_text())
+        self.assertIn('--long-option graphwise', completion.read_text())
+        self.assertIn('--long-option profile', completion.read_text())
+        self.assertFalse((self.home / 'op-called').exists())
+
+    def test_failed_generation_preserves_previous_completion(self):
+        completion = self.home / '.config/fish/completions/glab.fish'
+        completion.parent.mkdir(parents=True)
+        completion.write_text('# previous completion\n')
+        self.env['TEST_GLAB_STATUS'] = '1'
+        package = ROOT / 'setup-fedora-wsl/packages/glab-graphwise.sh'
+        result = subprocess.run(['bash', str(package)], env=self.env, capture_output=True, text=True)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(completion.read_text(), '# previous completion\n')
+
+    def test_completion_calls_bypass_1password_and_strip_profile_flags(self):
+        self.add_paths(str(self.home))
+        self.env['TEST_OP_MODE'] = 'failure'
+        for selector in ([], ['--graphwise'], ['--profile', 'personal']):
+            with self.subTest(selector=selector):
+                result = self.invoke('__complete', *selector, 'mr', '', fish=True)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(json.loads(result.stdout)['args'], ['__complete', 'mr', ''])
+                self.assertFalse((self.home / 'op-called').exists())
+        result = self.invoke('--graphwise', 'completion', '-s', 'fish', fish=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertFalse((self.home / 'op-called').exists())
 
     def test_preserves_glab_exit_status(self):
         self.env['TEST_GLAB_STATUS'] = '7'
