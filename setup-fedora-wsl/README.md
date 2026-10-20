@@ -57,6 +57,53 @@ op run --env-file=~/.op-env -- bash install.sh --base
 For SSH keys: enable the **1Password SSH agent** in 1Password Settings → Developer, plus
 **"Use the SSH agent with WSL"** under the same section on the Windows side.
 
+### Optional Graphwise GitLab profile
+
+This integration uses the Windows 1Password CLI to supply a PAT to Linux `glab`.
+Install `op.exe` on Windows (`winget install 1password-cli`) and enable
+**Settings → Developer → Integrate with 1Password CLI** in the Windows app.
+The Linux `glab` must already be installed through mise.
+
+Install the profile explicitly:
+
+```bash
+bash install.sh --glab-graphwise
+```
+
+Neither `--all`, `--dotfiles`, nor `--update` installs this integration. Run the
+explicit flag again to update it. Its files live under `config/glab-graphwise/`,
+outside the shared Chezmoi source.
+
+Create `~/.config/glab-1password/graphwise.json` (or under `$XDG_CONFIG_HOME`):
+
+```json
+{
+  "op_executable": "op.exe",
+  "secret_reference": "op://VAULT_ID/ITEM_ID/FIELD_ID",
+  "host": "gitlab.ontotext.com"
+}
+```
+
+Use **Copy Secret Reference** on your PAT field in 1Password. If `op.exe` is not
+on WSL's PATH, set `op_executable` to its full `/mnt/c/.../op.exe` path. This
+local file contains a reference, never the PAT; keep it outside the repository.
+The installer preserves an existing profile and does not change saved GitLab credentials.
+
+Start a new Fish session, then opt in per command:
+
+```fish
+glab --graphwise auth status --hostname gitlab.ontotext.com
+glab --graphwise mr list
+```
+
+`--graphwise` must be the first argument. The Fish function removes it before
+calling `glab`. Plain `glab` never contacts 1Password through this wrapper.
+Bash and scripts can explicitly use `~/.local/bin/glab-1password mr list`.
+The token is supplied only to the child process; denied authorization or an
+empty field stops the command without falling back to saved credentials.
+After verifying access, clear any old plaintext token with
+`command glab config set token '' --host gitlab.ontotext.com`.
+
 ---
 
 ## Usage
@@ -73,6 +120,7 @@ Steps:
   --claude     Symlink Claude Code config into ~/.claude/
   --agents     Install Claude Code, Codex, OpenCode, Herdr, and integrations
   --paperclip  Paperclip as a system service (localhost:3100) + the Keystone agent team
+  --glab-graphwise  Optional 1Password profile (excluded from --all)
 
 Maintenance:
   --update     Update everything installed (not part of --all)

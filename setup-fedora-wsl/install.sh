@@ -29,7 +29,7 @@ usage() {
 Usage: install.sh [STEPS...]
 
 Steps
-  --all        Run every install step, in order:
+  --all        Run standard install steps, in order:
                base → mise → langs → dotfiles → claude → agents → paperclip
   --base       System layer: dnf packages, Fish + Fisher, Git config
   --mise       mise + every tool in dotfiles/dot_config/mise/config.toml
@@ -38,6 +38,7 @@ Steps
   --claude     Symlink Claude Code config from claude-skills/ into ~/.claude/
   --agents     Claude Code, Codex, OpenCode, Herdr, integrations, Fish completion
   --paperclip  Paperclip as a system service (localhost:3100) + the Keystone agent team
+  --glab-graphwise  Install the optional 1Password profile; excluded from --all
 
 Maintenance
   --update     Update everything already installed. Not part of --all:
@@ -71,6 +72,7 @@ RUN_DOTFILES=false
 RUN_CLAUDE=false
 RUN_AGENTS=false
 RUN_PAPERCLIP=false
+RUN_GLAB_GRAPHWISE=false
 RUN_UPDATE=false
 REPO_SETS=()
 
@@ -92,6 +94,7 @@ while [[ $# -gt 0 ]]; do
         --claude)   RUN_CLAUDE=true ;;
         --agents)   RUN_AGENTS=true ;;
         --paperclip) RUN_PAPERCLIP=true ;;
+        --glab-graphwise) RUN_GLAB_GRAPHWISE=true ;;
         --update)   RUN_UPDATE=true ;;
         --repos)    [[ $# -gt 0 ]] || { log_error "--repos needs a set name"; exit 1; }
                     REPO_SETS+=("$1"); shift ;;
@@ -243,6 +246,10 @@ fi
 
 if $RUN_PAPERCLIP; then
     run_step "Paperclip" bash "$SCRIPT_DIR/packages/paperclip.sh"
+fi
+
+if $RUN_GLAB_GRAPHWISE; then
+    run_step "Graphwise GitLab profile" bash "$SCRIPT_DIR/packages/glab-graphwise.sh"
 fi
 
 # ── Summary ───────────────────────────────────────────────────────────────────
