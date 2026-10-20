@@ -43,6 +43,8 @@ sudo dnf install -y dnf5-plugin-copr 2>/dev/null || \
 # libicu is the ICU runtime. Marksman — the Markdown LSP Mason installs for
 # LazyVim — is a .NET single-file binary and aborts with "Couldn't find a valid
 # ICU package installed on the system." without it.
+# wl-clipboard gives Neovim a clipboard provider (wl-copy/wl-paste); WSLg passes
+# the Wayland clipboard through to Windows, so `y`/`p` reach the Windows clipboard.
 log_step "Installing core system packages via dnf"
 
 dnf_install \
@@ -54,6 +56,7 @@ dnf_install \
     htop \
     btop \
     libicu \
+    wl-clipboard \
     util-linux-user
 
 log_success "Core system packages installed"
