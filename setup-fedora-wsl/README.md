@@ -158,7 +158,7 @@ Tooling is split deliberately:
 | Layer | Owner | What |
 |-------|-------|------|
 | **System** | `dnf` | Compilers and debuggers, Fish (it is the login shell, so it must be a real path in `/etc/shells`), git, curl, archive and system utilities |
-| **Tools** | `mise` | node, go, java, bun, python, uv, neovim, and the CLI tools — bat, chezmoi, eza, fd, fzf, gh, glab, jq, k9s, kind, lazygit, ripgrep, starship, zoxide |
+| **Tools** | `mise` | node, go, java, bun, python, erlang, elixir, uv, neovim, and the CLI tools — bat, chezmoi, eza, fd, fzf, gh, glab, jq, k9s, kind, lazygit, ripgrep, starship, zoxide |
 
 Every mise-managed version lives in one file — [`dotfiles/dot_config/mise/config.toml`](../dotfiles/dot_config/mise/config.toml)
 — which is **byte-identical across every distro in this repo**. That file is the unification point:
@@ -205,7 +205,7 @@ are no longer needed, since mise provides both.
 
 | Managed | Tools |
 |---------|-------|
-| Runtimes | node (lts), go, bun, python, java (temurin-21) |
+| Runtimes | node (lts), go, bun, python, erlang, elixir (includes Mix and IEx), java (temurin-21) |
 | Python tooling | uv |
 | Editor | neovim, `npm:neovim` (the Node provider, pinned as a tool so it survives a Node version change) |
 | CLI | bat, chezmoi, eza, fd, fzf, gh, glab, jq, k9s, kind, lazygit, ripgrep, starship, zoxide |

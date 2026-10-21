@@ -87,7 +87,7 @@ Tooling is split deliberately:
 | Layer | Owner | What |
 |-------|-------|------|
 | **System** | `paru` | Compilers and debuggers, Fish (it is the login shell, so it must be a real path in `/etc/shells`), Ghostty and Alacritty, fonts, Docker, git, curl, archive and system utilities |
-| **Tools** | `mise` | node, go, java, bun, python, uv, neovim, and the CLI tools — bat, chezmoi, eza, fd, fzf, gh, glab, jq, k9s, kind, lazygit, ripgrep, starship, zoxide |
+| **Tools** | `mise` | node, go, java, bun, python, erlang, elixir, uv, neovim, and the CLI tools — bat, chezmoi, eza, fd, fzf, gh, glab, jq, k9s, kind, lazygit, ripgrep, starship, zoxide |
 
 On a rolling distro paru's versions are already current, so this split is **not** about freshness
 here. It is about this machine resolving the same tool versions, from the same manifest, as every
@@ -128,7 +128,7 @@ else, then installs every tool in the shared manifest.
 
 | Managed | Tools |
 |---------|-------|
-| Runtimes | node (lts), go, bun, python, java (temurin-21) |
+| Runtimes | node (lts), go, bun, python, erlang, elixir (includes Mix and IEx), java (temurin-21) |
 | Python tooling | uv |
 | Editor | neovim, `npm:neovim` (the Node provider, pinned as a tool so it survives a Node version change) |
 | CLI | bat, chezmoi, eza, fd, fzf, gh, glab, jq, k9s, kind, lazygit, ripgrep, starship, zoxide |
