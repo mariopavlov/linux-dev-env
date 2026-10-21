@@ -13,6 +13,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$SCRIPT_DIR/lib/utils.sh"
 
 assert_not_root
+assert_dnf
 
 PAPERCLIP_VERSION="2026.1012.0"
 SHIM="$HOME/.local/bin/paperclipai"
@@ -28,6 +29,10 @@ if ! is_installed node; then
     log_error "node not found — run --mise first (node is a mise-managed tool)"
     exit 1
 fi
+
+# Shared libraries for the headless Chromium that agents' mermaid-cli renders with.
+dnf_install nss nspr nss-util atk at-spi2-atk at-spi2-core alsa-lib mesa-libgbm \
+    libXcomposite libXdamage libXfixes libXrandr
 
 shim_node() {
     sed -n "s/^exec '\([^']*\)'.*/\1/p" "$SHIM"
