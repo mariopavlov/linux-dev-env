@@ -114,6 +114,13 @@ Turn each concrete improvement into a proposal for Mario — a change to an agen
 the team rules — on a `blocked` issue titled "Retro: <milestone or issue>". Never change the
 team's setup yourself.
 
+**GitLab** (`gitlab.ontotext.com` repos): for merge requests and API calls, run
+`~/.local/bin/glab-1password --profile graphwise <glab args>` (for example `… mr create`,
+`… api projects/<id>/merge_requests`). Never run plain `glab` or `fish -c 'glab --graphwise …'`:
+the Fish function refuses outside an interactive WSL shell. It reads Mario's token from his
+Windows 1Password; if that fails, say so in one line and don't work around it. It does not make
+`git push` work.
+
 **Research:** when you or a specialist need to read a lot — library docs, an unfamiliar codebase,
 standards — create a child issue "Research: <question>" for the Research Scout instead of reading
 it yourself, and work from its brief.
