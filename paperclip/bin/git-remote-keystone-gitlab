@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Git remote helper for keystone-gitlab://host/path URLs (see setup-gitlab-repo.sh).
+# Paperclip's git launcher passes `credential.helper=` on the command line, which drops every
+# helper from repo config. This appends one after that reset, answering with $GITLAB_TOKEN,
+# and hands the plain https URL to git's own HTTPS transport.
+set -euo pipefail
+
+n="${GIT_CONFIG_COUNT:-0}"
+export "GIT_CONFIG_KEY_$n=credential.helper"
+export "GIT_CONFIG_VALUE_$n="'!f() { if [ "$1" = get ] && [ -n "$GITLAB_TOKEN" ]; then printf "username=oauth2\npassword=%s\n" "$GITLAB_TOKEN"; fi; }; f'
+export GIT_CONFIG_COUNT=$((n + 1))
+exec git remote-https "$1" "https://${2#keystone-gitlab://}"
