@@ -23,6 +23,10 @@ go     = "latest"
 bun    = "latest"
 python = "latest"
 
+# Elixir (elixir, iex, mix) runs on the Erlang/OTP runtime.
+erlang = "latest"
+elixir = "latest"
+
 # Java. SDKMan is still installed for its other candidates (kotlin, scala,
 # springboot, …); mise's shims are prepended after SDKMan's paths in
 # config.fish, so this JDK is the one `java` resolves to.

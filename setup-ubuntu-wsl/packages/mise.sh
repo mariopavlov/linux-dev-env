@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# mise — tool version manager (node, go, java, bun, python, uv, neovim, CLI tools)
+# mise — tool version manager (node, go, java, bun, python, erlang, elixir, uv, neovim, CLI tools)
 #
 # mise is installed from the official APT repo rather than the curl installer so
 # it upgrades with the rest of the system (`apt upgrade`), while mise itself
@@ -50,10 +50,15 @@ log_success "Manifest installed: $MISE_DST"
 
 mise trust "$MISE_DST" >/dev/null 2>&1 || true
 
+# Erlang falls back to a source build when no prebuilt binary is available.
+# Keep its prerequisites in --mise: --langs runs later and is optional.
+log_step "Erlang build prerequisites"
+apt_install build-essential autoconf m4 perl libncurses-dev libssl-dev
+
 # ── Install the tools ─────────────────────────────────────────────────────────
 log_step "Installing tools via mise"
-log_info "This compiles nothing — mise fetches prebuilt binaries — but the first"
-log_info "run downloads a lot (node, go, java, python, neovim, …)"
+log_info "mise downloads prebuilt tools where available; Erlang may compile from source."
+log_info "The first run can take a while (node, go, java, python, erlang, elixir, neovim, …)."
 
 if ! mise install --yes; then
     log_error "mise install failed"
@@ -73,7 +78,7 @@ mise ls --installed 2>/dev/null || true
 # `mise activate bash`) are what mise recommends for non-interactive use.
 #
 # This replaces the old per-toolchain `source ~/.cargo/env` approach: one line
-# now covers node, go, java, bun, python, uv, neovim and every CLI tool.
+# now covers node, go, java, bun, python, erlang, elixir, uv, neovim and every CLI tool.
 log_step "mise shims for bash / Neovim"
 
 MISE_BASHRC_MARKER='# mise shims (non-interactive shells, e.g. Neovim)'
