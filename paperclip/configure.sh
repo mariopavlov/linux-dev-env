@@ -152,6 +152,11 @@ declare -A LONG_RUN_TIMEOUT_SEC=([ceo-principal-architect]=5400 [mentor]=5400)
 # Single-pass reviewers start each run fresh instead of reloading their whole session history.
 ONE_SHOT="refactorer security-codex"
 
+# Agents that push to GitLab get the project token Mario stores in Keystone's secrets under this key;
+# setup-gitlab-repo.sh makes their worktrees use it.
+GITLAB_TOKEN_SECRET="gitlab-wkl-token"
+GITLAB_PUSHERS="ceo-principal-architect developer-1 developer-2 platform-devops"
+
 # repo|commit|path prefix|skill names
 SOURCES=(
     "obra/superpowers|bb92a77741419a4ab5f06e711a283343f1ada0c3|skills|$SUPERPOWERS"
@@ -231,6 +236,8 @@ if (( ${#missing[@]} > 0 )); then
     echo "  imported: $agents_csv"
     AGENTS="$(api GET "/companies/$COMPANY/agents")"
 fi
+GITLAB_SECRET_ID="$(api GET "/companies/$COMPANY/secrets" | jq -r --arg k "$GITLAB_TOKEN_SECRET" '.[] | select(.key==$k and .status=="active") | .id' | head -n1)"
+[[ -n "$GITLAB_SECRET_ID" ]] || echo "  WARN no '$GITLAB_TOKEN_SECRET' secret in Keystone — GitLab pushers get no token"
 for slug in "${!NAME[@]}"; do
     id="$(jq -r --arg n "${NAME[$slug]}" '.[] | select(.name==$n) | .id' <<<"$AGENTS")"
     [[ -n "$id" ]] || { echo "agent not found: ${NAME[$slug]}" >&2; exit 1; }
@@ -261,6 +268,10 @@ for slug in "${!NAME[@]}"; do
             effort="$(jq -nc --arg e "${EFFORT[$slug]}" '{variant:$e}')"
             concurrency=2 ;;
     esac
+    if [[ -n "$GITLAB_SECRET_ID" && " $GITLAB_PUSHERS " == *" $slug "* ]]; then
+        env="$(jq -c --arg s "$GITLAB_SECRET_ID" \
+            '. + {GITLAB_TOKEN:{type:"secret_ref", secretId:$s, version:"latest"}, GITLAB_HOST:"gitlab.ontotext.com"}' <<<"$env")"
+    fi
     if [[ "$slug" == "coordinator" ]]; then
         heartbeat="{\"enabled\":true,\"intervalSec\":3600,\"maxConcurrentRuns\":$concurrency}"
     else
