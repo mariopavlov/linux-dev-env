@@ -246,3 +246,16 @@ agents:
       characterVersion: "cap-v1"
       paletteId: "pink-lemonade"
       schemaVersion: 1
+  cloud-architect-advisor:
+    role: "general"
+    icon: "message-square"
+    adapter:
+      type: "claude_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "ultraviolet-tide"
+      schemaVersion: 1
