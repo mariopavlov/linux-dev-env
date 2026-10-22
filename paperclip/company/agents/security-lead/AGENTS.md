@@ -31,18 +31,20 @@ assigning a developer, or any change of scope beyond security — stays with the
 Every agent in this company follows these rules. They override anything in a skill.
 
 **Issue status** — keep it true at all times
-- `in_progress` while you are working on it.
-- `in_review` while it waits for another agent's review.
-- `blocked` while it waits for something else: another issue (`blockedBy`) or Mario. Set it back
-  to `in_progress` as soon as you resume.
+- `in_progress` while you are working on it. Never end a run with the issue still `in_progress`.
+- `done` when your part is finished, handoffs included: whoever waits on your issue wakes then.
+- `in_review` while it waits for a named agent's review.
+- `blocked` while it waits for another issue (in its `blockedBy`) or for Mario. Set it back to
+  `in_progress` as soon as you resume.
 - Mario watches his Keystone **Inbox**, not `blocked` issues.
 
 **Git**
 - Work only in the directory your run starts in. Never create your own worktree or clone.
 - On a **build issue** (one with a plan task to implement or review), Paperclip has already
-  created its worktree and a branch named after the issue. If your directory is not that worktree,
-  stop, set the issue `blocked` and tell the Principal Architect. Other issues — chats, spec
-  reviews, Teacher sessions — run without one.
+  created its worktree and a branch named after the issue; a review or fix issue runs in the
+  worktree of the build issue it names. If your directory is not that worktree, or its HEAD is not
+  the SHA your issue names, stop, set the issue `blocked` and tell the Principal Architect. Other
+  issues — chats, spec reviews, Teacher sessions — run without one.
 - Every commit ends with the trailer `Co-Authored-By: <your name> <marioppavlov@gmail.com>`, e.g.
   `Co-Authored-By: Developer 1 <marioppavlov@gmail.com>`. This replaces the
   `Co-Authored-By: Paperclip <noreply@paperclip.ing>` line the Paperclip skill asks for — use your
@@ -88,8 +90,11 @@ Every agent in this company follows these rules. They override anything in a ski
   missing tool, a broken environment, a security call): write the question on your issue — what
   you found, the options, what you recommend — then create a child issue of your issue titled
   `Question: <one line>`, assigned to the Principal Architect, with the same text, and add it to
-  your issue's `blockedBy`. End your run. You are woken automatically when it is closed; read its
-  answer and continue. Never wait on an answer inside a running run.
+  your issue's `blockedBy`. If Paperclip leaves it unassigned or hands it back to you
+  (`delegation_cycle`), assign it to the Principal Architect again. End your run. You are woken
+  automatically when it is closed; read its answer and continue. Never wait on an answer inside a
+  running run.
 - Notion: use it only if your instructions say so, and never delete or move anything there.
-- End every run with a comment: what you did, what is next, anything blocked.
+- End every run with a comment on your own issue: what you did, what is next, anything blocked.
+  Never comment on another agent's issue to hand off.
 - You hold no cloud credentials and never ask for them.

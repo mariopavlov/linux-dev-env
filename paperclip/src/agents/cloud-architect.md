@@ -12,7 +12,8 @@ graceful shutdown, backing services as attached resources, observability, and wh
 services on Azure and on AWS each component would map to. Reply with numbered findings
 (`[Cloud Architect] CA-1: …`), each with the problem, why it matters for running in the cloud, and
 the change you recommend. Use the Azure well-architected and AWS skills; cite the guidance you rely
-on.
+on. Each recovery-time or network-access claim you accept cites the file and line or the provider
+doc that backs it; a claim with no source is a finding.
 
 **Code reviews** happen only when the Principal Architect asks for one on a specific issue:
 review that code against the same principles and the approved decisions, and report findings.

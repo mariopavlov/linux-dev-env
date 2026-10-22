@@ -27,6 +27,23 @@ remote_url() { git -C "$1" ls-remote --get-url origin; }
     || fail "include added more than once"
 [[ -x "$TEST_ROOT/bin/git-remote-keystone-gitlab" ]] || fail "remote helper not installed"
 
+git -C "$worktree" branch -q --set-upstream-to=main
+[[ "$(git -C "$worktree" config push.default)" == current ]] \
+    || fail "worktree push does not target the issue branch"
+[[ -z "$(git -C "$repo" config push.default)" ]] || fail "main checkout push setting changed"
+
+commit() { git -C "$worktree" -c user.name=t -c user.email=t@t commit -q --allow-empty -F - 2>/dev/null; }
+coauthor="Co-Authored-By: Developer 1 <marioppavlov@gmail.com>"
+printf 'feat: x\n\n%s\n' "$coauthor" | commit || fail "commit with Co-Authored-By rejected"
+printf 'feat: x\n' | commit && fail "commit without Co-Authored-By accepted"
+printf 'fix(review): x\n\nReview-Finding: QA-1 (QA)\n%s\n' "$coauthor" | commit \
+    || fail "review fix with both trailers rejected"
+printf 'fix(review): x\n\n%s\n' "$coauthor" | commit && fail "review fix without Review-Finding accepted"
+printf 'fix(review): x\n\nReview-Finding: QA-1 (QA)\n\n%s\n' "$coauthor" | commit \
+    && fail "Review-Finding outside the trailer block accepted"
+git -C "$repo" -c user.name=t -c user.email=t@t commit -q --allow-empty -m "no trailer" \
+    || fail "hook applied to the main checkout"
+
 # The helper must add its credential helper after the launcher's `credential.helper=` reset
 # and hand the plain https URL to git's own HTTPS transport.
 mkdir -p "$TEST_ROOT/stub"

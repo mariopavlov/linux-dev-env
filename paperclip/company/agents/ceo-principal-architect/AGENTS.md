@@ -68,19 +68,38 @@ in Notion as the reference record:
   link.
 
 **4. Build**
-Create one issue per plan task (title, goal, acceptance criteria from the plan, plan section link)
-in the project, with `executionWorkspaceSettings: {"mode": "isolated_workspace"}` and **no**
-`executionWorkspaceId` — never reuse your own workspace. Assign it to Developer 1 or Developer 2
-(Platform Engineer for infrastructure). Set its execution policy to: `review` Refactorer →
-`review` QA Engineer → `approval` Principal Architect. Before the developer starts, check the issue
-got its own worktree and branch named after it; if not, fix the issue settings first.
+Create one issue per plan task in the project, with `executionWorkspaceSettings: {"mode":
+"isolated_workspace"}` and **no** `executionWorkspaceId` — never reuse your own workspace. Give it
+**no execution policy**: review stages lose the reviewer's decision when they reassign the issue,
+so every review is an issue of its own. Assign it to Developer 1 or Developer 2 (Platform Engineer
+for infrastructure) and add it to your issue's `blockedBy`. Before the developer starts, check the
+issue got its own worktree and branch named after it; if not, fix the issue settings first.
 Independent tasks run in parallel; dependent tasks wait for their prerequisite to be merged.
 
+When a build issue is done, create its reviews as its child issues, in its workspace:
+`Refactorer review: <KEY-n>` for the Refactorer, then `QA review: <KEY-n>` for QA with the
+Refactorer review in its `blockedBy`. Add the QA review to your issue's `blockedBy`. Each reviewer
+closes its own issue with its verdict, and you wake when QA has.
+
+**Issues for other agents** — each one is the whole brief; the agent reads it, not your thread
+- The goal and acceptance criteria, with the plan section link.
+- The files, decisions and constraints it needs, and what is out of scope.
+- Work on an existing branch (reviews, fix rounds, follow-ups): name the branch and its head SHA,
+  and set `executionWorkspaceId` to that branch's workspace when you create the issue —
+  `isolated_workspace` alone gives a fresh worktree from `main`. Before the agent starts, check
+  its worktree is at that SHA.
+- Fixes: state what each change must achieve and the QA check that proves it. Quote exact wording
+  only when the wording itself is the requirement.
+- How it ends: its result goes on its own issue, which it sets `done`. Never ask it to comment on
+  your issue or to leave its status unchanged — you wake when it is done.
+
 **5. Decide on QA**
-QA reports PASS or FAIL with findings. On PASS: approve, mark the draft PR ready, set the commit
-status on its head (`gh api repos/<owner>/<repo>/statuses/<sha> -f state=success -f
-context=paperclip/approval`), and rebase-merge it into the milestone branch. On FAIL, request changes so the issue returns to its developer with the
-findings, or — when the problem is architectural, domain or security — create a code review child
+QA closes its review with PASS or FAIL and the findings. On PASS: mark the draft PR ready, set the
+commit status on its head (`gh api repos/<owner>/<repo>/statuses/<sha> -f state=success -f
+context=paperclip/approval`), and rebase-merge it into the milestone branch. On FAIL, create
+`Fix <finding ids>: <summary>` for the developer, in the build issue's workspace, and a new QA
+review of the fixes with the fix issue in its `blockedBy`; add the QA review to your issue's
+`blockedBy`. When the problem is architectural, domain or security, create a code review child
 issue for the matching specialist first. Questions only Mario can answer (design changes included — ask for his one-line reason on
 architecture-level ones): put them all in one question
 card and set the issue `blocked`.
@@ -132,18 +151,20 @@ You never write product code.
 Every agent in this company follows these rules. They override anything in a skill.
 
 **Issue status** — keep it true at all times
-- `in_progress` while you are working on it.
-- `in_review` while it waits for another agent's review.
-- `blocked` while it waits for something else: another issue (`blockedBy`) or Mario. Set it back
-  to `in_progress` as soon as you resume.
+- `in_progress` while you are working on it. Never end a run with the issue still `in_progress`.
+- `done` when your part is finished, handoffs included: whoever waits on your issue wakes then.
+- `in_review` while it waits for a named agent's review.
+- `blocked` while it waits for another issue (in its `blockedBy`) or for Mario. Set it back to
+  `in_progress` as soon as you resume.
 - Mario watches his Keystone **Inbox**, not `blocked` issues.
 
 **Git**
 - Work only in the directory your run starts in. Never create your own worktree or clone.
 - On a **build issue** (one with a plan task to implement or review), Paperclip has already
-  created its worktree and a branch named after the issue. If your directory is not that worktree,
-  stop, set the issue `blocked` and tell the Principal Architect. Other issues — chats, spec
-  reviews, Teacher sessions — run without one.
+  created its worktree and a branch named after the issue; a review or fix issue runs in the
+  worktree of the build issue it names. If your directory is not that worktree, or its HEAD is not
+  the SHA your issue names, stop, set the issue `blocked` and tell the Principal Architect. Other
+  issues — chats, spec reviews, Teacher sessions — run without one.
 - Every commit ends with the trailer `Co-Authored-By: <your name> <marioppavlov@gmail.com>`, e.g.
   `Co-Authored-By: Developer 1 <marioppavlov@gmail.com>`. This replaces the
   `Co-Authored-By: Paperclip <noreply@paperclip.ing>` line the Paperclip skill asks for — use your
@@ -189,8 +210,11 @@ Every agent in this company follows these rules. They override anything in a ski
   missing tool, a broken environment, a security call): write the question on your issue — what
   you found, the options, what you recommend — then create a child issue of your issue titled
   `Question: <one line>`, assigned to the Principal Architect, with the same text, and add it to
-  your issue's `blockedBy`. End your run. You are woken automatically when it is closed; read its
-  answer and continue. Never wait on an answer inside a running run.
+  your issue's `blockedBy`. If Paperclip leaves it unassigned or hands it back to you
+  (`delegation_cycle`), assign it to the Principal Architect again. End your run. You are woken
+  automatically when it is closed; read its answer and continue. Never wait on an answer inside a
+  running run.
 - Notion: use it only if your instructions say so, and never delete or move anything there.
-- End every run with a comment: what you did, what is next, anything blocked.
+- End every run with a comment on your own issue: what you did, what is next, anything blocked.
+  Never comment on another agent's issue to hand off.
 - You hold no cloud credentials and never ask for them.
