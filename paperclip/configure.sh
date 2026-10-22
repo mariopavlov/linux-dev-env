@@ -96,8 +96,8 @@ declare -A ICON=(
     [security-codex]="shield"
     [research-scout]="telescope"
     [security-deepseek]="fingerprint"
-    [red-team-engineer]="crosshair"
-    [security-lead]="scale"
+    [red-team-engineer]="swords"
+    [security-lead]="radar"
 )
 
 declare -A PALETTE=(
