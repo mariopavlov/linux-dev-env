@@ -218,3 +218,31 @@ agents:
       characterVersion: "cap-v1"
       paletteId: "golden-hour"
       schemaVersion: 1
+  technical-writer:
+    role: "general"
+    icon: "file-code"
+    adapter:
+      type: "claude_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "turquoise-cherry"
+      schemaVersion: 1
+  delivery-lead:
+    role: "pm"
+    icon: "git-branch"
+    adapter:
+      type: "claude_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants:
+      -
+        permissionKey: "tasks:assign"
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "pink-lemonade"
+      schemaVersion: 1

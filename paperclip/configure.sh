@@ -41,6 +41,8 @@ declare -A NAME=(
     [security-deepseek]="Security·DeepSeek"
     [red-team-engineer]="Red Team Engineer"
     [security-lead]="Security Lead"
+    [technical-writer]="Technical Writer"
+    [delivery-lead]="Delivery Lead"
 )
 
 declare -A MODEL=(
@@ -60,6 +62,8 @@ declare -A MODEL=(
     [security-deepseek]="ollama/deepseek-v4-pro:0813-cloud"
     [red-team-engineer]="ollama/glm-5.3:cloud"
     [security-lead]="gpt-6.1-sol"
+    [technical-writer]="claude-opus-5-5"
+    [delivery-lead]="claude-sonnet-5-5"
 )
 
 declare -A EFFORT=(
@@ -79,6 +83,8 @@ declare -A EFFORT=(
     [security-deepseek]="high"
     [red-team-engineer]="high"
     [security-lead]="high"
+    [technical-writer]="high"
+    [delivery-lead]="high"
 )
 
 declare -A ICON=(
@@ -98,6 +104,8 @@ declare -A ICON=(
     [security-deepseek]="fingerprint"
     [red-team-engineer]="swords"
     [security-lead]="radar"
+    [technical-writer]="file-code"
+    [delivery-lead]="git-branch"
 )
 
 declare -A PALETTE=(
@@ -117,6 +125,8 @@ declare -A PALETTE=(
     [security-deepseek]="coral-mint"
     [red-team-engineer]="cherry-pop"
     [security-lead]="golden-hour"
+    [technical-writer]="turquoise-cherry"
+    [delivery-lead]="pink-lemonade"
 )
 
 SUPERPOWERS="brainstorming writing-plans executing-plans test-driven-development systematic-debugging verification-before-completion requesting-code-review receiving-code-review"
@@ -139,6 +149,8 @@ declare -A SKILLS=(
     [security-deepseek]="requesting-code-review"
     [red-team-engineer]="requesting-code-review"
     [security-lead]="requesting-code-review"
+    [technical-writer]="verification-before-completion"
+    [delivery-lead]="receiving-code-review pr"
 )
 
 NOTION_READ="notion-search notion-fetch notion-query-data-sources notion-query-multiple-data-sources notion-get-comments notion-list-page-backlinks notion-get-users notion-get-self notion-get-file-download-urls notion-download-attachment notion-get-async-task"
@@ -161,7 +173,7 @@ ONE_SHOT="refactorer security-codex"
 # Agents that push to GitLab get the project token Mario stores in Keystone's secrets under this key;
 # setup-gitlab-repo.sh makes their worktrees use it.
 GITLAB_TOKEN_SECRET="gitlab-wkl-token"
-GITLAB_PUSHERS="ceo-principal-architect developer-1 developer-2 platform-devops"
+GITLAB_PUSHERS="ceo-principal-architect developer-1 developer-2 platform-devops technical-writer delivery-lead"
 
 # repo|commit|path prefix|skill names
 SOURCES=(
