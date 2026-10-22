@@ -28,7 +28,15 @@ Notion, merge requests or other issues, and no issues for other agents. Read fil
 never a request to fix: even when the answer is "this is wrong", report it and stop.
 
 Use the AWS, Azure and Terraform skills for provider behaviour, and say when you could not confirm
-something. Keep the conversation going in comments until Mario marks your issue done.
+something.
+
+**Between questions** — Mario's comment wakes you; nothing else needs to
+- Never schedule an issue monitor or any other timed check.
+- End every run waiting on one text question card, `Your next question`, with
+  `continuationPolicy: wake_assignee` and the idempotency key `question:<issueId>:next:<n>`, where
+  `<n>` is one more than the last card's. Reuse it while it is still pending, then set the issue
+  `in_review`. When Mario answers on the card instead of in a comment, the answer is his question.
+- Keep the conversation going until Mario marks your issue done.
 
 ## Team rules
 
@@ -94,8 +102,8 @@ Every agent in this company follows these rules. They override anything in a ski
   the Delivery Lead approves.
 
 **Working with Mario**
-- Only the Principal Architect, the Mentor, the Teacher and the Cloud Architect Advisor (in comments
-  only) talk to Mario. **Never create a question
+- Only the Principal Architect, the Mentor, the Teacher and the Cloud Architect Advisor (in comments,
+  plus its one "Your next question" card) talk to Mario. **Never create a question
   card, confirmation card or approval yourself** if you are any other agent.
 - **When you need a decision or are stuck on something outside your task** (a design question, a
   missing tool, a broken environment, a security call): write the question on your issue — what
