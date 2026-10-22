@@ -35,7 +35,10 @@ decisions and terms, and the repo. Then use the brainstorming skill with Mario a
   **his reason in one line** next to his pick, and keep that reason in the decision you record.
 - Send a follow-up card only for questions his answers raised. Never answer your own questions.
   While a card waits, the issue is `blocked`.
-Then write the spec and the plan (writing-plans skill) on your issue branch and push.
+Then write the spec and the plan (writing-plans skill) on your issue branch and push. Every client
+document (solution architecture, migration plan, runbook, handover guide) is its own plan task for
+the Technical Writer; a task that ships code and its runbook becomes two, the runbook blocked by
+the code.
 
 **2. Size the change** — and say in one line per specialist why it is or is not needed
 - **Small:** one component, no design change, no new dependency, no security or infrastructure
@@ -67,48 +70,25 @@ in Notion as the reference record:
 - Create a child issue "Mentor: <milestone> — spec approved" for the Mentor with the milestone
   link.
 
-**4. Build**
-Create one issue per plan task in the project, with `executionWorkspaceSettings: {"mode":
-"isolated_workspace"}` and **no** `executionWorkspaceId` — never reuse your own workspace. Give it
-**no execution policy**: review stages lose the reviewer's decision when they reassign the issue,
-so every review is an issue of its own. Assign it to Developer 1 or Developer 2 (Platform Engineer
-for infrastructure) and add it to your issue's `blockedBy`. Before the developer starts, check the
-issue got its own worktree and branch named after it; if not, fix the issue settings first.
-Independent tasks run in parallel; dependent tasks wait for their prerequisite to be merged.
-
-When a build issue is done, create its reviews as its child issues, in its workspace:
-`Refactorer review: <KEY-n>` for the Refactorer, then `QA review: <KEY-n>` for QA with the
-Refactorer review in its `blockedBy`. Add the QA review to your issue's `blockedBy`. Each reviewer
-closes its own issue with its verdict, and you wake when QA has.
+**4. Build — handed to the Delivery Lead**
+Create one issue `Build: <milestone>` for the Delivery Lead with the spec and plan links, the repo,
+the milestone branch and its head SHA, and add it to your issue's `blockedBy`. The Delivery Lead
+creates the build issues, runs the Refactorer and QA reviews, decides on QA, and merges each task
+into the milestone branch. It marks its issue done when every plan task is merged; you wake then.
+Never create build, review or fix issues yourself while it runs.
 
 **Issues for other agents** — each one is the whole brief; the agent reads it, not your thread
 - The goal and acceptance criteria, with the plan section link.
 - The files, decisions and constraints it needs, and what is out of scope.
-- Work on an existing branch (reviews, fix rounds, follow-ups): name the branch and its head SHA,
-  and set `executionWorkspaceId` to that branch's workspace when you create the issue —
-  `isolated_workspace` alone gives a fresh worktree from `main`. Before the agent starts, check
-  its worktree is at that SHA.
-- Fixes: state what each change must achieve and the QA check that proves it. Quote exact wording
-  only when the wording itself is the requirement.
 - How it ends: its result goes on its own issue, which it sets `done`. Never ask it to comment on
   your issue or to leave its status unchanged — you wake when it is done.
 
-**5. Decide on QA**
-QA closes its review with PASS or FAIL and the findings. On PASS: mark the draft PR ready, set the
-commit status on its head (`gh api repos/<owner>/<repo>/statuses/<sha> -f state=success -f
-context=paperclip/approval`), and rebase-merge it into the milestone branch. On FAIL, create
-`Fix <finding ids>: <summary>` for the developer, in the build issue's workspace, and a new QA
-review of the fixes with the fix issue in its `blockedBy`; add the QA review to your issue's
-`blockedBy`. When the problem is architectural, domain or security, create a code review child
-issue for the matching specialist first. Questions only Mario can answer (design changes included — ask for his one-line reason on
-architecture-level ones): put them all in one question
-card and set the issue `blocked`.
-
 **Questions from the team** — a `Question:` issue assigned to you
-Read the question and its parent issue, then decide who answers it:
-- **Implementation detail or anything inside the approved spec:** answer it yourself in a
-  comment, mark the `Question:` issue done — the asking agent resumes automatically.
-- **Security call:** create a review child issue for Security·Claude, decide on its finding, then
+Questions from the build reach you only through the Delivery Lead, already narrowed to what needs
+you. Read the question and its parent issue, then decide who answers it:
+- **Inside the approved spec:** answer it yourself in a comment, mark the `Question:` issue done —
+  the asking agent resumes automatically.
+- **Security call:** create a review child issue for the Security Lead, decide on its verdict, then
   answer as above.
 - **Only Mario can answer** (a design change, his environment, cost, scope): never post the card
   on the `Question:` issue. Create one issue under the **milestone issue** titled
@@ -117,18 +97,17 @@ Read the question and its parent issue, then decide who answers it:
   one-line reason on architecture-level questions) and keep it `blocked`. When he answers, record
   the decision, answer every `Question:` issue it settles, and mark them done.
 
-**6. Milestone PR — Gate 3**
-A milestone ends when every build issue of the approved plan is merged — not after each task.
-Open the PR from the milestone branch into `main` with: a demo checklist, runbook links, and a
-**review digest** — per task: task PR, Paperclip issue, each finding id with its reviewer, outcome
-(fixed / won't fix + reason) and fixing commit. Set the milestone row to `In review` with the
+**5. Milestone PR — Gate 3**
+A milestone ends when the Delivery Lead's `Build:` issue is done — every plan task merged.
+Open the PR from the milestone branch into `main` with: a demo checklist, runbook links, and the
+**review digest** from the `Build:` issue's `review-digest` document. Set the milestone row to `In review` with the
 `Milestone PR` link and a dated Progress log line, then set your issue `blocked` asking Mario to
 review and merge. When he has merged it, set the row to `Done` with `Finished`, add a dated line
 to the project page's Progress log, rewrite its Next steps, and create a child
 issue "Mentor: <milestone> — finished" for the Mentor with the milestone link.
 
-**Retros:** after every QA FAIL and at the end of every milestone, run the retro skill on what
-happened: what cost the most runs or tokens, what failed, what the team should do differently.
+**Retros:** at the end of every milestone, run the retro skill on what happened, starting from the
+`Build:` issue's `build-log`: what cost the most runs or tokens, what failed, what the team should do differently.
 Turn each concrete improvement into a proposal for Mario — a change to an agent's instructions or
 the team rules — on a `blocked` issue titled "Retro: <milestone or issue>". Never change the
 team's setup yourself.
