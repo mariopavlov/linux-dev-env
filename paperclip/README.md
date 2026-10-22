@@ -29,11 +29,14 @@ Why things are the way they are: `FINDINGS.md`.
 | DDD Reviewer | Claude · Sonnet 5.5 · high | Reviews specs and plans for the domain model |
 | Teacher | Claude · Sonnet 5.5 · high | Teaches Mario, on request only |
 | Mentor | Claude · Opus 5.5 · high | After spec approval and milestone end: finds weak points in Mario's answers, creates Study Assignments, keeps the Mastery section and the project record in Notion |
-| Coordinator | OpenCode · Ollama nemotron-3-super · low | Daily sweep: nudges stalled issues, digest of what waits for Mario, escalates decisions |
 | Research Scout | OpenCode · Ollama deepseek-v4.1-flash · medium | Reads docs and code on request ("Research: …"), returns a sourced one-page brief |
 | Security·DeepSeek | OpenCode · Ollama deepseek-v4-pro · high | Third independent security reviewer (third model family) |
+| Red Team Engineer | OpenCode · Ollama glm-5.3 · high | Offensive counterpart to the three security reviewers: stands a solution up in a throwaway local Docker sandbox and attacks the running deployment; confirms or refutes their threats and finds new ones |
+| Security Lead | Codex · gpt-6.1 Sol · high | Leads the four security agents: fans a review out to them, consolidates one verdict for the Principal (surfacing dissent, never flattening it), owns the threat model and the Red Team's scope |
 
-Everyone reports to the Principal Architect. Specialists review code only when the Principal asks.
+Everyone reports to the Principal Architect, except the four security agents (the three reviewers
+and the Red Team Engineer), who report to the Security Lead. Specialists review code only when the
+Principal asks.
 
 ## How work flows
 
@@ -47,7 +50,8 @@ work happen in **Keystone**.
    clean up the requirements". It sets the row to `Designing` and asks all its questions in one
    card (issue `blocked`).
 3. **Spec review.** Small changes skip it. Otherwise the Principal sends the spec and plan to the
-   specialists the change needs and resolves what it can.
+   specialists the change needs — security goes to the **Security Lead**, who fans it out to the
+   four security agents and returns one consolidated verdict — and resolves what it can.
 4. **Gate 2 — spec.** One confirmation card with spec, plan, review summary and open questions.
    On approval the Principal rewrites the milestone's title, summary and done-when, fills its page
    (requirements, decisions, tasks, links, progress log) and sets it to `Building`.
@@ -72,12 +76,12 @@ yours to decide — opens `Decision for Mario: …` under the milestone issue wi
 
 `configure.sh` is safe to re-run. It also sets run timeouts (45 min; 90 for the Principal and the
 Mentor), Codex agents to `agent-full-access` (no guardian reviewer — QA and the Principal are the
-gate), one-shot sessions for the Refactorer and Security·Codex, and an hourly Coordinator sweep.
+gate), one-shot sessions for the Refactorer and Security·Codex.
 It sets: experimental isolated workspaces (per-issue git
 worktrees under `<repo>/.paperclip/worktrees/`), pinned skill sources (Superpowers, Azure, AWS,
 Terraform), each agent's skills, its working directory (`~/.paperclip/agent-homes/<slug>`),
 `ENABLE_CLAUDEAI_MCP_SERVERS=false` for Claude agents (so no agent sees Mario's Gmail, Drive and
-other claude.ai connectors), concurrency (Claude 1, Codex 2), the Coordinator's daily heartbeat, Agent Chat,
+other claude.ai connectors), concurrency (Claude 1, Codex 2), `OPENCODE_CONFIG_CONTENT` turning off the GitKraken MCP for OpenCode agents (it writes to Jira as Mario), Agent Chat,
 the `teacher` skill (from this repo on GitHub, pinned like the other skill sources — push a change to `claude-skills/dot-claude/skills/teacher` and bump its commit to update it), every agent's instructions, and its model and reasoning effort (`MODEL`, `EFFORT` — pinned so upgrades cannot change them silently). New skill repos are added at the commit in `SOURCES`. Paperclip's API cannot move an existing source to another commit (delete only disables it), so to bump a pin change it in `SOURCES` *and* in the UI (Skills → sources); `configure.sh` warns while the two differ — except for a source that tracks its branch (like this repo's `teacher`), which Paperclip re-scans on its own: there it only checks that the scanned commit includes the configured one.
 
 ## Branding
@@ -91,7 +95,7 @@ the `teacher` skill (from this repo on GitHub, pinned like the other skill sourc
 
 ## Ollama agents
 
-The Coordinator, Research Scout and Security·DeepSeek run in OpenCode on **Ollama Cloud** models
+The Research Scout, Security·DeepSeek and Red Team Engineer run in OpenCode on **Ollama Cloud** models
 through the local Ollama daemon (`ollama signin` once per machine; provider config in
 `dotfiles/dot_config/opencode/opencode.jsonc`). They draw on the Ollama Pro plan's $60/month
 credits, not on Claude or Codex quota.

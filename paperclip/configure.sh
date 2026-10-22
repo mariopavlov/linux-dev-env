@@ -37,9 +37,10 @@ declare -A NAME=(
     [ddd-reviewer]="DDD Reviewer"
     [qa]="QA Engineer"
     [teacher]="Teacher"
-    [coordinator]="Coordinator"
     [research-scout]="Research Scout"
     [security-deepseek]="Security·DeepSeek"
+    [red-team-engineer]="Red Team Engineer"
+    [security-lead]="Security Lead"
 )
 
 declare -A MODEL=(
@@ -55,9 +56,10 @@ declare -A MODEL=(
     [refactorer]="gpt-6-astra"
     [platform-devops]="gpt-6-astra"
     [security-codex]="gpt-6-astra"
-    [coordinator]="ollama/nemotron-3-super:cloud"
     [research-scout]="ollama/deepseek-v4.1-flash:cloud"
     [security-deepseek]="ollama/deepseek-v4-pro:0813-cloud"
+    [red-team-engineer]="ollama/glm-5.3:cloud"
+    [security-lead]="gpt-6.1-sol"
 )
 
 declare -A EFFORT=(
@@ -73,9 +75,10 @@ declare -A EFFORT=(
     [platform-devops]="medium"
     [refactorer]="low"
     [security-codex]="high"
-    [coordinator]="low"
     [research-scout]="medium"
     [security-deepseek]="high"
+    [red-team-engineer]="high"
+    [security-lead]="high"
 )
 
 declare -A ICON=(
@@ -91,9 +94,10 @@ declare -A ICON=(
     [refactorer]="wand"
     [platform-devops]="package"
     [security-codex]="shield"
-    [coordinator]="radar"
     [research-scout]="telescope"
     [security-deepseek]="fingerprint"
+    [red-team-engineer]="crosshair"
+    [security-lead]="scale"
 )
 
 declare -A PALETTE=(
@@ -109,9 +113,10 @@ declare -A PALETTE=(
     [refactorer]="coral-current"
     [platform-devops]="golden-hour"
     [security-codex]="cherry-pop"
-    [coordinator]="lime-lagoon"
     [research-scout]="electric-grove"
     [security-deepseek]="coral-mint"
+    [red-team-engineer]="cherry-pop"
+    [security-lead]="golden-hour"
 )
 
 SUPERPOWERS="brainstorming writing-plans executing-plans test-driven-development systematic-debugging verification-before-completion requesting-code-review receiving-code-review"
@@ -130,9 +135,10 @@ declare -A SKILLS=(
     [ddd-reviewer]="domain-modeling"
     [qa]="code-review verification-before-completion systematic-debugging"
     [teacher]="teacher"
-    [coordinator]=""
     [research-scout]=""
     [security-deepseek]="requesting-code-review"
+    [red-team-engineer]="requesting-code-review"
+    [security-lead]="requesting-code-review"
 )
 
 NOTION_READ="notion-search notion-fetch notion-query-data-sources notion-query-multiple-data-sources notion-get-comments notion-list-page-backlinks notion-get-users notion-get-self notion-get-file-download-urls notion-download-attachment notion-get-async-task"
@@ -265,6 +271,8 @@ for slug in "${!NAME[@]}"; do
             effort="$(jq -nc --arg e "${EFFORT[$slug]}" '{modelReasoningEffort:$e}')"
             concurrency=2 ;;
         opencode_local)
+            # The global OpenCode config enables the GitKraken MCP, which writes to Jira as Mario.
+            env="$(jq -c '. + {OPENCODE_CONFIG_CONTENT:"{\"mcp\":{\"GitKraken\":{\"type\":\"local\",\"command\":[\"true\"],\"enabled\":false}}}"}' <<<"$env")"
             effort="$(jq -nc --arg e "${EFFORT[$slug]}" '{variant:$e}')"
             concurrency=2 ;;
     esac
@@ -272,11 +280,7 @@ for slug in "${!NAME[@]}"; do
         env="$(jq -c --arg s "$GITLAB_SECRET_ID" \
             '. + {GITLAB_TOKEN:{type:"secret_ref", secretId:$s, version:"latest"}, GITLAB_HOST:"gitlab.ontotext.com"}' <<<"$env")"
     fi
-    if [[ "$slug" == "coordinator" ]]; then
-        heartbeat="{\"enabled\":true,\"intervalSec\":3600,\"maxConcurrentRuns\":$concurrency}"
-    else
-        heartbeat="{\"enabled\":false,\"maxConcurrentRuns\":$concurrency}"
-    fi
+    heartbeat="{\"enabled\":false,\"maxConcurrentRuns\":$concurrency}"
     api PATCH "/agents/$id" "$(jq -nc --arg cwd "$home" --arg model "${MODEL[$slug]}" --argjson env "$env" --argjson hb "$heartbeat" \
         --argjson effort "$effort" \
         --arg icon "${ICON[$slug]}" --arg palette "${PALETTE[$slug]}" \

@@ -125,7 +125,4 @@ Windows 1Password; if that fails, say so in one line and don't work around it. I
 standards — create a child issue "Research: <question>" for the Research Scout instead of reading
 it yourself, and work from its brief.
 
-**Stalled work:** the Coordinator sweeps daily and creates an issue for you when something needs a
-decision; you have no heartbeat of your own.
-
 You never write product code.
