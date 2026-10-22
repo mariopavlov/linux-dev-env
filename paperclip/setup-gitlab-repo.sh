@@ -8,6 +8,9 @@
 # launcher clears credential helpers and askpass. So inside Paperclip's worktrees (an includeIf
 # on .git/worktrees/) the remote is routed through bin/git-remote-keystone-gitlab, which adds
 # the token back. Mario's own checkout keeps pushing over SSH.
+#
+# Paperclip creates each worktree's branch from main with main as its upstream, so worktrees
+# push to the branch of the same name instead, and run hooks/commit-msg on every commit.
 set -euo pipefail
 
 REPO="${1:?usage: setup-gitlab-repo.sh <local-path>}"
@@ -25,6 +28,8 @@ inc="$common/keystone-gitlab.inc"
 rm -f "$inc"
 git config --file "$inc" --add "url.keystone-gitlab://$host/.insteadOf" "ssh://git@$host/"
 git config --file "$inc" --add "url.keystone-gitlab://$host/.insteadOf" "git@$host:"
+git config --file "$inc" push.default current
+git config --file "$inc" core.hooksPath "$PAPERCLIP_DIR/hooks"
 
 git -C "$REPO" config --local --replace-all "includeIf.gitdir:$common/worktrees/.path" "$inc"
 echo "$REPO: agent worktrees push to https://$host with \$GITLAB_TOKEN"

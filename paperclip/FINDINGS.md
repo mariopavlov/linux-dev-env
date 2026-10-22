@@ -104,6 +104,14 @@ Delivery Lead. The Refactorer stage commits its cleanup on the issue's branch an
 that a review-stage agent can commit in the issue's workspace is **unverified** — Task 10 checks it,
 fallback is a Refactorer child issue on the same branch.
 
+**Superseded (WKL M0, 2026-10-22):** on KEY-16 the reviewer's stage decision reassigned the issue,
+which cancelled the reviewer's run before the decision was saved; the issue then refused every
+wake and QA re-ran on KEY-23. Reviews are now child issues the reviewer closes, in the build
+issue's workspace, and the Principal waits on them through `blockedBy`. Fix issues and follow-ups
+on an existing branch need `executionWorkspaceId` set at creation: `isolated_workspace` alone gave
+them a fresh worktree from `main` (KEY-28, 31, 51, 54, 61). Paperclip bug report: Notion,
+"Contribute to Paperclip (open source)".
+
 ## 8. Isolated workspaces and branches
 
 **Did:** three Codex tasks against a `local_path` project workspace.
