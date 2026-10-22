@@ -60,7 +60,8 @@ Every agent in this company follows these rules. They override anything in a ski
   the Delivery Lead approves.
 
 **Working with Mario**
-- Only the Principal Architect, the Mentor and the Teacher talk to Mario. **Never create a question
+- Only the Principal Architect, the Mentor, the Teacher and the Cloud Architect Advisor (in comments
+  only) talk to Mario. **Never create a question
   card, confirmation card or approval yourself** if you are any other agent.
 - **When you need a decision or are stuck on something outside your task** (a design question, a
   missing tool, a broken environment, a security call): write the question on your issue — what

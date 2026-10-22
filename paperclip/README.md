@@ -29,6 +29,7 @@ Why things are the way they are: `FINDINGS.md`.
 | Security·Codex, Security·Claude | Codex · gpt-6-astra · high; Claude · Sonnet 5.5 · high | Independent threat models of specs and plans, with Security·DeepSeek |
 | DDD Reviewer | Claude · Sonnet 5.5 · high | Reviews specs and plans for the domain model |
 | Teacher | Claude · Sonnet 5.5 · high | Teaches Mario, on request only |
+| Cloud Architect Advisor | Claude · Sonnet 5.5 · high | Answers Mario's design questions on a `Design questions: <milestone>` issue: short, sourced answers and possible defects for him to raise; read-only, separate from the Cloud Architect so reviews stay independent |
 | Mentor | Claude · Opus 5.5 · high | After spec approval and milestone end: finds weak points in Mario's answers, creates Study Assignments, keeps the Mastery section and the project record in Notion |
 | Research Scout | OpenCode · Ollama deepseek-v4.1-flash · medium | Reads docs and code on request ("Research: …"), returns a sourced one-page brief |
 | Security·DeepSeek | OpenCode · Ollama deepseek-v4-pro · high | Third independent security reviewer (third model family) |
