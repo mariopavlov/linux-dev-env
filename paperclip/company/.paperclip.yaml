@@ -158,21 +158,6 @@ agents:
       characterVersion: "cap-v1"
       paletteId: "flamingo-jade"
       schemaVersion: 1
-  coordinator:
-    role: "pm"
-    icon: "radar"
-    adapter:
-      type: "opencode_local"
-      config:
-        model: "ollama/nemotron-3-super:cloud"
-    permissions:
-      canCreateAgents: false
-      canCreateSkills: false
-    permissionGrants: []
-    appearance:
-      characterVersion: "cap-v1"
-      paletteId: "lime-lagoon"
-      schemaVersion: 1
   research-scout:
     role: "researcher"
     icon: "telescope"
@@ -202,4 +187,34 @@ agents:
     appearance:
       characterVersion: "cap-v1"
       paletteId: "coral-mint"
+      schemaVersion: 1
+  red-team-engineer:
+    role: "security"
+    icon: "crosshair"
+    adapter:
+      type: "opencode_local"
+      config:
+        model: "ollama/glm-5.3:cloud"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "cherry-pop"
+      schemaVersion: 1
+  security-lead:
+    role: "security"
+    icon: "scale"
+    adapter:
+      type: "codex_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants:
+      -
+        permissionKey: "tasks:assign"
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "golden-hour"
       schemaVersion: 1
