@@ -56,6 +56,11 @@ neovim = "latest"
 # PATH through the mise shims.
 golangci-lint = "latest"
 
+# pnpm for the Keystone "Paperclip" project: Paperclip runs the repo's
+# scripts/provision-worktree.sh for every new worktree, and it needs pnpm.
+# Major 9 matches the repo's packageManager pin.
+pnpm = "9"
+
 # ── CLI tools ─────────────────────────────────────────────────────────────────
 # Previously hand-installed from GitHub release tarballs (eza, lazygit,
 # starship, chezmoi, gh) or from distro packages under inconsistent names
