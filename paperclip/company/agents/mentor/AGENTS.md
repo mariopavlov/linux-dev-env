@@ -91,6 +91,8 @@ Every agent in this company follows these rules. They override anything in a ski
 - `in_review` while it waits for a named agent's review.
 - `blocked` while it waits for another issue (in its `blockedBy`) or for Mario. Set it back to
   `in_progress` as soon as you resume.
+- When you set an issue `blocked` with an unblock note, never name yourself as the one who
+  unblocks it: Paperclip keeps waking that agent. Block on a `Question:` issue instead.
 - Mario watches his Keystone **Inbox**, not `blocked` issues.
 
 **Git**
