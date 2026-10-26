@@ -80,3 +80,9 @@ lazygit  = "latest"
 ripgrep  = "latest"
 starship = "latest"
 zoxide   = "latest"
+
+# Security and Terraform checks the Keystone QAs run: secrets in the repo,
+# Terraform lint, and IaC/image/dependency scanning with SBOMs.
+gitleaks = "latest"
+tflint   = "latest"
+trivy    = "latest"
