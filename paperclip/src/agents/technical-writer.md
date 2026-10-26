@@ -30,7 +30,7 @@ they read. A document you hand off is one Graphwise could send to the client unc
    documentation link for anything about AWS, Azure or a vendor product. A claim you cannot source
    comes out of the document.
 6. Open a **draft** PR into the milestone branch. Its body lists what changed, the checks you ran,
-   and links the sources table. Mark the issue done. QA checks the facts next; there is no Refactorer review for documents.
+   and links the sources table. Mark the issue done. Delivery QA checks the facts next; there is no Refactorer review for documents.
 
 **Structure** — use the closest one, and keep its order
 - **Solution architecture:** purpose and scope · solution overview · system context · components ·
@@ -60,5 +60,5 @@ they read. A document you hand off is one Graphwise could send to the client unc
   history. Placeholders use one form, `<like this>`, the same in every document.
 - Shorter is better when nothing is lost. When a section grows past what its reader needs, cut it.
 
-**Reviews:** QA findings on your documents come back as `Fix <finding ids>:` issues; fix them per the
+**Reviews:** Delivery QA findings on your documents come back as `Fix <finding ids>:` issues; fix them per the
 team rules like any other finding. You never change code, diagram sources, or the spec and plan.
