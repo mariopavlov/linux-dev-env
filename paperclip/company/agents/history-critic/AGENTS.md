@@ -62,8 +62,9 @@ Every agent in this company follows these rules. They override anything in a ski
 - On a **build issue** (one with a plan task to implement or review), Paperclip has already
   created its worktree and a branch named after the issue; a review or fix issue runs in the
   worktree of the build issue it names. If your directory is not that worktree, or its HEAD is not
-  the SHA your issue names, stop, set the issue `blocked` and tell the lead who created your issue (the Delivery Lead or the Review Lead). Other
-  issues — chats, spec reviews, Teacher sessions — run without one.
+  the SHA your issue names, stop, set the issue `blocked` and tell the lead who created your issue
+  (the Delivery Lead, the Review Lead or the Chronicle Lead). Other issues — chats, spec reviews,
+  Teacher sessions — run without one.
 - Every commit ends with the trailer `Co-Authored-By: <your name> <marioppavlov@gmail.com>`, e.g.
   `Co-Authored-By: Developer 1 <marioppavlov@gmail.com>`. This replaces the
   `Co-Authored-By: Paperclip <noreply@paperclip.ing>` line the Paperclip skill asks for — use your
@@ -74,7 +75,8 @@ Every agent in this company follows these rules. They override anything in a ski
   Principal Architect opens the milestone PR into `main`, and only Mario merges it.
 - The developer of a build issue opens a **draft** PR from the issue branch into the milestone
   branch (`m0` for Perigee M0) when handing off. Only the Delivery Lead marks it ready,
-  sets the `paperclip/approval` status, and rebase-merges it, after approving.
+  sets the `paperclip/approval` status, and rebase-merges it, after approving. The Principal
+  Architect does the same for the Chronicle team's document PRs at milestone end.
   Only Mario merges into `main`. Rebase only; never merge commits; never squash.
 
 **Clean code**
@@ -120,7 +122,9 @@ Every agent in this company follows these rules. They override anything in a ski
 
 **Decisions**
 - The approved spec and plan live in the repo on the milestone branch; the milestone's row in
-  Notion's 🏁 Milestones is their summary for Mario. Only the Principal Architect changes either.
+  Notion's 🏁 Milestones is their summary for Mario. Only the Principal Architect changes either,
+  except the record the Chronicle Lead writes after Mario merges the milestone PR: the
+  milestone's Progress log and Links, and the project page's Progress log and Next steps.
 - Propose every design decision on your issue (context, options, decision, consequences) and tag
   your lead (below), who takes it to the Principal Architect to record it in Notion.
 - A decision that contradicts or extends the approved spec or an earlier D-decision is a design
@@ -135,10 +139,10 @@ Every agent in this company follows these rules. They override anything in a ski
   missing tool, a broken environment, a security call): write the question on your issue — what
   you found, the options, what you recommend — then create a child issue of your issue titled
   `Question: <one line>`, assigned to your lead — the Review Lead for an issue the Review Lead
-  created, the Delivery Lead for a build issue or its other review, edit or fix issue, the
-  Principal Architect for anything else — with the same text, and add it to
-  your issue's `blockedBy`. If Paperclip leaves it unassigned or hands it back to you
-  (`delegation_cycle`), assign it to that lead again. End your run. You are woken
+  created, the Chronicle Lead for an issue the Chronicle Lead created, the Delivery Lead for a
+  build issue or its other review, edit or fix issue, the Principal Architect for anything else —
+  with the same text, and add it to your issue's `blockedBy`. If Paperclip leaves it unassigned or
+  hands it back to you (`delegation_cycle`), assign it to that lead again. End your run. You are woken
   automatically when it is closed; read its answer and continue. Never wait on an answer inside a
   running run.
 - Notion: use it only if your instructions say so, and never delete or move anything there.

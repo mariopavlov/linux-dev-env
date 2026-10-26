@@ -134,10 +134,8 @@ Record each stage's verdict and findings in the `review-digest`.
 **4. Security round and hand back**
 When every plan task is merged into the milestone branch and the plan lists security controls,
 create `Security round: <milestone>` for the Security Lead with the milestone branch and its head
-SHA, add it to your issue's `blockedBy`, and run any `Security fixes:` it sends. When it is done, it
-names the report's PR: mark it ready, set the commit status and rebase-merge it into the milestone
-branch, then add the reports' path (`docs/security/<milestone>/`) to the `review-digest`. Then check the
-`review-digest` is complete,
+SHA, add it to your issue's `blockedBy`, and run any `Security fixes:` it sends. The round ends at
+the Security Lead's verdict; you wake when it is done. Then check the `review-digest` is complete,
 comment the milestone branch's head SHA on your issue and mark it done. The Principal Architect
 opens the milestone PR.
 
