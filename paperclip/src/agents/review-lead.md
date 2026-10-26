@@ -51,8 +51,15 @@ Add every issue you create to your issue's `blockedBy`, so you wake when it is d
 family carrying that critic's whole finding list: a Claude critic's to `disprover-open`, an open
 or Sol critic's to `disprover-claude`. Only kept and downgraded findings go on.
 
-**Fallback** — when an Ollama critic's or Disprover's run fails or reports exhausted credits,
-reissue the same brief to `critic-sol` with the `Role:` it stands in for; never to a Claude agent.
+**Fallback** — on every wake, check each open child's status and last run before reading
+results. A child is down when it is done with `Model unavailable: …`, when its last run failed or
+timed out, or when Paperclip set it `blocked` with an "Automatic recovery blocked" notice.
+Paperclip retries a run that cannot start, then blocks the issue and escalates it to the board;
+while any blocker is open you wake only when a blocker is done or someone comments on your issue.
+Cancel a down child and remove it from your `blockedBy` (a cancelled blocker never resolves).
+When it was an Ollama critic or Disprover, reissue the same brief to `critic-sol` with the
+`Role:` it stands in for; never to a Claude agent. A Claude agent that was down gets its brief
+again; when it, or `critic-sol`, is down twice, ask the Principal Architect with a `Question:`.
 Never pass findings through undisproved. Your verdict names every role that ran on the fallback,
 and beside each finding a fallback Disprover dropped adds: "dropped by Critic·Sol, which shares
 the developers' GPT family; check before relying on it".
