@@ -35,7 +35,7 @@ declare -A NAME=(
     [security-codex]="Security·Codex"
     [security-claude]="Security·Claude"
     [ddd-reviewer]="DDD Reviewer"
-    [qa]="QA Engineer"
+    [delivery-qa]="Delivery QA"
     [teacher]="Teacher"
     [cloud-architect-advisor]="Cloud Architect Advisor"
     [research-scout]="Research Scout"
@@ -52,7 +52,7 @@ declare -A MODEL=(
     [cloud-architect]="claude-sonnet-5-5"
     [ddd-reviewer]="claude-sonnet-5-5"
     [security-claude]="claude-sonnet-5-5"
-    [qa]="claude-sonnet-5-5"
+    [delivery-qa]="claude-sonnet-5-5"
     [teacher]="claude-sonnet-5-5"
     [cloud-architect-advisor]="claude-sonnet-5-5"
     [developer-1]="gpt-6-astra"
@@ -74,7 +74,7 @@ declare -A EFFORT=(
     [cloud-architect]="high"
     [ddd-reviewer]="high"
     [security-claude]="high"
-    [qa]="medium"
+    [delivery-qa]="high"
     [teacher]="high"
     [cloud-architect-advisor]="high"
     [developer-1]="medium"
@@ -96,7 +96,7 @@ declare -A ICON=(
     [cloud-architect]="globe"
     [ddd-reviewer]="hexagon"
     [security-claude]="lock"
-    [qa]="bug"
+    [delivery-qa]="bug"
     [teacher]="lightbulb"
     [cloud-architect-advisor]="message-square"
     [developer-1]="code"
@@ -118,7 +118,7 @@ declare -A PALETTE=(
     [cloud-architect]="ultraviolet-tide"
     [ddd-reviewer]="orchid-peach"
     [security-claude]="deep-tide"
-    [qa]="arctic-blue"
+    [delivery-qa]="arctic-blue"
     [teacher]="bubblegum-sky"
     [cloud-architect-advisor]="ultraviolet-tide"
     [developer-1]="tangerine-cobalt"
@@ -148,7 +148,7 @@ declare -A SKILLS=(
     [security-codex]="requesting-code-review"
     [security-claude]="requesting-code-review"
     [ddd-reviewer]="domain-modeling"
-    [qa]="code-review verification-before-completion systematic-debugging"
+    [delivery-qa]="code-review verification-before-completion systematic-debugging"
     [teacher]="teacher"
     [cloud-architect-advisor]="aws-well-architected-review aws-containers aws-security azure-well-architected azure-architecture azure-kubernetes-service terraform-style-guide"
     [research-scout]=""
@@ -172,6 +172,10 @@ NOTION_PROFILES=(
 # Run wall-clock limits: a hung run fails and gets Paperclip's retry instead of running forever.
 RUN_TIMEOUT_SEC=2700
 declare -A LONG_RUN_TIMEOUT_SEC=([ceo-principal-architect]=5400 [mentor]=5400)
+
+# Agents renamed since they were imported: slug → previous live name. configure.sh finds agents by
+# name, so it renames the live agent before checking for missing ones instead of importing a copy.
+declare -A RENAMED=([delivery-qa]="QA Engineer")
 
 # Single-pass reviewers start each run fresh instead of reloading their whole session history.
 ONE_SHOT="refactorer security-codex"
@@ -248,6 +252,15 @@ SKILL_KEYS="$(api GET "/companies/$COMPANY/skills" | jq -c '[(if type=="array" t
 
 log "Agents"
 AGENTS="$(api GET "/companies/$COMPANY/agents")"
+for slug in "${!RENAMED[@]}"; do
+    jq -e --arg n "${NAME[$slug]}" 'any(.[]; .name==$n)' <<<"$AGENTS" >/dev/null && continue
+    id="$(jq -r --arg n "${RENAMED[$slug]}" '.[] | select(.name==$n) | .id' <<<"$AGENTS")"
+    [[ -n "$id" ]] || continue
+    title="$(sed -n 's/^title: "\(.*\)"$/\1/p' "$PAPERCLIP_DIR/company/agents/$slug/AGENTS.md")"
+    api PATCH "/agents/$id" "$(jq -nc --arg n "${NAME[$slug]}" --arg t "$title" '{name:$n, title:$t}')" >/dev/null
+    echo "  renamed: ${RENAMED[$slug]} → ${NAME[$slug]}"
+    AGENTS="$(api GET "/companies/$COMPANY/agents")"
+done
 missing=()
 for slug in "${!NAME[@]}"; do
     jq -e --arg n "${NAME[$slug]}" 'any(.[]; .name==$n)' <<<"$AGENTS" >/dev/null || missing+=("$slug")
