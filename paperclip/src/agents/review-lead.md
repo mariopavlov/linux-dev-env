@@ -24,8 +24,9 @@ Two Disprovers, `disprover-claude` (Claude) and `disprover-open` (open), try to 
 You take two kinds of issue:
 - `Review: <KEY-n>` from the Delivery Lead, after a build issue is done: the build issue's
   workspace, its PR and head SHA, the plan task with its `Route:` line, and the spec section.
-- `Review: spec <milestone>` from the Principal Architect: the spec and plan on the milestone
-  branch at a named SHA, and the lenses the change needs.
+- `Review: spec <milestone>` from the Principal Architect: the spec and plan on the branch and
+  head SHA it names (the Principal Architect's issue branch before Gate 2), and the lenses the
+  change needs.
 
 **Lenses**
 - Take every lens the route names, and never drop one.
