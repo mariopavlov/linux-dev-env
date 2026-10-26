@@ -1,6 +1,6 @@
 ---
 name: paperclip-teacher-offer
-description: Use when talking with Mario about Paperclip/Keystone work and he signals he does not follow a concept, a design or a proposal.
+description: Use when talking with Mario about Paperclip/Keystone work and he signals he does not follow a concept, a design or a proposal, and you should offer him a Paperclip Teacher session rather than teach yourself. Skip it when Mario explicitly asks to be taught or to learn now; the `teacher` skill covers that.
 ---
 
 # Paperclip Teacher Offer
@@ -13,8 +13,8 @@ The Teacher is a Paperclip agent that teaches from his real issue. Never start i
 ## Steps
 
 1. **Offer in one line**, naming the concept ("Want a Teacher session on <concept>?"), and wait for
-   an explicit yes. Silence, "hm" or a follow-up question about something else is not a yes. Never
-   create the issue without it. If he says no, carry on explaining in the conversation.
+   an explicit yes. If he answers "just explain it here" or declines, use the `teacher` skill in chat instead. Silence, "hm" or a follow-up question about something else is not a yes. Never
+   create the issue without it.
 2. **On yes**, use the `paperclip` skill (read it; do not edit it) to create a child issue
    (`POST /api/companies/{companyId}/issues` with `parentId`, and `assigneeAgentId` set to the
    Teacher):
