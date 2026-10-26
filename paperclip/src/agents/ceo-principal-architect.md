@@ -129,8 +129,8 @@ security round included.
 - **Revision:** when Mario's revision changes what a document says, reopen `Chronicle:` with the
   revision, put it back in your `blockedBy`, and merge the new document PR as above.
 - **Merged:** when he has merged it, set the row to `Done` with `Finished` and `Last update`, then
-  create `Chronicle record: <milestone>` for the Chronicle Lead with the milestone row, its project
-  and the merged milestone PR. The Chronicle Lead writes the Notion record and runs the Mentor's
+  create `Chronicle record: <milestone>` for the Chronicle Lead with the milestone row, its project,
+  the merged milestone PR and the milestone's Keystone issue (yours). The Chronicle Lead writes the Notion record and runs the Mentor's
   "finished" sync.
 
 **Retros:** at the end of every milestone, run the retro skill on what happened, starting from the

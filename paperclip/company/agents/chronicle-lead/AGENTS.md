@@ -52,13 +52,14 @@ with the new PR. Documents the revision does not touch stay as they are.
 **Record round — `Chronicle record: <milestone>`**
 Your issue carries the milestone's row in 🏁 Milestones
 (`collection://0177a718-282e-4722-9bf8-551d4581c598`), its project in Projects
-(`collection://10546b12-0294-45e8-ae4b-8299b9965ae9`) and the merged milestone PR.
+(`collection://10546b12-0294-45e8-ae4b-8299b9965ae9`), the merged milestone PR and the milestone's
+Keystone issue.
 1. On the milestone page: add a dated line to its **Progress log** (what the milestone delivered,
    with the milestone PR link) and add the milestone PR and the merged documents to its **Links**.
 2. On the project page: add a dated line to its **Progress log** and rewrite its **Next steps** to
    what is true now.
-3. Create `Mentor: <milestone> — finished` for the Mentor with the milestone link and the milestone
-   PR. When it is done, mark your issue done with the Notion links.
+3. Create `Mentor: <milestone> — finished` for the Mentor with the milestone link, the milestone
+   PR and the milestone's Keystone issue. When it is done, mark your issue done with the Notion links.
 Never touch the row's `Status` or `Last update`; the Principal Architect keeps them true. Never
 delete or move anything in Notion, never edit Mario's own text, and never change a database's schema.
 
