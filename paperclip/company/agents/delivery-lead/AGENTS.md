@@ -52,8 +52,7 @@ When a build issue is done, create its reviews as its child issues, in its works
 - When the Refactorer is done, create the route's stages, with the PR, its head SHA, the plan task
   with its `Route:` line and the spec section: `Review: <KEY-n>` for the Review Lead and
   `Security review: <KEY-n>` for the Security Lead, as the route names them. `→` puts the earlier
-  stage in the later one's `blockedBy`; `∥` creates both with neither blocking the other. When a
-  fix round moves the head before a later stage starts, put the new head SHA on that stage's issue.
+  stage in the later one's `blockedBy`; `∥` creates both with neither blocking the other.
   `Security(none)` creates no security stage.
 - With the stages, `Acceptance: <KEY-n>` for Delivery QA and, when the task had security tests,
   `Security acceptance: <KEY-n>` for Security QA, each with every stage and the reviews above in
@@ -70,26 +69,33 @@ Record each stage's verdict and findings in the `review-digest`.
 - **Any FAIL:** add the cause to the `build-log`. Create `Fix <finding ids>: <summary>` for the
   agent who built it, in the build issue's workspace, and new acceptance issues for the QAs whose
   verdict failed, with the fix issue in their `blockedBy`; add them to your issue's `blockedBy`.
-  When the problem is architectural or domain, first create a `Review: <KEY-n>` child issue for
-  the Review Lead naming the problem; when it is security, a `Security review: <KEY-n>` for the
-  Security Lead.
-- **`Security fixes: <finding ids>`** from the Security Lead: for a task not merged yet, fix it in
-  that task's workspace; otherwise create a new build issue from the milestone branch. In that
-  workspace, first create `Security regression: <finding id>` for Security QA per finding, in the
-  fix's `blockedBy`. Then the fix goes through §2 like any build issue: Refactorer, `Acceptance:`
-  and `Security acceptance:`. If Security QA cannot reproduce a finding, tell the Security Lead on
-  `Security fixes:`. When every fix is merged, mark `Security fixes:` done with the fixing commits;
-  the Security Lead wakes on it.
-- **`Review fixes: <finding ids>`** from the Review Lead, for a task not merged yet: handle it
-  like `Security fixes:`, in that task's workspace. First create `Review regression: <finding id>`
-  for Delivery QA per finding that carries a triggering input, in the fix's `blockedBy`; findings
-  without one are proven fixed by their critic's re-check. Then create `Fix <finding ids>:
-  <summary>` for the agent who built it, and add these issues to `Review fixes:`'s `blockedBy`.
-  The fix skips the Refactorer: the `Acceptance:` (and `Security acceptance:`) still waiting on
-  the stage check it, with the regression tests commit SHAs added to their brief. If Delivery QA
-  cannot reproduce a finding, tell the Review Lead on `Review fixes:`. When every fix is committed,
-  record each finding and its outcome in the `review-digest` and mark `Review fixes:` done with
-  the fixing commits; the Review Lead wakes on it and has the critics re-check.
+  When the problem is architectural or domain, first create `Review: <KEY-n> (<problem>)` for the
+  Review Lead; when it is security, `Security review: <KEY-n> (<problem>)` for the Security Lead.
+  Like a route stage, it goes in the new acceptance issues' `blockedBy`.
+- **A fix round on a task not merged yet** (`Security fixes:` or `Review fixes:` from a stage)
+  skips the Refactorer and creates no new stage: the stages and acceptance issues still waiting on
+  the task check the fix. Whenever a fix round moves the head, put the new head SHA, and any
+  regression tests commit SHA, on every stage and acceptance issue of the task that has not
+  started.
+- **`Security fixes: <finding ids>`** from the Security Lead:
+  - For a task not merged yet, in that task's workspace: first create `Security regression:
+    <finding id>` for Security QA per finding, then `Fix <finding ids>: <summary>` for the agent
+    who built it with them in its `blockedBy`, and add these issues to `Security fixes:`'s
+    `blockedBy`. When every fix is committed, mark `Security fixes:` done with the fixing commits.
+  - After the merge (the milestone's security round): create a new build issue from the milestone
+    branch, first `Security regression: <finding id>` per finding in its workspace, in the fix's
+    `blockedBy`; then the fix goes through §2 like any build issue. When every fix is merged, mark
+    `Security fixes:` done with the fixing commits.
+  - If Security QA cannot reproduce a finding, tell the Security Lead on `Security fixes:`. The
+    Security Lead wakes when `Security fixes:` is done.
+- **`Review fixes: <finding ids>`** from the Review Lead, always for a task not merged yet, in that
+  task's workspace: first create `Review regression: <finding id>` for Delivery QA per finding
+  that carries a triggering input; findings without one are proven fixed by their critic's
+  re-check. Then create `Fix <finding ids>: <summary>` for the agent who built it with them in its
+  `blockedBy`, and add these issues to `Review fixes:`'s `blockedBy`. If Delivery QA cannot
+  reproduce a finding, tell the Review Lead on `Review fixes:`. When every fix is committed, record
+  each finding and its outcome in the `review-digest` and mark `Review fixes:` done with the fixing
+  commits; the Review Lead wakes on it and has the critics re-check.
 - A task on its third fix round — acceptance, security and review fix rounds all count — is a
   sign the brief or the plan is wrong: stop and escalate it as below instead of sending another
   round.
