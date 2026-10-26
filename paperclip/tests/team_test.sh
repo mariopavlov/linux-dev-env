@@ -8,6 +8,8 @@ set -euo pipefail
 SELF="${BASH_SOURCE[0]}"
 REPO_PAPERCLIP="$(cd "$(dirname "$SELF")/.." && pwd)"
 MAPS=(NAME MODEL EFFORT ICON PALETTE SKILLS)
+# The icons Paperclip's agent API accepts (its 400 response lists them).
+ICONS=" bot cpu brain zap rocket code terminal shield eye search wrench hammer lightbulb sparkles star heart flame bug cog database globe lock mail message-square file-code git-branch package puzzle target wand atom circuit-board radar swords telescope microscope crown gem hexagon pentagon fingerprint "
 
 fail() { echo "FAIL: $*" >&2; exit 1; }
 
@@ -34,6 +36,8 @@ check() {
         for map in "${MAPS[@]}"; do
             map_has "$dir" "$map" "$slug" || fail "$slug missing from $map"
         done
+        [[ "$ICONS" == *" $(map_value "$dir" ICON "$slug") "* ]] \
+            || fail "$slug: icon '$(map_value "$dir" ICON "$slug")' is not one Paperclip accepts"
         name="$(frontmatter "$source" name)"
         [[ "$(map_value "$dir" NAME "$slug")" == "$name" ]] \
             || fail "$slug: NAME is '$(map_value "$dir" NAME "$slug")', frontmatter name is '$name'"
@@ -81,5 +85,9 @@ expect_fail "developer-1 reports to unknown nobody"
 rm -rf "$TEST_ROOT/p" && cp -r "$REPO_PAPERCLIP" "$TEST_ROOT/p"
 sed -i 's/^declare -A RENAMED=(/&[ghost-agent]="Ghost" /' "$TEST_ROOT/p/configure.sh"
 expect_fail "RENAMED has ghost-agent but there is no src/agents/ghost-agent.md"
+
+rm -rf "$TEST_ROOT/p" && cp -r "$REPO_PAPERCLIP" "$TEST_ROOT/p"
+sed -i 's/^    \[review-lead\]="microscope"/    [review-lead]="scale"/' "$TEST_ROOT/p/configure.sh"
+expect_fail "review-lead: icon 'scale' is not one Paperclip accepts"
 
 printf '%s\n' "team_test.sh: PASS"
