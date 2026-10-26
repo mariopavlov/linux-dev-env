@@ -12,6 +12,7 @@ COMPANY_NAME="Keystone"
 AGENT_HOMES="$HOME/.paperclip/agent-homes"
 GIT_EMAIL="$(git config --global user.email)"
 CLAUDE_BIN="$(command -v claude)" || { echo "claude CLI not found on PATH" >&2; exit 1; }
+CODEX_BIN="$(command -v codex)" || { echo "codex CLI not found on PATH" >&2; exit 1; }
 
 api() {
     local method="$1" path="$2" body="${3:-}"
@@ -310,7 +311,8 @@ for slug in "${!NAME[@]}"; do
             effort="$(jq -nc --arg e "${EFFORT[$slug]}" '{effort:$e}')"
             concurrency=1 ;;
         codex_local)
-            env="$(jq -c '. + {INITIAL_AGENT_MODE:"agent-full-access"}' <<<"$env")"
+            # codex-acp bundles an older Codex whose model list lacks newer models (gpt-6.1-sol).
+            env="$(jq -c --arg c "$CODEX_BIN" '. + {INITIAL_AGENT_MODE:"agent-full-access", CODEX_PATH:$c}' <<<"$env")"
             effort="$(jq -nc --arg e "${EFFORT[$slug]}" '{modelReasoningEffort:$e}')"
             concurrency=2 ;;
         opencode_local)
