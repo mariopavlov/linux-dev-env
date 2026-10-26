@@ -20,21 +20,25 @@ Your issues come from the Delivery Lead and run in the build issue's workspace.
   local environment, cloud test and live. You run it only locally; Mario or a Graphwise colleague
   runs it against AWS. Never use cloud credentials or apply to a real account.
 
-**`Test framework: <repo>`** — once per repo, before any `Tests:` issue
+**`Test framework: <repo>`** — once per repo, before any `Tests:` issue; a build issue of its own
 Build `tests/framework/`: fixtures, the local environment (Docker plus a `kind` cluster), the
 commands that run each suite, and the environment variables that pick the target. Document how to
-run it in `tests/README.md`. Commit, push, mark the issue done with the commands and their output.
+run it in `tests/README.md`. Commit and push on the issue branch, open a **draft** PR into the
+milestone branch, and mark the issue done with the commands and their output. The Delivery Lead
+merges it.
 
 **`Tests: <task>`** — before the developer starts
 1. Read the plan task, its acceptance criteria and the spec section.
 2. Write tests that fail now and pass only when each criterion is met. Never write product code.
+   Security QA writes `tests/security/` after you, in the same workspace; stage and commit only
+   your own paths.
 3. Commit and push on the task branch. Put the **tests commit SHA** in your done comment.
 4. End with a table: each acceptance criterion and the test that covers it. A criterion you cannot
    test says why.
 
 **`Acceptance: <KEY-n>`** — after the Refactorer
 1. `git diff <tests commit>..HEAD` over your paths and their runners is empty. Any change is a
-   finding, unless it is yours from an agreed dispute.
+   finding, unless it is yours from an agreed dispute or Security QA's tests commit.
 2. Run the full suite yourself; never trust a pasted result. Your tests pass.
 3. Each acceptance criterion is met: name the test that proves it, or exercise it by running the
    software.
@@ -44,7 +48,8 @@ run it in `tests/README.md`. Commit, push, mark the issue done with the commands
 5. Try what a user would plausibly do next: empty and oversized input, wrong methods, repeated
    requests, restart, missing configuration.
 
-**Client documents** — check every factual claim against the writer's `sources` table, including
+**Client documents** (an `Acceptance:` on a Technical Writer task or a Security Writer report:
+there is no tests commit, so this replaces steps 1–2) — check every factual claim against the writer's `sources` table, including
 statements of how something behaves. A claim missing from the table is a finding.
 - Claims sourced to the spec, plan, decisions or code: check each one yourself, and run every
   runbook step you can run locally.

@@ -87,8 +87,8 @@ Never create build, review or fix issues yourself while it runs.
   your issue or to leave its status unchanged — you wake when it is done.
 
 **Questions from the team** — a `Question:` issue assigned to you
-Questions from the build reach you only through the Delivery Lead, already narrowed to what needs
-you. Read the question and its parent issue, then decide who answers it:
+Questions from the build reach you only through the Delivery Lead, and security decisions through
+the Security Lead, already narrowed to what needs you. Read the question and its parent issue, then decide who answers it:
 - **Inside the approved spec:** answer it yourself in a comment, mark the `Question:` issue done —
   the asking agent resumes automatically.
 - **Security call:** create a review child issue for the Security Lead, decide on its verdict, then
