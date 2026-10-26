@@ -46,7 +46,7 @@ declare -A NAME=(
     [technical-writer]="Technical Writer"
     [delivery-lead]="Delivery Lead"
     [security-qa]="Security QA"
-    [security-writer]="Security Writer"
+    [audit-writer]="Audit Writer"
     [review-lead]="Review Lead"
     [bug-hunter-claude]="Bug Hunter·Claude"
     [bug-hunter-open]="Bug Hunter·Open"
@@ -57,6 +57,7 @@ declare -A NAME=(
     [disprover-claude]="Disprover·Claude"
     [disprover-open]="Disprover·Open"
     [critic-sol]="Critic·Sol"
+    [chronicle-lead]="Chronicle Lead"
 )
 
 declare -A MODEL=(
@@ -80,7 +81,7 @@ declare -A MODEL=(
     [technical-writer]="claude-opus-5-5"
     [delivery-lead]="claude-sonnet-5-5"
     [security-qa]="claude-sonnet-5-5"
-    [security-writer]="claude-opus-5-5"
+    [audit-writer]="claude-opus-5-5"
     [review-lead]="claude-opus-5-5"
     [bug-hunter-claude]="claude-sonnet-5-5"
     [bug-hunter-open]="ollama/deepseek-v4-pro:0813-cloud"
@@ -91,6 +92,7 @@ declare -A MODEL=(
     [disprover-claude]="claude-sonnet-5-5"
     [disprover-open]="ollama/deepseek-v4-pro:0813-cloud"
     [critic-sol]="gpt-6.1-sol"
+    [chronicle-lead]="claude-opus-5-5"
 )
 
 declare -A EFFORT=(
@@ -114,7 +116,7 @@ declare -A EFFORT=(
     [technical-writer]="high"
     [delivery-lead]="high"
     [security-qa]="high"
-    [security-writer]="high"
+    [audit-writer]="high"
     [review-lead]="high"
     [bug-hunter-claude]="high"
     [bug-hunter-open]="high"
@@ -125,6 +127,7 @@ declare -A EFFORT=(
     [disprover-claude]="high"
     [disprover-open]="high"
     [critic-sol]="high"
+    [chronicle-lead]="high"
 )
 
 declare -A ICON=(
@@ -148,7 +151,7 @@ declare -A ICON=(
     [technical-writer]="file-code"
     [delivery-lead]="git-branch"
     [security-qa]="eye"
-    [security-writer]="file-code"
+    [audit-writer]="file-code"
     [review-lead]="scale"
     [bug-hunter-claude]="bug"
     [bug-hunter-open]="bug"
@@ -159,6 +162,7 @@ declare -A ICON=(
     [disprover-claude]="shield"
     [disprover-open]="shield"
     [critic-sol]="eye"
+    [chronicle-lead]="file-code"
 )
 
 declare -A PALETTE=(
@@ -182,7 +186,7 @@ declare -A PALETTE=(
     [technical-writer]="turquoise-cherry"
     [delivery-lead]="pink-lemonade"
     [security-qa]="deep-tide"
-    [security-writer]="pink-lemonade"
+    [audit-writer]="pink-lemonade"
     [review-lead]="arctic-blue"
     [bug-hunter-claude]="cherry-pop"
     [bug-hunter-open]="coral-mint"
@@ -193,6 +197,7 @@ declare -A PALETTE=(
     [disprover-claude]="ultraviolet-tide"
     [disprover-open]="electric-grove"
     [critic-sol]="solar-flare"
+    [chronicle-lead]="orchid-peach"
 )
 
 SUPERPOWERS="brainstorming writing-plans executing-plans test-driven-development systematic-debugging verification-before-completion requesting-code-review receiving-code-review"
@@ -219,7 +224,7 @@ declare -A SKILLS=(
     [technical-writer]="verification-before-completion"
     [delivery-lead]="receiving-code-review pr"
     [security-qa]="verification-before-completion systematic-debugging terraform-test"
-    [security-writer]="verification-before-completion"
+    [audit-writer]="verification-before-completion"
     [review-lead]="receiving-code-review"
     [bug-hunter-claude]="systematic-debugging"
     [bug-hunter-open]="systematic-debugging"
@@ -230,6 +235,7 @@ declare -A SKILLS=(
     [disprover-claude]=""
     [disprover-open]=""
     [critic-sol]=""
+    [chronicle-lead]="verification-before-completion"
 )
 
 NOTION_READ="notion-search notion-fetch notion-query-data-sources notion-query-multiple-data-sources notion-get-comments notion-list-page-backlinks notion-get-users notion-get-self notion-get-file-download-urls notion-download-attachment notion-get-async-task"
@@ -238,17 +244,17 @@ NOTION_WRITE="$NOTION_READ notion-create-pages notion-update-page"
 # profile key|name|tools|agents — agents not listed get no Notion tools
 NOTION_PROFILES=(
     "keystone-notion-design|Notion · Design|$NOTION_WRITE notion-create-comment notion-set-discussion-resolved|ceo-principal-architect"
-    "keystone-notion-records|Notion · Records|$NOTION_WRITE|mentor teacher"
+    "keystone-notion-records|Notion · Records|$NOTION_WRITE|mentor teacher chronicle-lead"
     "keystone-notion-read|Notion · Read|$NOTION_READ|research-scout"
 )
 
 # Run wall-clock limits: a hung run fails and gets Paperclip's retry instead of running forever.
 RUN_TIMEOUT_SEC=2700
-declare -A LONG_RUN_TIMEOUT_SEC=([ceo-principal-architect]=5400 [mentor]=5400)
+declare -A LONG_RUN_TIMEOUT_SEC=([ceo-principal-architect]=5400 [mentor]=5400 [chronicle-lead]=5400)
 
 # Agents renamed since they were imported: slug → previous live name. configure.sh finds agents by
 # name, so it renames the live agent before checking for missing ones instead of importing a copy.
-declare -A RENAMED=([delivery-qa]="QA Engineer")
+declare -A RENAMED=([delivery-qa]="QA Engineer" [audit-writer]="Security Writer")
 
 # Single-pass reviewers start each run fresh instead of reloading their whole session history.
 ONE_SHOT="refactorer security-codex bug-hunter-claude bug-hunter-open spec-contract-critic maintainability-critic first-principles-critic history-critic disprover-claude disprover-open critic-sol"
@@ -256,7 +262,7 @@ ONE_SHOT="refactorer security-codex bug-hunter-claude bug-hunter-open spec-contr
 # Agents that push to GitLab get the project token Mario stores in Keystone's secrets under this key;
 # setup-gitlab-repo.sh makes their worktrees use it.
 GITLAB_TOKEN_SECRET="gitlab-wkl-token"
-GITLAB_PUSHERS="ceo-principal-architect developer-1 developer-2 platform-devops technical-writer delivery-lead security-qa security-writer delivery-qa refactorer"
+GITLAB_PUSHERS="ceo-principal-architect developer-1 developer-2 platform-devops technical-writer delivery-lead security-qa audit-writer delivery-qa refactorer chronicle-lead"
 
 # repo|commit|path prefix|skill names
 SOURCES=(

@@ -55,7 +55,7 @@ while the bug is there, commit it on that branch and put the tests commit SHA in
 If the finding cannot be reproduced there, say why and mark the issue done; the Delivery Lead
 takes it back to the Review Lead.
 
-**Client documents** (an `Acceptance:` on a Technical Writer task or a Security Writer report:
+**Client documents** (an `Acceptance:` on a Technical Writer task or an Audit Writer report:
 there is no tests commit, so this replaces steps 1–2) — check every factual claim against the writer's `sources` table, including
 statements of how something behaves. A claim missing from the table is a finding.
 - Claims sourced to the spec, plan, decisions or code: check each one yourself, and run every
