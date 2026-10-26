@@ -80,17 +80,22 @@ Every agent in this company follows these rules. They override anything in a ski
   or a Graphwise colleague runs the same suite against AWS.
 
 **Reviews**
-- Specialists review specs and plans; code is checked by Delivery QA (and Security QA, when there
-  were security tests), and by a specialist only when the Principal Architect or the Delivery Lead
-  asks. Delivery QA is the Claude review of everything Codex agents produce.
+- The Review team reviews specs and plans, and the code of each plan task as its `Route:` line
+  says; the Security Lead's reviewers review security. Delivery QA and Security QA check
+  acceptance against their tests.
 - A reviewer posts each finding on the PR (spec PR or task PR) as a comment starting with its role
-  tag and a finding id — `[Delivery QA] DQA-1: …`, `[DDD Reviewer] DDD-2: …` (tags: `[Refactorer]`,
-  `[Delivery QA]`, `[Security QA]`, `[DDD Reviewer]`, `[Cloud Architect]`, `[Security·Codex]`, `[Security·Claude]`,
-  `[Security·DeepSeek]`, `[Red Team]`, `[Security Lead]`, `[Technical Writer]`, `[Security Writer]`,
+  tag and a finding id — `[Bug Hunter·Claude] BUG-1: …`, `[DDD Reviewer] DDD-2: …` (tags:
+  `[Refactorer]`, `[Delivery QA]`, `[Security QA]`, `[Review Lead]`, `[Bug Hunter·Claude]`,
+  `[Bug Hunter·Open]`, `[Spec & Contract Critic]`, `[Maintainability Critic]`,
+  `[First-Principles Critic]`, `[History Critic]`, `[Critic·Sol]`, `[DDD Reviewer]`,
+  `[Cloud Architect]`, `[Security·Codex]`, `[Security·Claude]`, `[Security·DeepSeek]`,
+  `[Red Team]`, `[Security Lead]`, `[Technical Writer]`, `[Audit Writer]`, `[Chronicle Lead]`,
   `[Delivery Lead]`, `[Principal Architect]`) — and posts the same text in its Paperclip comment.
-- The developer fixes each finding in its own commit, message `fix(review): <summary>` with the
-  trailer `Review-Finding: <finding id> (<role>)`, and replies to the finding on the PR with the
-  commit SHA.
+  `[Critic·Sol]` uses the prefix of the role it stands in for (`[Critic·Sol] BUG-1: …`). A
+  Disprover's ruling is not a finding: `[Disprover·Claude] keep|drop|downgrade <id>: …`.
+- The developer fixes each finding — Review team ids included — in its own commit, message
+  `fix(review): <summary>` with the trailer `Review-Finding: <finding id> (<role>)`, and replies to
+  the finding on the PR with the commit SHA.
 
 **Decisions**
 - The approved spec and plan live in the repo on the milestone branch; the milestone's row in
@@ -108,8 +113,9 @@ Every agent in this company follows these rules. They override anything in a ski
 - **When you need a decision or are stuck on something outside your task** (a design question, a
   missing tool, a broken environment, a security call): write the question on your issue — what
   you found, the options, what you recommend — then create a child issue of your issue titled
-  `Question: <one line>`, assigned to your lead — the Delivery Lead for a build issue or its
-  review, edit or fix issue, the Principal Architect for anything else — with the same text, and add it to
+  `Question: <one line>`, assigned to your lead — the Review Lead for an issue the Review Lead
+  created, the Delivery Lead for a build issue or its other review, edit or fix issue, the
+  Principal Architect for anything else — with the same text, and add it to
   your issue's `blockedBy`. If Paperclip leaves it unassigned or hands it back to you
   (`delegation_cycle`), assign it to that lead again. End your run. You are woken
   automatically when it is closed; read its answer and continue. Never wait on an answer inside a
