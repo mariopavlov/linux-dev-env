@@ -18,15 +18,18 @@ the repo, the milestone branch and its head SHA. Keep two issue documents on it:
   the outcome (fixed / won't fix + reason) and the fixing commit.
 
 **1. Tests, then the build issues**
-- **First use of this flow in a repo:** create `Test framework: <repo>` for Delivery QA before any
-  `Tests:` issue, and wait for it.
+- **First use of this flow in a repo:** create `Test framework: <repo>` for Delivery QA as a build
+  issue (created as below), add it to your issue's `blockedBy`, and merge its PR into the milestone
+  branch when it is done (no Refactorer or acceptance: it is the acceptance tooling) before any
+  `Tests:` issue.
 - **Per plan task,** create the build issue in the project, with `executionWorkspaceSettings:
   {"mode": "isolated_workspace"}` and **no** `executionWorkspaceId`, and **no execution policy**:
   review stages lose the reviewer's decision when they reassign the issue, so every review is an
   issue of its own. Check it got its own worktree and a branch named after it; if not, fix the
   issue settings first.
 - In that workspace, create `Tests: <task>` for Delivery QA and, when the plan task lists security
-  controls, `Security tests: <task>` for Security QA. Put them in the build issue's `blockedBy`.
+  controls, `Security tests: <task>` for Security QA with `Tests:` in its `blockedBy` (they write in
+  the same worktree). Put them in the build issue's `blockedBy`.
 - When they are done, check each one's table: every acceptance criterion or security control has a
   test. One without goes back to its QA. Then assign the build issue to Developer 1 or Developer 2,
   the Platform Engineer for infrastructure, or the Technical Writer for client documents (no test
@@ -54,9 +57,13 @@ Each reviewer closes its own issue with its verdict; you wake when the acceptanc
   verdict failed, with the fix issue in their `blockedBy`; add them to your issue's `blockedBy`.
   When the problem is architectural, domain or security, first create a code review child issue
   for the Cloud Architect, the DDD Reviewer or the Security Lead.
-- **`Security fixes: <finding ids>`** from the Security Lead: handle it like a FAIL. Fix in the
-  task's workspace if the task is not merged yet; otherwise create a new build issue from the
-  milestone branch. Follow it with `Security acceptance:` against the finding's regression test.
+- **`Security fixes: <finding ids>`** from the Security Lead: for a task not merged yet, fix it in
+  that task's workspace; otherwise create a new build issue from the milestone branch. In that
+  workspace, first create `Security regression: <finding id>` for Security QA per finding, in the
+  fix's `blockedBy`. Then the fix goes through §2 like any build issue: Refactorer, `Acceptance:`
+  and `Security acceptance:`. If Security QA cannot reproduce a finding, tell the Security Lead on
+  `Security fixes:`. When every fix is merged, mark `Security fixes:` done with the fixing commits;
+  the Security Lead wakes on it.
 - A task on its third fix round is a sign the brief or the plan is wrong: stop and escalate it as
   below instead of sending another round.
 
@@ -90,8 +97,9 @@ Each reviewer closes its own issue with its verdict; you wake when the acceptanc
 **4. Security round and hand back**
 When every plan task is merged into the milestone branch and the plan lists security controls,
 create `Security round: <milestone>` for the Security Lead with the milestone branch and its head
-SHA, add it to your issue's `blockedBy`, and run any `Security fixes:` it sends. When it is done,
-add the reports' path (`docs/security/<milestone>/`) to the `review-digest`. Then check the
+SHA, add it to your issue's `blockedBy`, and run any `Security fixes:` it sends. When it is done, it
+names the report's PR: mark it ready, set the commit status and rebase-merge it into the milestone
+branch, then add the reports' path (`docs/security/<milestone>/`) to the `review-digest`. Then check the
 `review-digest` is complete,
 comment the milestone branch's head SHA on your issue and mark it done. The Principal Architect
 opens the milestone PR.

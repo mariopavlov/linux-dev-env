@@ -195,7 +195,7 @@ ONE_SHOT="refactorer security-codex"
 # Agents that push to GitLab get the project token Mario stores in Keystone's secrets under this key;
 # setup-gitlab-repo.sh makes their worktrees use it.
 GITLAB_TOKEN_SECRET="gitlab-wkl-token"
-GITLAB_PUSHERS="ceo-principal-architect developer-1 developer-2 platform-devops technical-writer delivery-lead security-qa security-writer"
+GITLAB_PUSHERS="ceo-principal-architect developer-1 developer-2 platform-devops technical-writer delivery-lead security-qa security-writer delivery-qa refactorer"
 
 # repo|commit|path prefix|skill names
 SOURCES=(

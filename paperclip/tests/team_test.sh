@@ -40,6 +40,10 @@ check() {
         grep -q "^  $slug:\$" "$dir/company/.paperclip.yaml" || fail "$slug missing from .paperclip.yaml"
         manager="$(frontmatter "$source" reportsTo)"
         [[ -z "$manager" || -f "$dir/src/agents/$manager.md" ]] || fail "$slug reports to unknown $manager"
+        if grep -qE '\b[Pp]ush\b' "$source"; then
+            grep -qE "^GITLAB_PUSHERS=\"(.* )?$slug( .*)?\"" "$dir/configure.sh" \
+                || fail "$slug pushes but is missing from GITLAB_PUSHERS"
+        fi
     done
     for slug in $(sed -n '/^declare -A NAME=(/,/^)/p' "$dir/configure.sh" | sed -n 's/^ *\[\([^]]*\)\]=.*/\1/p'); do
         [[ -f "$dir/src/agents/$slug.md" ]] || fail "NAME has $slug but there is no src/agents/$slug.md"
