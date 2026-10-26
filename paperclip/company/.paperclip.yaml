@@ -285,3 +285,143 @@ agents:
       characterVersion: "cap-v1"
       paletteId: "pink-lemonade"
       schemaVersion: 1
+  review-lead:
+    role: "pm"
+    icon: "scale"
+    adapter:
+      type: "claude_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants:
+      -
+        permissionKey: "tasks:assign"
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "arctic-blue"
+      schemaVersion: 1
+  bug-hunter-claude:
+    role: "general"
+    icon: "bug"
+    adapter:
+      type: "claude_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "cherry-pop"
+      schemaVersion: 1
+  bug-hunter-open:
+    role: "general"
+    icon: "bug"
+    adapter:
+      type: "opencode_local"
+      config:
+        model: "ollama/deepseek-v4-pro:0813-cloud"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "coral-mint"
+      schemaVersion: 1
+  spec-contract-critic:
+    role: "general"
+    icon: "file-code"
+    adapter:
+      type: "claude_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "deep-tide"
+      schemaVersion: 1
+  maintainability-critic:
+    role: "general"
+    icon: "wand"
+    adapter:
+      type: "opencode_local"
+      config:
+        model: "ollama/glm-5.3:cloud"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "coral-current"
+      schemaVersion: 1
+  first-principles-critic:
+    role: "general"
+    icon: "lightbulb"
+    adapter:
+      type: "claude_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "violet-ember"
+      schemaVersion: 1
+  history-critic:
+    role: "general"
+    icon: "git-branch"
+    adapter:
+      type: "opencode_local"
+      config:
+        model: "ollama/deepseek-v4.1-flash:cloud"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "golden-hour"
+      schemaVersion: 1
+  disprover-claude:
+    role: "general"
+    icon: "shield"
+    adapter:
+      type: "claude_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "ultraviolet-tide"
+      schemaVersion: 1
+  disprover-open:
+    role: "general"
+    icon: "shield"
+    adapter:
+      type: "opencode_local"
+      config:
+        model: "ollama/deepseek-v4-pro:0813-cloud"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "electric-grove"
+      schemaVersion: 1
+  critic-sol:
+    role: "general"
+    icon: "eye"
+    adapter:
+      type: "codex_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "solar-flare"
+      schemaVersion: 1

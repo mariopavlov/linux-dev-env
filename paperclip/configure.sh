@@ -47,6 +47,16 @@ declare -A NAME=(
     [delivery-lead]="Delivery Lead"
     [security-qa]="Security QA"
     [security-writer]="Security Writer"
+    [review-lead]="Review Lead"
+    [bug-hunter-claude]="Bug Hunter·Claude"
+    [bug-hunter-open]="Bug Hunter·Open"
+    [spec-contract-critic]="Spec & Contract Critic"
+    [maintainability-critic]="Maintainability Critic"
+    [first-principles-critic]="First-Principles Critic"
+    [history-critic]="History Critic"
+    [disprover-claude]="Disprover·Claude"
+    [disprover-open]="Disprover·Open"
+    [critic-sol]="Critic·Sol"
 )
 
 declare -A MODEL=(
@@ -71,6 +81,16 @@ declare -A MODEL=(
     [delivery-lead]="claude-sonnet-5-5"
     [security-qa]="claude-sonnet-5-5"
     [security-writer]="claude-opus-5-5"
+    [review-lead]="claude-opus-5-5"
+    [bug-hunter-claude]="claude-sonnet-5-5"
+    [bug-hunter-open]="ollama/deepseek-v4-pro:0813-cloud"
+    [spec-contract-critic]="claude-sonnet-5-5"
+    [maintainability-critic]="ollama/glm-5.3:cloud"
+    [first-principles-critic]="claude-opus-5-5"
+    [history-critic]="ollama/deepseek-v4.1-flash:cloud"
+    [disprover-claude]="claude-sonnet-5-5"
+    [disprover-open]="ollama/deepseek-v4-pro:0813-cloud"
+    [critic-sol]="gpt-6.1-sol"
 )
 
 declare -A EFFORT=(
@@ -95,6 +115,16 @@ declare -A EFFORT=(
     [delivery-lead]="high"
     [security-qa]="high"
     [security-writer]="high"
+    [review-lead]="high"
+    [bug-hunter-claude]="high"
+    [bug-hunter-open]="high"
+    [spec-contract-critic]="high"
+    [maintainability-critic]="high"
+    [first-principles-critic]="high"
+    [history-critic]="medium"
+    [disprover-claude]="high"
+    [disprover-open]="high"
+    [critic-sol]="high"
 )
 
 declare -A ICON=(
@@ -119,6 +149,16 @@ declare -A ICON=(
     [delivery-lead]="git-branch"
     [security-qa]="eye"
     [security-writer]="file-code"
+    [review-lead]="scale"
+    [bug-hunter-claude]="bug"
+    [bug-hunter-open]="bug"
+    [spec-contract-critic]="file-code"
+    [maintainability-critic]="wand"
+    [first-principles-critic]="lightbulb"
+    [history-critic]="git-branch"
+    [disprover-claude]="shield"
+    [disprover-open]="shield"
+    [critic-sol]="eye"
 )
 
 declare -A PALETTE=(
@@ -143,6 +183,16 @@ declare -A PALETTE=(
     [delivery-lead]="pink-lemonade"
     [security-qa]="deep-tide"
     [security-writer]="pink-lemonade"
+    [review-lead]="arctic-blue"
+    [bug-hunter-claude]="cherry-pop"
+    [bug-hunter-open]="coral-mint"
+    [spec-contract-critic]="deep-tide"
+    [maintainability-critic]="coral-current"
+    [first-principles-critic]="violet-ember"
+    [history-critic]="golden-hour"
+    [disprover-claude]="ultraviolet-tide"
+    [disprover-open]="electric-grove"
+    [critic-sol]="solar-flare"
 )
 
 SUPERPOWERS="brainstorming writing-plans executing-plans test-driven-development systematic-debugging verification-before-completion requesting-code-review receiving-code-review"
@@ -170,6 +220,16 @@ declare -A SKILLS=(
     [delivery-lead]="receiving-code-review pr"
     [security-qa]="verification-before-completion systematic-debugging terraform-test"
     [security-writer]="verification-before-completion"
+    [review-lead]=""
+    [bug-hunter-claude]="systematic-debugging"
+    [bug-hunter-open]="systematic-debugging"
+    [spec-contract-critic]=""
+    [maintainability-critic]=""
+    [first-principles-critic]="systematic-debugging"
+    [history-critic]=""
+    [disprover-claude]=""
+    [disprover-open]=""
+    [critic-sol]=""
 )
 
 NOTION_READ="notion-search notion-fetch notion-query-data-sources notion-query-multiple-data-sources notion-get-comments notion-list-page-backlinks notion-get-users notion-get-self notion-get-file-download-urls notion-download-attachment notion-get-async-task"
@@ -191,7 +251,7 @@ declare -A LONG_RUN_TIMEOUT_SEC=([ceo-principal-architect]=5400 [mentor]=5400)
 declare -A RENAMED=([delivery-qa]="QA Engineer")
 
 # Single-pass reviewers start each run fresh instead of reloading their whole session history.
-ONE_SHOT="refactorer security-codex"
+ONE_SHOT="refactorer security-codex bug-hunter-claude bug-hunter-open spec-contract-critic maintainability-critic first-principles-critic history-critic disprover-claude disprover-open critic-sol"
 
 # Agents that push to GitLab get the project token Mario stores in Keystone's secrets under this key;
 # setup-gitlab-repo.sh makes their worktrees use it.
