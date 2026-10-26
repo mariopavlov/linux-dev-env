@@ -259,3 +259,16 @@ agents:
       characterVersion: "cap-v1"
       paletteId: "ultraviolet-tide"
       schemaVersion: 1
+  security-qa:
+    role: "qa"
+    icon: "eye"
+    adapter:
+      type: "claude_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "deep-tide"
+      schemaVersion: 1
