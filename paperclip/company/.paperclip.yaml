@@ -272,3 +272,16 @@ agents:
       characterVersion: "cap-v1"
       paletteId: "deep-tide"
       schemaVersion: 1
+  security-writer:
+    role: "general"
+    icon: "file-code"
+    adapter:
+      type: "claude_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants: []
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "pink-lemonade"
+      schemaVersion: 1

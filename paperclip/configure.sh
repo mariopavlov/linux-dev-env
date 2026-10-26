@@ -45,6 +45,7 @@ declare -A NAME=(
     [technical-writer]="Technical Writer"
     [delivery-lead]="Delivery Lead"
     [security-qa]="Security QA"
+    [security-writer]="Security Writer"
 )
 
 declare -A MODEL=(
@@ -68,6 +69,7 @@ declare -A MODEL=(
     [technical-writer]="claude-opus-5-5"
     [delivery-lead]="claude-sonnet-5-5"
     [security-qa]="claude-sonnet-5-5"
+    [security-writer]="claude-opus-5-5"
 )
 
 declare -A EFFORT=(
@@ -91,6 +93,7 @@ declare -A EFFORT=(
     [technical-writer]="high"
     [delivery-lead]="high"
     [security-qa]="high"
+    [security-writer]="high"
 )
 
 declare -A ICON=(
@@ -114,6 +117,7 @@ declare -A ICON=(
     [technical-writer]="file-code"
     [delivery-lead]="git-branch"
     [security-qa]="eye"
+    [security-writer]="file-code"
 )
 
 declare -A PALETTE=(
@@ -137,6 +141,7 @@ declare -A PALETTE=(
     [technical-writer]="turquoise-cherry"
     [delivery-lead]="pink-lemonade"
     [security-qa]="deep-tide"
+    [security-writer]="pink-lemonade"
 )
 
 SUPERPOWERS="brainstorming writing-plans executing-plans test-driven-development systematic-debugging verification-before-completion requesting-code-review receiving-code-review"
@@ -163,6 +168,7 @@ declare -A SKILLS=(
     [technical-writer]="verification-before-completion"
     [delivery-lead]="receiving-code-review pr"
     [security-qa]="verification-before-completion systematic-debugging terraform-test"
+    [security-writer]="verification-before-completion"
 )
 
 NOTION_READ="notion-search notion-fetch notion-query-data-sources notion-query-multiple-data-sources notion-get-comments notion-list-page-backlinks notion-get-users notion-get-self notion-get-file-download-urls notion-download-attachment notion-get-async-task"
@@ -189,7 +195,7 @@ ONE_SHOT="refactorer security-codex"
 # Agents that push to GitLab get the project token Mario stores in Keystone's secrets under this key;
 # setup-gitlab-repo.sh makes their worktrees use it.
 GITLAB_TOKEN_SECRET="gitlab-wkl-token"
-GITLAB_PUSHERS="ceo-principal-architect developer-1 developer-2 platform-devops technical-writer delivery-lead security-qa"
+GITLAB_PUSHERS="ceo-principal-architect developer-1 developer-2 platform-devops technical-writer delivery-lead security-qa security-writer"
 
 # repo|commit|path prefix|skill names
 SOURCES=(
