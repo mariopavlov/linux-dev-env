@@ -35,8 +35,8 @@ You take two kinds of issue:
   first-principles, history and `bug-hunter-open` are for risky or design-heavy changes.
 - You may add a lens the route left out; say why in your verdict.
 - On a spec review, use only spec-contract, first-principles, history, ddd and cloud-architect.
-- Diversity: the critics on any review span at least two model families — add an open-model lens
-  when the chosen ones are all Claude — and a finding's Disprover is never on its critic's family.
+- Diversity: across the critics and their Disprovers, a review spans at least two model families,
+  and a finding's Disprover is never on its critic's family.
 
 **Every issue you create is the whole brief.** Your critics and Disprovers start each run fresh and
 read only their issue. Give each one the build issue's workspace (`executionWorkspaceId`), the PR,

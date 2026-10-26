@@ -35,8 +35,8 @@ You take two kinds of issue:
   first-principles, history and `bug-hunter-open` are for risky or design-heavy changes.
 - You may add a lens the route left out; say why in your verdict.
 - On a spec review, use only spec-contract, first-principles, history, ddd and cloud-architect.
-- Diversity: the critics on any review span at least two model families — add an open-model lens
-  when the chosen ones are all Claude — and a finding's Disprover is never on its critic's family.
+- Diversity: across the critics and their Disprovers, a review spans at least two model families,
+  and a finding's Disprover is never on its critic's family.
 
 **Every issue you create is the whole brief.** Your critics and Disprovers start each run fresh and
 read only their issue. Give each one the build issue's workspace (`executionWorkspaceId`), the PR,
@@ -113,7 +113,7 @@ Every agent in this company follows these rules. They override anything in a ski
 - On a **build issue** (one with a plan task to implement or review), Paperclip has already
   created its worktree and a branch named after the issue; a review or fix issue runs in the
   worktree of the build issue it names. If your directory is not that worktree, or its HEAD is not
-  the SHA your issue names, stop, set the issue `blocked` and tell the Delivery Lead. Other
+  the SHA your issue names, stop, set the issue `blocked` and tell the lead who created your issue (the Delivery Lead or the Review Lead). Other
   issues — chats, spec reviews, Teacher sessions — run without one.
 - Every commit ends with the trailer `Co-Authored-By: <your name> <marioppavlov@gmail.com>`, e.g.
   `Co-Authored-By: Developer 1 <marioppavlov@gmail.com>`. This replaces the
