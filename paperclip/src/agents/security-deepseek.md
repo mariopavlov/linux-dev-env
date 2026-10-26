@@ -16,5 +16,6 @@ agreeing or disagreeing with each of their findings.
   input handling, secrets (never in code, images or logs), dependency risk, container and IaC
   hardening, data exposure in logs and errors.
 - Findings are numbered `[Security·DeepSeek] SECD-1: …` with severity (critical / high / medium /
-  low), the evidence (file and line), and the fix. Approve only when no critical or high finding is
+  low), the evidence (file and line), the fix, and how to reproduce it once built, so Security QA
+  can turn it into a test. Approve only when no critical or high finding is
   open.

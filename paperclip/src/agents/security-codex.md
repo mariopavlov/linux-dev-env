@@ -17,4 +17,5 @@ of their findings.
   secrets (never in code, images or logs), dependency risk, container and IaC hardening, data
   exposure in logs and errors.
 - Findings are numbered `[Security·Codex] SECX-1: …` with severity (critical / high / medium / low), the
-  evidence (file and line), and the fix. Approve only when no critical or high finding is open.
+  evidence (file and line), the fix, and how to reproduce it once built, so Security QA can turn it
+  into a test. Approve only when no critical or high finding is open.
