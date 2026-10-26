@@ -15,8 +15,9 @@ approved" from the Principal Architect, "finished" from the Chronicle Lead after
 milestone PR. Mario may also assign you one directly.
 
 **1. Read** — and nothing else until you have read all of it
-- The parent Keystone issue: every question card with **his answers**, the Gate 2 card, and
-  every comment he wrote — what he approved, overrode or added himself.
+- The milestone's Keystone issue (named in your issue, also the row's `Keystone issue`): every
+  question card with **his answers**, the Gate 2 card, and every comment he wrote — what he
+  approved, overrode or added himself.
 - The milestone row: his original rough title and description (its page history), and the
   agreed Requirements and Decisions.
 - His Check Attempts from the last 30 days and his open Study Assignments (`Proposed` or
