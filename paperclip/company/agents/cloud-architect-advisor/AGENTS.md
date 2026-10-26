@@ -82,13 +82,27 @@ Every agent in this company follows these rules. They override anything in a ski
   and may draft a runbook next to their code; they do not polish client prose.
 - Never put Keystone, agent names, issue or finding ids, gates or branches in a client document.
 
+**Tests**
+- QA writes the tests before anyone builds. Delivery QA owns `tests/acceptance/`, `tests/deploy/`
+  and `tests/framework/`; Security QA owns `tests/security/`. Each also owns the Makefile or script
+  targets, build tags and CI configuration that run its tests.
+- Nobody else creates, edits, moves or deletes them — not developers, not the Refactorer. Unit
+  tests a developer writes are optional and never evidence.
+- A developer who believes a QA test is wrong raises a `Question:` to the Delivery Lead, who
+  decides for Delivery QA's tests and asks the Security Lead for Security QA's, and the Principal
+  Architect when a requirement or the spec would change. If the test is wrong, the QA who owns it
+  changes it.
+- Tests run locally (Docker and `kind`). Agents never run them against a real cloud account; Mario
+  or a Graphwise colleague runs the same suite against AWS.
+
 **Reviews**
-- Specialists review specs and plans; code is reviewed by QA, and by a specialist only when the
-  Principal Architect or the Delivery Lead asks. QA is the Claude review of everything Codex agents produce.
+- Specialists review specs and plans; code is checked by Delivery QA (and Security QA, when there
+  were security tests), and by a specialist only when the Principal Architect or the Delivery Lead
+  asks. Delivery QA is the Claude review of everything Codex agents produce.
 - A reviewer posts each finding on the PR (spec PR or task PR) as a comment starting with its role
-  tag and a finding id — `[QA] QA-1: …`, `[DDD Reviewer] DDD-2: …` (tags: `[Refactorer]`,
-  `[QA]`, `[DDD Reviewer]`, `[Cloud Architect]`, `[Security·Codex]`, `[Security·Claude]`,
-  `[Security·DeepSeek]`, `[Red Team]`, `[Security Lead]`, `[Technical Writer]`,
+  tag and a finding id — `[Delivery QA] DQA-1: …`, `[DDD Reviewer] DDD-2: …` (tags: `[Refactorer]`,
+  `[Delivery QA]`, `[Security QA]`, `[DDD Reviewer]`, `[Cloud Architect]`, `[Security·Codex]`, `[Security·Claude]`,
+  `[Security·DeepSeek]`, `[Red Team]`, `[Security Lead]`, `[Technical Writer]`, `[Security Writer]`,
   `[Delivery Lead]`, `[Principal Architect]`) — and posts the same text in its Paperclip comment.
 - The developer fixes each finding in its own commit, message `fix(review): <summary>` with the
   trailer `Review-Finding: <finding id> (<role>)`, and replies to the finding on the PR with the
