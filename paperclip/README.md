@@ -21,11 +21,11 @@ Why things are the way they are: `FINDINGS.md`.
 | Agent | Runtime · model · effort | Role |
 |---|---|---|
 | Principal Architect (CEO) | Claude · Opus 5.5 · high | Picks up milestones from Notion, brainstorms with Mario in Keystone, writes spec + plan, records the agreed milestone back in Notion, sizes the change, runs spec reviews, gets Mario's approval, hands the build to the Delivery Lead, opens the milestone PR, runs retros |
-| Delivery Lead | Claude · Sonnet 5.5 · high | Runs the build of an approved milestone: creates build issues, runs Refactorer and QA reviews, decides on QA, merges each task into the milestone branch, answers implementation questions and escalates design ones; keeps the build log and review digest |
+| Delivery Lead | Claude · Sonnet 5.5 · high | Runs the build of an approved milestone: has QA write each task's tests first, creates build issues, runs Refactorer and acceptance, decides on it, runs the security round, merges each task into the milestone branch, answers implementation questions and escalates design ones; keeps the build log and review digest |
 | Developer 1, 2 | Codex · gpt-6-astra · medium | Implement plan tasks, TDD |
 | Platform Engineer | Codex · gpt-6-astra · medium | Containers, IaC, CI/CD |
 | Refactorer | Codex · gpt-6-astra · low | Right after implementation: removes comments and needless abstraction; never touches tests |
-| QA Engineer | Claude · Sonnet 5.5 · medium | Checks the refactored code against spec, plan and implementation; PASS/FAIL |
+| Delivery QA | Claude · Sonnet 5.5 · high | Owns the test framework and writes each task's acceptance, integration and deployment tests (Go, Terratest) before the developer starts; after the Refactorer runs acceptance: tests unchanged, requirements met, code review, edge cases; PASS/FAIL |
 | Cloud Architect | Claude · Sonnet 5.5 · high | Reviews specs and plans for cloud-native fit (8 skills) |
 | Security·Codex, Security·Claude | Codex · gpt-6-astra · high; Claude · Sonnet 5.5 · high | Independent threat models of specs and plans, with Security·DeepSeek |
 | DDD Reviewer | Claude · Sonnet 5.5 · high | Reviews specs and plans for the domain model |
@@ -36,12 +36,15 @@ Why things are the way they are: `FINDINGS.md`.
 | Security·DeepSeek | OpenCode · Ollama deepseek-v4-pro · high | Third independent security reviewer (third model family) |
 | Red Team Engineer | OpenCode · Ollama glm-5.3 · high | Offensive counterpart to the three security reviewers: stands a solution up in a throwaway local Docker sandbox and attacks the running deployment; confirms or refutes their threats and finds new ones |
 | Security Lead | Codex · gpt-6.1 Sol · high | Leads the four security agents: fans a review out to them, consolidates one verdict for the Principal (surfacing dissent, never flattening it), owns the threat model and the Red Team's scope |
+| Security QA | Claude · Sonnet 5.5 · high | Writes the tests that prove each security control holds (scanners, plan assertions, refused requests, post-deploy checks) and a regression test for every finding to fix; security acceptance after the Refactorer |
+| Security Writer | Claude · Opus 5.5 · high | After each milestone's security round: `docs/security/<milestone>/` — internal test report, exposures (how each was found), risks, and a client exposure report (fixed / not addressed) |
 | Technical Writer | Claude · Opus 5.5 · high | Writes and edits every client document — solution architecture, migration plans, runbooks, handover guides — to one house standard; other agents supply the facts |
 
-The builders (Developer 1, 2, Platform Engineer, Refactorer, Technical Writer) report to the
-Delivery Lead; the four security agents (the three reviewers and the Red Team Engineer) report to
-the Security Lead. Everyone else, QA included, reports to the Principal Architect, so QA stays
-independent of whoever ships. Specialists review code only when the Principal or the Delivery Lead
+The builders (Developer 1, 2, Platform Engineer, Refactorer, Technical Writer) and Delivery QA
+report to the Delivery Lead; the six security agents (the three reviewers, the Red Team Engineer,
+Security QA and the Security Writer) report to the Security Lead. Everyone else reports to the
+Principal Architect. QA stays independent of whoever ships because QA writes the tests and nobody
+else may change them. Specialists review code only when the Principal or the Delivery Lead
 asks.
 
 ## How work flows
@@ -62,9 +65,13 @@ work happen in **Keystone**.
    On approval the Principal rewrites the milestone's title, summary and done-when, fills its page
    (requirements, decisions, tasks, links, progress log) and sets it to `Building`.
 5. **Build.** The Principal hands the approved plan to the Delivery Lead (`Build: <milestone>`).
-   Each plan task: Codex developer → Refactorer → QA → Delivery Lead decides (merge into the
-   milestone branch, send fixes back, or ask a specialist to review the code). Client documents
-   are their own tasks: Technical Writer → QA (facts, runbook steps) → Delivery Lead decides.
+   Each plan task: Delivery QA (and Security QA, for security controls) writes failing tests →
+   Codex developer makes them pass → Refactorer → acceptance by the QAs (tests unchanged,
+   requirements met) → Delivery Lead decides (merge into the milestone branch, send fixes back, or
+   ask a specialist to review the code). Client documents are their own tasks: Technical Writer →
+   Delivery QA (facts, runbook steps) → Delivery Lead decides. When the plan lists security
+   controls, a security round follows the last merge and the Security Writer adds
+   `docs/security/<milestone>/`.
 6. **Gate 3 — milestone PR on GitHub** (`m0 → main`): demo checklist, runbooks, review digest;
    the row is `In review`. You rebase-merge; only you can merge `main`. The row becomes `Done` and
    the Mentor runs its finish sync.
@@ -81,10 +88,11 @@ opens `Decision for Mario: …` under the milestone issue with one card in your
 2. `bash paperclip/build.sh && bash paperclip/tests/build_test.sh && bash paperclip/tests/team_test.sh`
 3. `bash paperclip/configure.sh` — pushes each agent's instructions to the running company (only
    when they changed), plus skills and runtime settings. Adding or removing an agent needs an
-   import; Paperclip's import does not replace existing agents.
+   import; Paperclip's import does not replace existing agents. To rename an agent, add its slug
+   and previous name to `RENAMED`: configure.sh renames the live agent instead of importing a copy.
 
 `configure.sh` is safe to re-run. It also sets run timeouts (45 min; 90 for the Principal and the
-Mentor), Codex agents to `agent-full-access` (no guardian reviewer — QA and the Principal are the
+Mentor), Codex agents to `agent-full-access` (no guardian reviewer — the QAs and the Delivery Lead are the
 gate), one-shot sessions for the Refactorer and Security·Codex.
 It sets: experimental isolated workspaces (per-issue git
 worktrees under `<repo>/.paperclip/worktrees/`), pinned skill sources (Superpowers, Azure, AWS,
