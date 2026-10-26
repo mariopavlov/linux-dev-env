@@ -14,8 +14,9 @@ developers make them pass and never change them.
 the repo, the milestone branch and its head SHA. Keep two issue documents on it:
 - `build-log`: one line per event worth a retro — each acceptance FAIL with its cause, each fix round,
   each question you escalated.
-- `review-digest`: per plan task, its PR, its Paperclip issue, each finding id with its reviewer,
-  the outcome (fixed / won't fix + reason) and the fixing commit.
+- `review-digest`: per plan task, its PR, its Paperclip issue, its route, each review stage's
+  verdict, each finding id with its reviewer (Review team and Security Lead findings included), the
+  outcome (fixed / won't fix + reason) and the fixing commit.
 
 **1. Tests, then the build issues**
 - **First use of this flow in a repo:** create `Test framework: <repo>` for Delivery QA as a build
@@ -38,15 +39,29 @@ the repo, the milestone branch and its head SHA. Keep two issue documents on it:
 - Independent tasks run in parallel; dependent tasks wait for their prerequisite to be merged.
 
 **2. Reviews**
+Every plan task carries a `Route:` line from the Principal Architect, for example `Route:
+Review(lead picks) → Security(review)`. Follow it and never change it. A task with no `Route:`
+line, or unplanned work (a follow-up, a fix that grows scope), gets a `Question:` to the Principal
+Architect for a route, as below, before its reviews. Fix rounds reuse the task's route.
+
 When a build issue is done, create its reviews as its child issues, in its workspace:
 - When a developer's task also drafted a client document, first `Edit: <document> (<KEY-n>)` for
   the Technical Writer.
-- `Refactorer review: <KEY-n>` for the Refactorer (not for a Technical Writer task).
-- `Acceptance: <KEY-n>` for Delivery QA and, when the task had security tests, `Security
-  acceptance: <KEY-n>` for Security QA, each with the reviews above in its `blockedBy` and the
-  tests commit SHA. Add them to your issue's `blockedBy`. A Technical Writer task gets
-  `Acceptance:` only, which is Delivery QA's fact check.
+- `Refactorer review: <KEY-n>` for the Refactorer (not for a Technical Writer task), in your
+  issue's `blockedBy`.
+- When the Refactorer is done, create the route's stages, with the PR, its head SHA, the plan task
+  with its `Route:` line and the spec section: `Review: <KEY-n>` for the Review Lead and
+  `Security review: <KEY-n>` for the Security Lead, as the route names them. `→` puts the earlier
+  stage in the later one's `blockedBy`; `∥` creates both with neither blocking the other. When a
+  fix round moves the head before a later stage starts, put the new head SHA on that stage's issue.
+  `Security(none)` creates no security stage.
+- With the stages, `Acceptance: <KEY-n>` for Delivery QA and, when the task had security tests,
+  `Security acceptance: <KEY-n>` for Security QA, each with every stage and the reviews above in
+  its `blockedBy`, and the tests commit SHA. Add the stages and the acceptance issues to your
+  issue's `blockedBy`. A Technical Writer task (`Route: none`) gets no stage and, when its build
+  issue is done, `Acceptance:` only, which is Delivery QA's fact check.
 Each reviewer closes its own issue with its verdict; you wake when the acceptance issues are done.
+Record each stage's verdict and findings in the `review-digest`.
 
 **3. Decide on acceptance**
 - **Every acceptance PASS:** mark the draft PR ready, set the commit status on its head (`gh api
@@ -55,8 +70,9 @@ Each reviewer closes its own issue with its verdict; you wake when the acceptanc
 - **Any FAIL:** add the cause to the `build-log`. Create `Fix <finding ids>: <summary>` for the
   agent who built it, in the build issue's workspace, and new acceptance issues for the QAs whose
   verdict failed, with the fix issue in their `blockedBy`; add them to your issue's `blockedBy`.
-  When the problem is architectural, domain or security, first create a code review child issue
-  for the Cloud Architect, the DDD Reviewer or the Security Lead.
+  When the problem is architectural or domain, first create a `Review: <KEY-n>` child issue for
+  the Review Lead naming the problem; when it is security, a `Security review: <KEY-n>` for the
+  Security Lead.
 - **`Security fixes: <finding ids>`** from the Security Lead: for a task not merged yet, fix it in
   that task's workspace; otherwise create a new build issue from the milestone branch. In that
   workspace, first create `Security regression: <finding id>` for Security QA per finding, in the
@@ -64,8 +80,19 @@ Each reviewer closes its own issue with its verdict; you wake when the acceptanc
   and `Security acceptance:`. If Security QA cannot reproduce a finding, tell the Security Lead on
   `Security fixes:`. When every fix is merged, mark `Security fixes:` done with the fixing commits;
   the Security Lead wakes on it.
-- A task on its third fix round is a sign the brief or the plan is wrong: stop and escalate it as
-  below instead of sending another round.
+- **`Review fixes: <finding ids>`** from the Review Lead, for a task not merged yet: handle it
+  like `Security fixes:`, in that task's workspace. First create `Review regression: <finding id>`
+  for Delivery QA per finding that carries a triggering input, in the fix's `blockedBy`; findings
+  without one are proven fixed by their critic's re-check. Then create `Fix <finding ids>:
+  <summary>` for the agent who built it, and add these issues to `Review fixes:`'s `blockedBy`.
+  The fix skips the Refactorer: the `Acceptance:` (and `Security acceptance:`) still waiting on
+  the stage check it, with the regression tests commit SHAs added to their brief. If Delivery QA
+  cannot reproduce a finding, tell the Review Lead on `Review fixes:`. When every fix is committed,
+  record each finding and its outcome in the `review-digest` and mark `Review fixes:` done with
+  the fixing commits; the Review Lead wakes on it and has the critics re-check.
+- A task on its third fix round — acceptance, security and review fix rounds all count — is a
+  sign the brief or the plan is wrong: stop and escalate it as below instead of sending another
+  round.
 
 **Issues you create** — each one is the whole brief; the agent reads it, not your thread
 - The goal and acceptance criteria, with the plan section link.
@@ -85,6 +112,10 @@ Each reviewer closes its own issue with its verdict; you wake when the acceptanc
   changing a requirement or the spec, ask the Principal Architect as below. If the test is wrong,
   create an issue for the QA that owns it to change it; the developer never does. Otherwise answer
   that the developer makes it pass as written.
+- **A developer disputes a review finding:** create a child `Question:` for the Review Lead with
+  the finding id, its text and the developer's evidence, and wait for it; the developer fixes the
+  finding unless the Review Lead upholds the dispute. Your `Review fixes:` issue stays open
+  meanwhile.
 - **Implementation detail, or anything the approved spec and plan already settle:** answer it in a
   comment and mark the `Question:` issue done; the asking agent resumes automatically.
 - **Security call:** create a review child issue for the Security Lead, decide on its verdict,
