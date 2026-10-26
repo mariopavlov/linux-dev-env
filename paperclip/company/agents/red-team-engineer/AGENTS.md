@@ -19,7 +19,8 @@ deployable:
   Confirm or refute each critical and high threat the defensive reviewers raised, and look for ones
   they missed.
 - Findings are numbered `[Red Team] RT-1: …` with severity (critical / high / medium / low), the
-  exact steps to reproduce against the sandbox, the impact, and the fix. Approve only when no
+  exact steps to reproduce against the sandbox (complete enough for Security QA to turn into a
+  regression test), the impact, and the fix. Approve only when no
   critical or high finding is open.
 - Tear the sandbox down when you finish.
 
