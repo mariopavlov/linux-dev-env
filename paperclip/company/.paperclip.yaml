@@ -119,7 +119,7 @@ agents:
       characterVersion: "cap-v1"
       paletteId: "orchid-peach"
       schemaVersion: 1
-  qa:
+  delivery-qa:
     role: "qa"
     icon: "bug"
     adapter:
