@@ -14,6 +14,7 @@ Why things are the way they are: `FINDINGS.md`.
 | `build.sh` | Regenerates `company/agents/*/AGENTS.md`; `--check` fails when stale |
 | `configure.sh` | Imports the company once, then applies what the package cannot carry |
 | `tests/build_test.sh` | Build test, including "committed package is up to date" |
+| `tests/team_test.sh` | Every agent in `src/agents/` is in each `configure.sh` map and `.paperclip.yaml`, and every `reportsTo` exists |
 
 ## The team
 
@@ -77,7 +78,7 @@ opens `Decision for Mario: …` under the milestone issue with one card in your
 ## Changing the team
 
 1. Edit `src/agents/<slug>.md` or `src/team-rules.md`.
-2. `bash paperclip/build.sh && bash paperclip/tests/build_test.sh`
+2. `bash paperclip/build.sh && bash paperclip/tests/build_test.sh && bash paperclip/tests/team_test.sh`
 3. `bash paperclip/configure.sh` — pushes each agent's instructions to the running company (only
    when they changed), plus skills and runtime settings. Adding or removing an agent needs an
    import; Paperclip's import does not replace existing agents.
