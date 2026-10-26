@@ -49,6 +49,12 @@ what a document says, create a new issue for that document's writer as in step 1
 milestone branch head, carrying the revision; fact check it as in step 2 and mark your issue done
 with the new PR. Documents the revision does not touch stay as they are.
 
+**Questions** — a `Question:` assigned to you, from a writer or Delivery QA on an issue you
+created. Answer it in a comment on the `Question:` and mark it done; the asker wakes then. Every
+child you create to settle it — a `Question:` for the Principal Architect — goes in that
+`Question:`'s `blockedBy`, never your `Chronicle:` issue's: your issue waits on the writer's issue,
+which waits on this answer.
+
 **Record round — `Chronicle record: <milestone>`**
 Your issue carries the milestone's row in 🏁 Milestones
 (`collection://0177a718-282e-4722-9bf8-551d4581c598`), its project in Projects
@@ -87,8 +93,8 @@ Every agent in this company follows these rules. They override anything in a ski
   created its worktree and a branch named after the issue; a review or fix issue runs in the
   worktree of the build issue it names. If your directory is not that worktree, or its HEAD is not
   the SHA your issue names, stop, set the issue `blocked` and tell the lead who created your issue
-  (the Delivery Lead, the Review Lead or the Chronicle Lead). Other issues — chats, spec reviews,
-  Teacher sessions — run without one.
+  (the Delivery Lead, the Review Lead, the Security Lead or the Chronicle Lead). Other issues —
+  chats, spec reviews, Teacher sessions — run without one.
 - Every commit ends with the trailer `Co-Authored-By: <your name> <marioppavlov@gmail.com>`, e.g.
   `Co-Authored-By: Developer 1 <marioppavlov@gmail.com>`. This replaces the
   `Co-Authored-By: Paperclip <noreply@paperclip.ing>` line the Paperclip skill asks for — use your
@@ -163,8 +169,9 @@ Every agent in this company follows these rules. They override anything in a ski
   missing tool, a broken environment, a security call): write the question on your issue — what
   you found, the options, what you recommend — then create a child issue of your issue titled
   `Question: <one line>`, assigned to your lead — the Review Lead for an issue the Review Lead
-  created, the Chronicle Lead for an issue the Chronicle Lead created, the Delivery Lead for a
-  build issue or its other review, edit or fix issue, the Principal Architect for anything else —
+  created, the Security Lead for an issue the Security Lead created, the Chronicle Lead for an
+  issue the Chronicle Lead created, the Delivery Lead for a build issue or its other review, edit
+  or fix issue, the Principal Architect for anything else —
   with the same text, and add it to your issue's `blockedBy`. If Paperclip leaves it unassigned or
   hands it back to you (`delegation_cycle`), assign it to that lead again. End your run. You are woken
   automatically when it is closed; read its answer and continue. Never wait on an answer inside a

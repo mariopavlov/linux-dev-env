@@ -41,7 +41,7 @@ tests and nobody else may change them.
 | Cloud Architect Advisor | Claude · Sonnet 5.5 · high | Answers Mario's design questions on a `Design questions: <milestone>` issue: short, sourced answers and possible defects for him to raise; read-only, separate from the Cloud Architect so reviews stay independent |
 | Research Scout | OpenCode · Ollama deepseek-v4.1-flash · medium | Reads docs and code on request ("Research: …"), returns a sourced one-page brief |
 | Teacher | Claude · Sonnet 5.5 · high | Teaches Mario, on request or after he says yes to an offer from the Principal or Claude |
-| Security Lead | Codex · gpt-6.1 Sol · high | Leads the security agents: fans a review out (spec, per task or per milestone), consolidates one verdict for whoever asked (surfacing dissent, never flattening it), owns the threat model and the Red Team's scope; the round ends at its verdict |
+| Security Lead | Codex · gpt-6.1 Sol · high | Leads the security agents: fans a review out (per task or per milestone), consolidates one verdict for whoever asked (surfacing dissent, never flattening it), owns the threat model and the Red Team's scope; the round ends at its verdict |
 | Security·Codex, Security·Claude | Codex · gpt-6-astra · high; Claude · Sonnet 5.5 · high | Independent threat models of specs, plans and code, with Security·DeepSeek |
 | Security·DeepSeek | OpenCode · Ollama deepseek-v4-pro · high | Third independent security reviewer (third model family) |
 | Red Team Engineer | OpenCode · Ollama glm-5.3 · high | Stands a solution up in a throwaway local Docker sandbox and attacks the running deployment; confirms or refutes the reviewers' threats and finds new ones |

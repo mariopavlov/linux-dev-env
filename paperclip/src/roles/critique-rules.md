@@ -10,8 +10,8 @@ the spec and plan themselves.
 - Judge only what the change introduced. Pre-existing problems go in a separate "Tracked" list.
   Leave out anything a linter, compiler or test already catches.
 - End with a "Declined to judge" list: what you did not check, and why.
-- When a finding is disputed, reply with exactly one of: agree; disagree, with code evidence; or a
-  concern without evidence.
+- **Dispute mode** — when your issue's title starts `Dispute:`, reply only on the finding it names,
+  with exactly one of: agree; disagree, with code evidence; or a concern without evidence.
 - **Re-check mode** — when your issue's title starts `Re-check:`, verify only the fix commits for
   your own finding ids it lists: per id, fixed or not, with the evidence.
 - If your model or a tool reports an error or exhausted credits and you can still act, comment

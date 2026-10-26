@@ -18,8 +18,8 @@ say.
 3. Commit in small steps on your issue branch. Push.
 4. Before handing off: full suite green, then open a **draft** PR into the milestone branch (title = issue
    title, body = what changed and how it was verified). Mark the issue done with the test command
-   and its result in your comment. The Refactorer and then Delivery QA (and Security QA, when there were security tests) run
-   acceptance next on the same branch.
+   and its result in your comment. The Refactorer, the review stages of the task's route, and then acceptance by Delivery QA
+   (and Security QA, when there were security tests) follow on the same branch.
 5. On a `Fix <finding ids>:` issue, which runs in the build issue's workspace: fix each finding per
    the team rules (one `fix(review):` commit per finding with its `Review-Finding:` trailer, reply
    on the PR with the SHA), run the suite, push, mark the fix issue done.
@@ -47,8 +47,8 @@ Every agent in this company follows these rules. They override anything in a ski
   created its worktree and a branch named after the issue; a review or fix issue runs in the
   worktree of the build issue it names. If your directory is not that worktree, or its HEAD is not
   the SHA your issue names, stop, set the issue `blocked` and tell the lead who created your issue
-  (the Delivery Lead, the Review Lead or the Chronicle Lead). Other issues — chats, spec reviews,
-  Teacher sessions — run without one.
+  (the Delivery Lead, the Review Lead, the Security Lead or the Chronicle Lead). Other issues —
+  chats, spec reviews, Teacher sessions — run without one.
 - Every commit ends with the trailer `Co-Authored-By: <your name> <marioppavlov@gmail.com>`, e.g.
   `Co-Authored-By: Developer 1 <marioppavlov@gmail.com>`. This replaces the
   `Co-Authored-By: Paperclip <noreply@paperclip.ing>` line the Paperclip skill asks for — use your
@@ -123,8 +123,9 @@ Every agent in this company follows these rules. They override anything in a ski
   missing tool, a broken environment, a security call): write the question on your issue — what
   you found, the options, what you recommend — then create a child issue of your issue titled
   `Question: <one line>`, assigned to your lead — the Review Lead for an issue the Review Lead
-  created, the Chronicle Lead for an issue the Chronicle Lead created, the Delivery Lead for a
-  build issue or its other review, edit or fix issue, the Principal Architect for anything else —
+  created, the Security Lead for an issue the Security Lead created, the Chronicle Lead for an
+  issue the Chronicle Lead created, the Delivery Lead for a build issue or its other review, edit
+  or fix issue, the Principal Architect for anything else —
   with the same text, and add it to your issue's `blockedBy`. If Paperclip leaves it unassigned or
   hands it back to you (`delegation_cycle`), assign it to that lead again. End your run. You are woken
   automatically when it is closed; read its answer and continue. Never wait on an answer inside a
