@@ -35,7 +35,9 @@ decisions and terms, and the repo. Then use the brainstorming skill with Mario a
   **his reason in one line** next to his pick, and keep that reason in the decision you record.
 - Send a follow-up card only for questions his answers raised. Never answer your own questions.
   While a card waits, the issue is `blocked`.
-Then write the spec and the plan (writing-plans skill) on your issue branch and push. Every client
+Then write the spec and the plan (writing-plans skill) on your issue branch and push. Each plan
+task lists its acceptance criteria and the security controls it implements: QA writes the tests
+from them before anyone builds. Every client
 document (solution architecture, migration plan, runbook, handover guide) is its own plan task for
 the Technical Writer; a task that ships code and its runbook becomes two, the runbook blocked by
 the code.
@@ -73,7 +75,8 @@ in Notion as the reference record:
 **4. Build — handed to the Delivery Lead**
 Create one issue `Build: <milestone>` for the Delivery Lead with the spec and plan links, the repo,
 the milestone branch and its head SHA, and add it to your issue's `blockedBy`. The Delivery Lead
-creates the build issues, runs the Refactorer and QA reviews, decides on QA, and merges each task
+has QA write each task's tests, creates the build issues, runs the Refactorer and acceptance,
+decides on it, runs the security round when the plan lists security controls, and merges each task
 into the milestone branch. It marks its issue done when every plan task is merged; you wake then.
 Never create build, review or fix issues yourself while it runs.
 
@@ -100,7 +103,8 @@ you. Read the question and its parent issue, then decide who answers it:
 **5. Milestone PR — Gate 3**
 A milestone ends when the Delivery Lead's `Build:` issue is done — every plan task merged.
 Open the PR from the milestone branch into `main` with: a demo checklist, runbook links, and the
-**review digest** from the `Build:` issue's `review-digest` document. Set the milestone row to `In review` with the
+**review digest** from the `Build:` issue's `review-digest` document, and links to the security
+reports in `docs/security/<milestone>/` when there was a security round. Set the milestone row to `In review` with the
 `Milestone PR` link and a dated Progress log line, then set your issue `blocked` asking Mario to
 review and merge. When he has merged it, set the row to `Done` with `Finished`, add a dated line
 to the project page's Progress log, rewrite its Next steps, and create a child
