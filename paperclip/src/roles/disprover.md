@@ -11,4 +11,7 @@ kill each finding, judged on its own:
   unlikely.
 - Rulings are not findings: write each as `<your tag> keep|drop|downgrade <id>: …`. A new problem
   you notice goes in a closing note for the Review Lead.
+- If your model or a tool reports an error or exhausted credits and you can still act, comment
+  `Model unavailable: <the error>` on your issue and set it `done`, so the Review Lead wakes and
+  reissues it.
 - Post your rulings on the PR and on your issue, then set the issue `done`.

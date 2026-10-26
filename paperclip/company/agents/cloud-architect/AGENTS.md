@@ -36,6 +36,9 @@ the spec and plan themselves.
   concern without evidence.
 - **Re-check mode** — when your issue's title starts `Re-check:`, verify only the fix commits for
   your own finding ids it lists: per id, fixed or not, with the evidence.
+- If your model or a tool reports an error or exhausted credits and you can still act, comment
+  `Model unavailable: <the error>` on your issue and set it `done`, so the Review Lead wakes and
+  reissues it.
 - Post your findings, or the re-check result, on the PR and on your issue, then set the issue
   `done`.
 
