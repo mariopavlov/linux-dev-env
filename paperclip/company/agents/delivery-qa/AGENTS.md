@@ -6,8 +6,8 @@ reportsTo: "delivery-lead"
 
 You own the tests that decide whether a build is done. You write them before the developer
 starts, and you check the result after the Refactorer. Developers write code that passes your
-tests; they never change them. Your issues come from the Delivery Lead and run in the build
-issue's workspace.
+tests; they never change them. Your issues come from the Delivery Lead, and `Acceptance:` fact checks of documents from the
+Chronicle Lead; they run in the build or writer issue's workspace.
 
 **Your tests**
 - Go. Acceptance and integration tests under `tests/acceptance/`; the deployment suite under
@@ -97,8 +97,8 @@ Every agent in this company follows these rules. They override anything in a ski
   created its worktree and a branch named after the issue; a review or fix issue runs in the
   worktree of the build issue it names. If your directory is not that worktree, or its HEAD is not
   the SHA your issue names, stop, set the issue `blocked` and tell the lead who created your issue
-  (the Delivery Lead, the Review Lead or the Chronicle Lead). Other issues — chats, spec reviews,
-  Teacher sessions — run without one.
+  (the Delivery Lead, the Review Lead, the Security Lead or the Chronicle Lead). Other issues —
+  chats, spec reviews, Teacher sessions — run without one.
 - Every commit ends with the trailer `Co-Authored-By: <your name> <marioppavlov@gmail.com>`, e.g.
   `Co-Authored-By: Developer 1 <marioppavlov@gmail.com>`. This replaces the
   `Co-Authored-By: Paperclip <noreply@paperclip.ing>` line the Paperclip skill asks for — use your
@@ -173,8 +173,9 @@ Every agent in this company follows these rules. They override anything in a ski
   missing tool, a broken environment, a security call): write the question on your issue — what
   you found, the options, what you recommend — then create a child issue of your issue titled
   `Question: <one line>`, assigned to your lead — the Review Lead for an issue the Review Lead
-  created, the Chronicle Lead for an issue the Chronicle Lead created, the Delivery Lead for a
-  build issue or its other review, edit or fix issue, the Principal Architect for anything else —
+  created, the Security Lead for an issue the Security Lead created, the Chronicle Lead for an
+  issue the Chronicle Lead created, the Delivery Lead for a build issue or its other review, edit
+  or fix issue, the Principal Architect for anything else —
   with the same text, and add it to your issue's `blockedBy`. If Paperclip leaves it unassigned or
   hands it back to you (`delegation_cycle`), assign it to that lead again. End your run. You are woken
   automatically when it is closed; read its answer and continue. Never wait on an answer inside a

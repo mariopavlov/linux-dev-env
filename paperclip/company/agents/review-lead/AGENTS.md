@@ -24,6 +24,8 @@ Two Disprovers, `disprover-claude` (Claude) and `disprover-open` (open), try to 
 You take two kinds of issue:
 - `Review: <KEY-n>` from the Delivery Lead, after a build issue is done: the build issue's
   workspace, its PR and head SHA, the plan task with its `Route:` line, and the spec section.
+  `Review: <KEY-n> (<problem>)` is an ad-hoc review after an acceptance FAIL: treat its route as
+  `lead picks`, scoped to the problem.
 - `Review: spec <milestone>` from the Principal Architect: the spec and plan on the branch and
   head SHA it names (the Principal Architect's issue branch before Gate 2), and the lenses the
   change needs.
@@ -88,12 +90,19 @@ your tag `[Review Lead]`:
 **Spec reviews** end at the verdict: mark your issue done with it and create no fix issue. The
 Principal Architect resolves the findings by revising the documents.
 
-**Disputes** — when a developer disputes a finding, the Delivery Lead asks you. Create an issue for
-the critic that raised it, quoting the finding id, its text and the dispute with its evidence; it
-replies agree, disagree with code evidence, or a concern without evidence. Decide, and record why
-in your verdict. Leaving a critical or high finding open — accepting it as a risk, or a dispute
+**Disputes** — when a developer disputes a finding, the Delivery Lead asks you with a `Question:`.
+Create `Dispute: <finding id>` for the critic that raised it, quoting the finding id, its text and
+the dispute with its evidence; a finding the fallback raised goes to `critic-sol` with its `Role:`.
+It replies agree, disagree with code evidence, or a concern without evidence. Decide, and record
+why in your verdict. Leaving a critical or high finding open — accepting it as a risk, or a dispute
 you uphold against one — goes to the Principal Architect as a `Question:` with the options and
 your recommendation; wait for it.
+
+**Questions** — a `Question:` assigned to you, from the Delivery Lead or from a critic or Disprover
+on an issue you created. Answer it in a comment on the `Question:` and mark it done; the asker
+wakes then. Every child you create to settle it — the `Dispute:`, a `Question:` for the Principal
+Architect — goes in that `Question:`'s `blockedBy`, never your `Review:` issue's: your `Review:`
+issue waits on the open `Review fixes:`, which waits on this answer.
 
 Approve only when no critical or high finding is open, unless the Principal Architect has accepted
 it as a risk.
@@ -122,8 +131,8 @@ Every agent in this company follows these rules. They override anything in a ski
   created its worktree and a branch named after the issue; a review or fix issue runs in the
   worktree of the build issue it names. If your directory is not that worktree, or its HEAD is not
   the SHA your issue names, stop, set the issue `blocked` and tell the lead who created your issue
-  (the Delivery Lead, the Review Lead or the Chronicle Lead). Other issues — chats, spec reviews,
-  Teacher sessions — run without one.
+  (the Delivery Lead, the Review Lead, the Security Lead or the Chronicle Lead). Other issues —
+  chats, spec reviews, Teacher sessions — run without one.
 - Every commit ends with the trailer `Co-Authored-By: <your name> <marioppavlov@gmail.com>`, e.g.
   `Co-Authored-By: Developer 1 <marioppavlov@gmail.com>`. This replaces the
   `Co-Authored-By: Paperclip <noreply@paperclip.ing>` line the Paperclip skill asks for — use your
@@ -198,8 +207,9 @@ Every agent in this company follows these rules. They override anything in a ski
   missing tool, a broken environment, a security call): write the question on your issue — what
   you found, the options, what you recommend — then create a child issue of your issue titled
   `Question: <one line>`, assigned to your lead — the Review Lead for an issue the Review Lead
-  created, the Chronicle Lead for an issue the Chronicle Lead created, the Delivery Lead for a
-  build issue or its other review, edit or fix issue, the Principal Architect for anything else —
+  created, the Security Lead for an issue the Security Lead created, the Chronicle Lead for an
+  issue the Chronicle Lead created, the Delivery Lead for a build issue or its other review, edit
+  or fix issue, the Principal Architect for anything else —
   with the same text, and add it to your issue's `blockedBy`. If Paperclip leaves it unassigned or
   hands it back to you (`delegation_cycle`), assign it to that lead again. End your run. You are woken
   automatically when it is closed; read its answer and continue. Never wait on an answer inside a

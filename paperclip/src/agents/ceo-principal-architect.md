@@ -118,8 +118,9 @@ security round included.
   `blockedBy`. It is the whole brief: the documents, each one's audience, its sources and what to
   emphasise — the client documents the milestone needs, the security report when there was a
   security round (the `Security round:` issue and Security QA's `Security suite:` results), and
-  the review audit (the `Build:` issue and its `review-digest`) — with the milestone branch and its
-  head SHA. When it is done, mark each document PR it names ready, set the commit status on its
+  the review audit (the `Build:` issue and its `review-digest`; with no security round, the
+  per-task `Security review:` findings are reported there, in `docs/review/`) — with the milestone
+  branch and its head SHA. When it is done, mark each document PR it names ready, set the commit status on its
   head and rebase-merge it into the milestone branch.
 - **The PR:** open it from the milestone branch into `main` with: a demo checklist, runbook links,
   the **review digest** from the `Build:` issue's `review-digest` document, and links to the

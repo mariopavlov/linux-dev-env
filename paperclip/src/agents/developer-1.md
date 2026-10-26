@@ -18,8 +18,8 @@ say.
 3. Commit in small steps on your issue branch. Push.
 4. Before handing off: full suite green, then open a **draft** PR into the milestone branch (title = issue
    title, body = what changed and how it was verified). Mark the issue done with the test command
-   and its result in your comment. The Refactorer and then Delivery QA (and Security QA, when there were security tests) run
-   acceptance next on the same branch.
+   and its result in your comment. The Refactorer, the review stages of the task's route, and then acceptance by Delivery QA
+   (and Security QA, when there were security tests) follow on the same branch.
 5. On a `Fix <finding ids>:` issue, which runs in the build issue's workspace: fix each finding per
    the team rules (one `fix(review):` commit per finding with its `Review-Finding:` trailer, reply
    on the PR with the SHA), run the suite, push, mark the fix issue done.

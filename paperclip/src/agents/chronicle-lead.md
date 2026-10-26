@@ -49,6 +49,12 @@ what a document says, create a new issue for that document's writer as in step 1
 milestone branch head, carrying the revision; fact check it as in step 2 and mark your issue done
 with the new PR. Documents the revision does not touch stay as they are.
 
+**Questions** — a `Question:` assigned to you, from a writer or Delivery QA on an issue you
+created. Answer it in a comment on the `Question:` and mark it done; the asker wakes then. Every
+child you create to settle it — a `Question:` for the Principal Architect — goes in that
+`Question:`'s `blockedBy`, never your `Chronicle:` issue's: your issue waits on the writer's issue,
+which waits on this answer.
+
 **Record round — `Chronicle record: <milestone>`**
 Your issue carries the milestone's row in 🏁 Milestones
 (`collection://0177a718-282e-4722-9bf8-551d4581c598`), its project in Projects

@@ -118,8 +118,9 @@ security round included.
   `blockedBy`. It is the whole brief: the documents, each one's audience, its sources and what to
   emphasise — the client documents the milestone needs, the security report when there was a
   security round (the `Security round:` issue and Security QA's `Security suite:` results), and
-  the review audit (the `Build:` issue and its `review-digest`) — with the milestone branch and its
-  head SHA. When it is done, mark each document PR it names ready, set the commit status on its
+  the review audit (the `Build:` issue and its `review-digest`; with no security round, the
+  per-task `Security review:` findings are reported there, in `docs/review/`) — with the milestone
+  branch and its head SHA. When it is done, mark each document PR it names ready, set the commit status on its
   head and rebase-merge it into the milestone branch.
 - **The PR:** open it from the milestone branch into `main` with: a demo checklist, runbook links,
   the **review digest** from the `Build:` issue's `review-digest` document, and links to the
@@ -177,8 +178,8 @@ Every agent in this company follows these rules. They override anything in a ski
   created its worktree and a branch named after the issue; a review or fix issue runs in the
   worktree of the build issue it names. If your directory is not that worktree, or its HEAD is not
   the SHA your issue names, stop, set the issue `blocked` and tell the lead who created your issue
-  (the Delivery Lead, the Review Lead or the Chronicle Lead). Other issues — chats, spec reviews,
-  Teacher sessions — run without one.
+  (the Delivery Lead, the Review Lead, the Security Lead or the Chronicle Lead). Other issues —
+  chats, spec reviews, Teacher sessions — run without one.
 - Every commit ends with the trailer `Co-Authored-By: <your name> <marioppavlov@gmail.com>`, e.g.
   `Co-Authored-By: Developer 1 <marioppavlov@gmail.com>`. This replaces the
   `Co-Authored-By: Paperclip <noreply@paperclip.ing>` line the Paperclip skill asks for — use your
@@ -253,8 +254,9 @@ Every agent in this company follows these rules. They override anything in a ski
   missing tool, a broken environment, a security call): write the question on your issue — what
   you found, the options, what you recommend — then create a child issue of your issue titled
   `Question: <one line>`, assigned to your lead — the Review Lead for an issue the Review Lead
-  created, the Chronicle Lead for an issue the Chronicle Lead created, the Delivery Lead for a
-  build issue or its other review, edit or fix issue, the Principal Architect for anything else —
+  created, the Security Lead for an issue the Security Lead created, the Chronicle Lead for an
+  issue the Chronicle Lead created, the Delivery Lead for a build issue or its other review, edit
+  or fix issue, the Principal Architect for anything else —
   with the same text, and add it to your issue's `blockedBy`. If Paperclip leaves it unassigned or
   hands it back to you (`delegation_cycle`), assign it to that lead again. End your run. You are woken
   automatically when it is closed; read its answer and continue. Never wait on an answer inside a
