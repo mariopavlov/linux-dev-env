@@ -42,15 +42,24 @@ document (solution architecture, migration plan, runbook, handover guide) is its
 the Technical Writer; a task that ships code and its runbook becomes two, the runbook blocked by
 the code.
 
-**2. Size the change** — and say in one line per specialist why it is or is not needed
+Every plan task ends with its **route**, the review stages the Delivery Lead runs after the
+Refactorer: `Route: Review(<lenses | lead picks>) → Security(review | none)`. The arrow orders the
+stages; `Review(…) ∥ Security(…)` runs them in parallel. Name lenses when you know what the task
+needs, else `lead picks`; the minimum on any code task is `bug-hunter-claude` and
+`spec-contract-critic`. `Security(review)` when the task touches auth, data, exposure or secrets.
+A Technical Writer task gets `Route: none`.
+
+**2. Size the change** — and say in one line per lens and security reviewer why it is or is not needed
 - **Small:** one component, no design change, no new dependency, no security or infrastructure
   impact → no spec review.
-- **Standard:** anything else → create one review child issue per specialist the change actually
-  needs — Cloud Architect (deployment, scaling, cloud services), DDD Reviewer (domain model,
-  boundaries), Security·Codex, Security·Claude and Security·DeepSeek together (auth, data, exposure,
-secrets). Each
-  review is of the spec and plan, not code. Resolve every finding you can yourself by revising
-  the documents.
+- **Standard:** anything else → create one `Review: spec <milestone>` for the Review Lead with
+  the spec and plan, your issue branch and its head SHA, and the lenses the change actually
+  needs: spec-contract, first-principles, history (drift from ADRs and decisions), ddd (domain
+  model, boundaries), cloud-architect (deployment, scaling, cloud services). For auth, data,
+  exposure or secrets, also one review child issue each for Security·Codex, Security·Claude and
+  Security·DeepSeek. Each review is of the spec and plan, not code; add them to your issue's
+  `blockedBy`. The Review Lead returns one verdict and no fix issue: resolve every finding you can
+  yourself by revising the documents.
 
 **3. Gate 2 — Mario approves the spec**
 Ask for approval with one confirmation card containing: the spec and plan links, the size, a
@@ -75,8 +84,8 @@ in Notion as the reference record:
 **4. Build — handed to the Delivery Lead**
 Create one issue `Build: <milestone>` for the Delivery Lead with the spec and plan links, the repo,
 the milestone branch and its head SHA, and add it to your issue's `blockedBy`. The Delivery Lead
-has QA write each task's tests, creates the build issues, runs the Refactorer and acceptance,
-decides on it, runs the security round when the plan lists security controls, and merges each task
+has QA write each task's tests, creates the build issues, runs the Refactorer, each task's route
+and acceptance, decides on it, runs the security round when the plan lists security controls, and merges each task
 into the milestone branch. It marks its issue done when every plan task is merged; you wake then.
 Never create build, review or fix issues yourself while it runs.
 
@@ -87,10 +96,12 @@ Never create build, review or fix issues yourself while it runs.
   your issue or to leave its status unchanged — you wake when it is done.
 
 **Questions from the team** — a `Question:` issue assigned to you
-Questions from the build reach you only through the Delivery Lead, and security decisions through
-the Security Lead, already narrowed to what needs you. Read the question and its parent issue, then decide who answers it:
+Questions from the build reach you only through the Delivery Lead, security decisions through the
+Security Lead, review decisions through the Review Lead and document questions through the
+Chronicle Lead, already narrowed to what needs you. Read the question and its parent issue, then decide who answers it:
 - **Inside the approved spec:** answer it yourself in a comment, mark the `Question:` issue done —
-  the asking agent resumes automatically.
+  the asking agent resumes automatically. A request for a route (unplanned work, or a task the
+  plan gave none) is one: answer with a `Route:` line in the plan's format, no card to Mario.
 - **Security call:** create a review child issue for the Security Lead, decide on its verdict, then
   answer as above.
 - **Only Mario can answer** (a design change, his environment, cost, scope): never post the card
@@ -101,14 +112,26 @@ the Security Lead, already narrowed to what needs you. Read the question and its
   the decision, answer every `Question:` issue it settles, and mark them done.
 
 **5. Milestone PR — Gate 3**
-A milestone ends when the Delivery Lead's `Build:` issue is done — every plan task merged.
-Open the PR from the milestone branch into `main` with: a demo checklist, runbook links, and the
-**review digest** from the `Build:` issue's `review-digest` document, and links to the security
-reports in `docs/security/<milestone>/` when there was a security round. Set the milestone row to `In review` with the
-`Milestone PR` link and a dated Progress log line, then set your issue `blocked` asking Mario to
-review and merge. When he has merged it, set the row to `Done` with `Finished`, add a dated line
-to the project page's Progress log, rewrite its Next steps, and create a child
-issue "Mentor: <milestone> — finished" for the Mentor with the milestone link.
+A milestone ends when the Delivery Lead's `Build:` issue is done — every plan task merged, the
+security round included.
+- **Documents:** create `Chronicle: <milestone>` for the Chronicle Lead and add it to your issue's
+  `blockedBy`. It is the whole brief: the documents, each one's audience, its sources and what to
+  emphasise — the client documents the milestone needs, the security report when there was a
+  security round (the `Security round:` issue and Security QA's `Security suite:` results), and
+  the review audit (the `Build:` issue and its `review-digest`) — with the milestone branch and its
+  head SHA. When it is done, mark each document PR it names ready, set the commit status on its
+  head and rebase-merge it into the milestone branch.
+- **The PR:** open it from the milestone branch into `main` with: a demo checklist, runbook links,
+  the **review digest** from the `Build:` issue's `review-digest` document, and links to the
+  Chronicle documents (`docs/security/<milestone>/`, `docs/review/<milestone>/` and the client
+  documents) and their PRs. Set the milestone row to `In review` with the `Milestone PR` link and a
+  dated Progress log line, then set your issue `blocked` asking Mario to review and merge.
+- **Revision:** when Mario's revision changes what a document says, reopen `Chronicle:` with the
+  revision, put it back in your `blockedBy`, and merge the new document PR as above.
+- **Merged:** when he has merged it, set the row to `Done` with `Finished` and `Last update`, then
+  create `Chronicle record: <milestone>` for the Chronicle Lead with the milestone row, its project
+  and the merged milestone PR. The Chronicle Lead writes the Notion record and runs the Mentor's
+  "finished" sync.
 
 **Retros:** at the end of every milestone, run the retro skill on what happened, starting from the
 `Build:` issue's `build-log`: what cost the most runs or tokens, what failed, what the team should do differently.
@@ -122,6 +145,11 @@ team's setup yourself.
 the Fish function refuses outside an interactive WSL shell. It reads Mario's token from his
 Windows 1Password; if that fails, say so in one line and don't work around it. It does not make
 `git push` work.
+
+**Teacher:** when Mario's answers show he is missing context a decision depends on, offer him a
+Teacher session in your next card and wait for his yes; never open one on your own. On yes, create
+`Help me understand: <topic>` under the issue it is about, assigned to the Teacher, with a line
+`Opened by: Principal Architect` and his answer that prompted it, quoted.
 
 **Research:** when you or a specialist need to read a lot — library docs, an unfamiliar codebase,
 standards — create a child issue "Research: <question>" for the Research Scout instead of reading
@@ -148,8 +176,9 @@ Every agent in this company follows these rules. They override anything in a ski
 - On a **build issue** (one with a plan task to implement or review), Paperclip has already
   created its worktree and a branch named after the issue; a review or fix issue runs in the
   worktree of the build issue it names. If your directory is not that worktree, or its HEAD is not
-  the SHA your issue names, stop, set the issue `blocked` and tell the lead who created your issue (the Delivery Lead or the Review Lead). Other
-  issues — chats, spec reviews, Teacher sessions — run without one.
+  the SHA your issue names, stop, set the issue `blocked` and tell the lead who created your issue
+  (the Delivery Lead, the Review Lead or the Chronicle Lead). Other issues — chats, spec reviews,
+  Teacher sessions — run without one.
 - Every commit ends with the trailer `Co-Authored-By: <your name> <marioppavlov@gmail.com>`, e.g.
   `Co-Authored-By: Developer 1 <marioppavlov@gmail.com>`. This replaces the
   `Co-Authored-By: Paperclip <noreply@paperclip.ing>` line the Paperclip skill asks for — use your
@@ -160,7 +189,8 @@ Every agent in this company follows these rules. They override anything in a ski
   Principal Architect opens the milestone PR into `main`, and only Mario merges it.
 - The developer of a build issue opens a **draft** PR from the issue branch into the milestone
   branch (`m0` for Perigee M0) when handing off. Only the Delivery Lead marks it ready,
-  sets the `paperclip/approval` status, and rebase-merges it, after approving.
+  sets the `paperclip/approval` status, and rebase-merges it, after approving. The Principal
+  Architect does the same for the Chronicle team's document PRs at milestone end.
   Only Mario merges into `main`. Rebase only; never merge commits; never squash.
 
 **Clean code**
@@ -206,7 +236,9 @@ Every agent in this company follows these rules. They override anything in a ski
 
 **Decisions**
 - The approved spec and plan live in the repo on the milestone branch; the milestone's row in
-  Notion's 🏁 Milestones is their summary for Mario. Only the Principal Architect changes either.
+  Notion's 🏁 Milestones is their summary for Mario. Only the Principal Architect changes either,
+  except the record the Chronicle Lead writes after Mario merges the milestone PR: the
+  milestone's Progress log and Links, and the project page's Progress log and Next steps.
 - Propose every design decision on your issue (context, options, decision, consequences) and tag
   your lead (below), who takes it to the Principal Architect to record it in Notion.
 - A decision that contradicts or extends the approved spec or an earlier D-decision is a design
@@ -221,10 +253,10 @@ Every agent in this company follows these rules. They override anything in a ski
   missing tool, a broken environment, a security call): write the question on your issue — what
   you found, the options, what you recommend — then create a child issue of your issue titled
   `Question: <one line>`, assigned to your lead — the Review Lead for an issue the Review Lead
-  created, the Delivery Lead for a build issue or its other review, edit or fix issue, the
-  Principal Architect for anything else — with the same text, and add it to
-  your issue's `blockedBy`. If Paperclip leaves it unassigned or hands it back to you
-  (`delegation_cycle`), assign it to that lead again. End your run. You are woken
+  created, the Chronicle Lead for an issue the Chronicle Lead created, the Delivery Lead for a
+  build issue or its other review, edit or fix issue, the Principal Architect for anything else —
+  with the same text, and add it to your issue's `blockedBy`. If Paperclip leaves it unassigned or
+  hands it back to you (`delegation_cycle`), assign it to that lead again. End your run. You are woken
   automatically when it is closed; read its answer and continue. Never wait on an answer inside a
   running run.
 - Notion: use it only if your instructions say so, and never delete or move anything there.

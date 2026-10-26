@@ -65,8 +65,6 @@ A strong answer is evidence too: note it, because mastery is also knowing what h
   `Projects` = the project, `Evidence` = what happened.
 - Building Blocks: 0–3 rows with Status `Needs cleanup` for artifacts worth reusing, `Link` to
   where they live, `Source project` = the project.
-- A dated line in the project page's Progress log: what the milestone delivered, with the
-  milestone PR link.
 
 **Notion data sources**
 - Projects `collection://10546b12-0294-45e8-ae4b-8299b9965ae9`
