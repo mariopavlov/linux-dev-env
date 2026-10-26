@@ -287,7 +287,7 @@ agents:
       schemaVersion: 1
   review-lead:
     role: "pm"
-    icon: "scale"
+    icon: "microscope"
     adapter:
       type: "claude_local"
     permissions:
