@@ -48,6 +48,9 @@ check() {
     for slug in $(sed -n '/^declare -A NAME=(/,/^)/p' "$dir/configure.sh" | sed -n 's/^ *\[\([^]]*\)\]=.*/\1/p'); do
         [[ -f "$dir/src/agents/$slug.md" ]] || fail "NAME has $slug but there is no src/agents/$slug.md"
     done
+    for slug in $(sed -n 's/^declare -A RENAMED=(\(.*\))$/\1/p' "$dir/configure.sh" | grep -o '\[[^]]*\]' | tr -d '[]'); do
+        [[ -f "$dir/src/agents/$slug.md" ]] || fail "RENAMED has $slug but there is no src/agents/$slug.md"
+    done
 }
 
 if [[ $# -gt 0 ]]; then
@@ -74,5 +77,9 @@ expect_fail "teacher missing from ICON"
 rm -rf "$TEST_ROOT/p" && cp -r "$REPO_PAPERCLIP" "$TEST_ROOT/p"
 sed -i 's/^reportsTo: .*/reportsTo: "nobody"/' "$TEST_ROOT/p/src/agents/developer-1.md"
 expect_fail "developer-1 reports to unknown nobody"
+
+rm -rf "$TEST_ROOT/p" && cp -r "$REPO_PAPERCLIP" "$TEST_ROOT/p"
+sed -i 's/^declare -A RENAMED=(/&[ghost-agent]="Ghost" /' "$TEST_ROOT/p/configure.sh"
+expect_fail "RENAMED has ghost-agent but there is no src/agents/ghost-agent.md"
 
 printf '%s\n' "team_test.sh: PASS"

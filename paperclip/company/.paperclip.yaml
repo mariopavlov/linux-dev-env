@@ -272,7 +272,7 @@ agents:
       characterVersion: "cap-v1"
       paletteId: "deep-tide"
       schemaVersion: 1
-  security-writer:
+  audit-writer:
     role: "general"
     icon: "file-code"
     adapter:
@@ -424,4 +424,19 @@ agents:
     appearance:
       characterVersion: "cap-v1"
       paletteId: "solar-flare"
+      schemaVersion: 1
+  chronicle-lead:
+    role: "pm"
+    icon: "file-code"
+    adapter:
+      type: "claude_local"
+    permissions:
+      canCreateAgents: false
+      canCreateSkills: false
+    permissionGrants:
+      -
+        permissionKey: "tasks:assign"
+    appearance:
+      characterVersion: "cap-v1"
+      paletteId: "orchid-peach"
       schemaVersion: 1
