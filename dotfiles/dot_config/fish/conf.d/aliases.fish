@@ -57,6 +57,13 @@ if command -q paru
     abbr -a cleanup 'paru -Sc'
 end
 
+# ── SSH (WSL only) ────────────────────────────────────────────────────────────
+# Use the Windows OpenSSH client so the Windows ssh-agent / keys are used.
+# Guarded so this is absent on native Linux hosts.
+if command -q ssh.exe
+    abbr -a ssh 'ssh.exe'
+end
+
 # ── HTTP / JSON ───────────────────────────────────────────────────────────────
 # Expands inline with the cursor on the URL, so curl flags and jq filters
 # stay editable: `jc` + space → curl -sS ▮ | jq
