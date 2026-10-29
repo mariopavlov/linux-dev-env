@@ -72,5 +72,12 @@ abbr -a --set-cursor jc 'curl -sS % | jq'
 # ── Misc ──────────────────────────────────────────────────────────────────────
 abbr -a reload 'source ~/.config/fish/config.fish'
 abbr -a path   'echo $PATH | tr " " "\n"'
-abbr -a ip     'ip -c addr'
-abbr -a ports  'ss -tlnp'
+
+# iproute2 (`ip`, `ss`) is Linux-only; macOS gets the BSD equivalents.
+if test (uname) = Darwin
+    abbr -a ip    'ifconfig'
+    abbr -a ports 'lsof -nP -iTCP -sTCP:LISTEN'
+else
+    abbr -a ip    'ip -c addr'
+    abbr -a ports 'ss -tlnp'
+end

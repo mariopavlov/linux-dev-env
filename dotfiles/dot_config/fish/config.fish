@@ -5,6 +5,17 @@
 # Enables use of SSH keys stored in 1Password without any keys on disk
 set -gx SSH_AUTH_SOCK "$HOME/.1password/agent.sock"
 
+# ── Homebrew (macOS) ──────────────────────────────────────────────────────────
+# Fish does not read /etc/zprofile, so Homebrew's prefix is not on PATH unless
+# added here. First of the PATH blocks so everything below — the user
+# binaries, then mise — takes precedence over Homebrew. Absent on Linux.
+for brew_bin in /opt/homebrew/bin/brew /usr/local/bin/brew
+    if test -x $brew_bin
+        $brew_bin shellenv fish | source
+        break
+    end
+end
+
 # ── SDKMan ────────────────────────────────────────────────────────────────────
 # Java itself comes from mise (see ~/.config/mise/config.toml). SDKMan is kept
 # for its other candidates — kotlin, scala, maven, gradle, springboot — which
