@@ -97,12 +97,18 @@ log_step "SDKMan (JVM ecosystem)"
 
 SDKMAN_DIR="${SDKMAN_DIR:-$HOME/.sdkman}"
 
+# SDKMan needs bash 4+, and macOS ships 3.2 in /bin/bash. Homebrew's bash
+# comes first on PATH (config.fish runs `brew shellenv`), so it is also the
+# bash that `bass` uses for the `sdk` wrapper afterwards.
+brew_install bash
+BREW_BASH="$(brew --prefix)/bin/bash"
+
 if [[ -d "$SDKMAN_DIR" && -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]]; then
     log_skip "SDKMan ($SDKMAN_DIR)"
 else
     log_info "Installing SDKMan to $SDKMAN_DIR"
     export SDKMAN_DIR
-    curl -s "https://get.sdkman.io" | bash
+    curl -s "https://get.sdkman.io" | "$BREW_BASH"
     log_success "SDKMan installed"
 fi
 
