@@ -129,7 +129,7 @@ case Erlang has to compile from source.
 |------------------|-----|
 | C/C++ | clang, lldb and make come with the Xcode Command Line Tools; `brew` adds cmake, ninja, ccache, pkgconf. No gdb — it does not run on Apple Silicon |
 | Rust (rustup) | Official `sh.rustup.rs` installer; clippy / rustfmt / rust-analyzer are rustup components |
-| SDKMan | Kept for kotlin, scala, maven, gradle, springboot. **The JDK itself comes from mise** |
+| SDKMan | Kept for kotlin, scala, maven, gradle, springboot. **The JDK itself comes from mise.** Needs bash 4+, so `--langs` installs Homebrew bash and runs the SDKMan installer with it |
 | pynvim venv | `~/.nvim-venv` for Neovim's Python provider — uv's job |
 
 ### `--apps` (packages/apps.sh)
