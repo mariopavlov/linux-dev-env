@@ -310,4 +310,4 @@ the ambiguity.
 
 ## Future Platforms
 
-- `setup-macos/` — Homebrew-based, Aerospace WM
+- [`setup-macos/`](../setup-macos/README.md) — Homebrew-based
