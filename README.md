@@ -11,7 +11,7 @@ Post-install setup scripts for various platforms.
 | [`setup-ubuntu-wsl/`](setup-ubuntu-wsl/README.md) | Ubuntu 24.04+ on WSL2 | apt (CLI only, no GUI/Docker Engine) |
 | [`setup-fedora/`](setup-fedora/README.md) | Fedora Linux | dnf |
 | [`setup-fedora-wsl/`](setup-fedora-wsl/README.md) | Fedora on WSL | dnf (CLI only, no GUI/Docker Engine) |
-| `setup-macos/` | macOS | Homebrew *(planned)* |
+| [`setup-macos/`](setup-macos/README.md) | macOS (Apple Silicon / Intel) | Homebrew |
 
 ## Shared Layers
 
@@ -27,8 +27,9 @@ Each `setup-*/` directory then only has to cover what genuinely differs: the sys
 manager, the compilers, and the login shell.
 
 > **Status:** every platform directory is on the mise split. Each one exposes the same step flags —
-> `--base --mise --langs --dotfiles --agents` plus a standalone `--update` — and each ships a
-> `migrate-legacy.sh` that reclaims the pre-mise copies (dry run by default).
+> `--base --mise --langs --dotfiles --agents` plus a standalone `--update`. Each Linux directory also
+> ships a `migrate-legacy.sh` that reclaims the pre-mise copies (dry run by default); macOS never had
+> the pre-mise setup, so it has none.
 
 ## Workspace Repositories
 
