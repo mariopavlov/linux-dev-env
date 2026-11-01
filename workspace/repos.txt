@@ -13,6 +13,7 @@ git@github.com:mariopavlov/frontend-masters-ai-engineering-fundamentals.git
 git@github.com:mariopavlov/kata-forge.git
 git@github.com:mariopavlov/linux-dev-env.git
 git@github.com:mariopavlov/loomle-maestro.git
+git@github.com:mariopavlov/loomle-notes.git
 git@github.com:mariopavlov/mariopavlov.com.git
 git@github.com:mariopavlov/neetcode.git
 git@github.com:mariopavlov/nexus.git
