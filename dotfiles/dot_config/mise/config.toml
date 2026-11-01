@@ -45,13 +45,6 @@ neovim = "latest"
 "npm:neovim" = "latest"
 
 # ── Agent tooling ─────────────────────────────────────────────────────────────
-# Beads — issue tracker / memory layer for coding agents. Not in the mise
-# registry, so the backend is named explicitly. Ships goreleaser-style release
-# assets, which the `github:` backend resolves on its own.
-#
-#   Provides: bd
-"github:gastownhall/beads" = "latest"
-
 # Go linter the Keystone agents run (`make lint`); on the Paperclip service
 # PATH through the mise shims.
 golangci-lint = "latest"
