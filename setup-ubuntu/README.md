@@ -140,7 +140,6 @@ installs every tool in the shared manifest.
 | Python tooling | uv |
 | Editor | neovim, `npm:neovim` (the Node provider, pinned as a tool so it survives a Node version change) |
 | CLI | bat, chezmoi, eza, fd, fzf, gh, glab, jq, k9s, kind, lazygit, ripgrep, starship, zoxide |
-| Agent tooling | [beads](https://github.com/gastownhall/beads) (`bd`) — declared as `github:gastownhall/beads`, since it is not in the mise registry |
 
 > Chezmoi normally owns `~/.config/mise/config.toml`, but chezmoi is itself a mise-managed tool.
 > `mise.sh` breaks the cycle by copying the repo's manifest into place first; the later `--dotfiles`
