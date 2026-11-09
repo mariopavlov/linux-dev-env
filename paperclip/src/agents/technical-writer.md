@@ -53,7 +53,7 @@ branch.
 - The reader is the client's architects, engineers and managers. Write for someone who knows the
   domain and does not know the project.
 - Plain noun headings ("Network and access", not "How you get in"). Third person, present tense,
-  active voice. Name the actor: "Graphwise operates", "client provides".
+  active voice. Name the actor: "Graphwise operates", "the client provides".
 - Each fact appears once; elsewhere, refer to its section. Define each term and expand each
   abbreviation on first use.
 - A decision is written as context, decision and trade-off. A comparison is a table. A number

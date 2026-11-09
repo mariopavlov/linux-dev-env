@@ -37,7 +37,7 @@ and **ChatGPT/Codex subscriptions** (no API keys).
 - First workload: **Perigee** (personal project). First checkpoint: **Perigee M0** merged (§9).
 
 **Non-goals (for now)**
-- Client work (client) on this team. client stays hand-driven until the setup is proven.
+- Client work on this team. It stays hand-driven until the setup is proven.
 - Cloud credentials for any agent. Nothing deploys during the pilot.
 - Notifications (Slack/Discord). Mario polls the Approvals and Blocked inboxes.
 - Quota optimisation (e.g. shifting more work to Codex). Measure first, optimise later.
@@ -84,7 +84,7 @@ Mario's decisions:
 6. **Rule: every Codex output gets at least one Claude reviewer.**
 7. **Security is a pair:** one Codex, one Claude.
 8. **Teacher:** invoked directly by Mario, both from inside work items and standalone (§7).
-9. **Pilot on Perigee**, not client. First checkpoint is Perigee M0; the setup continues afterwards.
+9. **Pilot on Perigee**, not client work. First checkpoint is Perigee M0; the setup continues afterwards.
 10. **Perigee must become cloud native** (Mario will scale and deploy it later). The approved spec
     and M0 plan must be reviewed and adapted before M0 is built — this is the team's first job.
 11. **Git:** agents commit and push on task branches; **only Mario merges to `main`**.
