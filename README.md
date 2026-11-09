@@ -41,9 +41,12 @@ clone URLs:
 | Manifest | Cloned by |
 |----------|-----------|
 | [`repos.txt`](workspace/repos.txt) — personal | `install.sh --update` (always) |
-| [`repos-graphwise.txt`](workspace/repos-graphwise.txt) — work | `install.sh --update --repos graphwise` |
+| `repos-graphwise.txt` — work, **local only** (gitignored) | `install.sh --update --repos graphwise` |
 
-To add a repo, append its URL to the right manifest, commit, and on each machine run `--update`
+Work manifests list private client repos, so they are gitignored and never pushed to this public
+repo. Copy `repos-graphwise.txt` to each work machine by hand (or from a private store).
+
+To add a repo, append its URL to the right manifest, commit (personal only), and on each machine run `--update`
 or, from any folder, the Fish wrapper:
 
 ```fish

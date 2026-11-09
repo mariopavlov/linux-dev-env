@@ -4,3 +4,6 @@ claude-skills/dot-claude/skills/.trash/
 claude-skills/dot-claude/skills/paperclip
 claude-skills/dot-claude/skills/*--*
 .DS_Store
+
+# Work repo manifest: lists private client repos, kept local only
+workspace/repos-graphwise.txt
