@@ -69,15 +69,15 @@ declare -A MODEL=(
     [delivery-qa]="claude-sonnet-5-5"
     [teacher]="claude-sonnet-5-5"
     [cloud-architect-advisor]="claude-sonnet-5-5"
-    [developer-1]="gpt-6-astra"
-    [developer-2]="gpt-6-astra"
-    [refactorer]="gpt-6-astra"
-    [platform-devops]="gpt-6-astra"
-    [security-codex]="gpt-6-astra"
+    [developer-1]="gpt-6.2-astra"
+    [developer-2]="gpt-6.2-astra"
+    [refactorer]="gpt-6.2-astra"
+    [platform-devops]="gpt-6.2-astra"
+    [security-codex]="gpt-6.2-astra"
     [research-scout]="ollama/deepseek-v4.1-flash:cloud"
     [security-deepseek]="ollama/deepseek-v4-pro:0813-cloud"
     [red-team-engineer]="ollama/glm-5.3:cloud"
-    [security-lead]="gpt-6.1-sol"
+    [security-lead]="gpt-6.2-sol"
     [technical-writer]="claude-opus-5-5"
     [delivery-lead]="claude-sonnet-5-5"
     [security-qa]="claude-sonnet-5-5"
@@ -91,7 +91,7 @@ declare -A MODEL=(
     [history-critic]="ollama/deepseek-v4.1-flash:cloud"
     [disprover-claude]="claude-sonnet-5-5"
     [disprover-open]="ollama/deepseek-v4-pro:0813-cloud"
-    [critic-sol]="gpt-6.1-sol"
+    [critic-sol]="gpt-6.2-sol"
     [chronicle-lead]="claude-opus-5-5"
 )
 
@@ -377,7 +377,7 @@ for slug in "${!NAME[@]}"; do
             effort="$(jq -nc --arg e "${EFFORT[$slug]}" '{effort:$e}')"
             concurrency=1 ;;
         codex_local)
-            # codex-acp bundles an older Codex whose model list lacks newer models (gpt-6.1-sol).
+            # codex-acp bundles an older Codex whose model list lacks newer models (gpt-6.2-sol).
             env="$(jq -c --arg c "$CODEX_BIN" '. + {INITIAL_AGENT_MODE:"agent-full-access", CODEX_PATH:$c}' <<<"$env")"
             effort="$(jq -nc --arg e "${EFFORT[$slug]}" '{modelReasoningEffort:$e}')"
             concurrency=2 ;;

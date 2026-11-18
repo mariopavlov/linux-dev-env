@@ -34,15 +34,15 @@ tests and nobody else may change them.
 |---|---|---|
 | Principal Architect (CEO) | Claude · Opus 5.5 · high | Picks up milestones from Notion, brainstorms with Mario in Keystone, writes spec + plan with a `Route:` line on every task, sizes the change, sends spec reviews to the Review Lead and, for auth, data, exposure or secrets, to the three security reviewers directly, gets Mario's approval, hands the build to the Delivery Lead, then the documents and the record to the Chronicle Lead, opens the milestone PR, keeps the milestone row's `Status`, runs retros; may offer Mario a Teacher session |
 | Delivery Lead | Claude · Sonnet 5.5 · high | Runs the build of an approved milestone: has QA write each task's tests first, creates build issues, follows each task's route (Refactorer, then `Review:` and `Security review:`), runs fixes and acceptance, decides on it, runs the security round, merges each task into the milestone branch; keeps the build log and `review-digest` |
-| Developer 1, 2 | Codex · gpt-6-astra · medium | Implement plan tasks, TDD |
-| Platform Engineer | Codex · gpt-6-astra · medium | Containers, IaC, CI/CD |
-| Refactorer | Codex · gpt-6-astra · low | Right after implementation: removes comments and needless abstraction; never touches tests |
+| Developer 1, 2 | Codex · gpt-6.2-astra · medium | Implement plan tasks, TDD |
+| Platform Engineer | Codex · gpt-6.2-astra · medium | Containers, IaC, CI/CD |
+| Refactorer | Codex · gpt-6.2-astra · low | Right after implementation: removes comments and needless abstraction; never touches tests |
 | Delivery QA | Claude · Sonnet 5.5 · high | Owns the test framework and writes each task's acceptance, integration and deployment tests before the developer starts, plus a regression test for each correctness finding from review; after the review stages: tests unchanged, suite passes, requirements met, edge cases; PASS/FAIL. Also fact-checks every document. Does not judge code quality; the Review team does |
 | Cloud Architect Advisor | Claude · Sonnet 5.5 · high | Answers Mario's design questions on a `Design questions: <milestone>` issue: short, sourced answers and possible defects for him to raise; read-only, separate from the Cloud Architect so reviews stay independent |
 | Research Scout | OpenCode · Ollama deepseek-v4.1-flash · medium | Reads docs and code on request ("Research: …"), returns a sourced one-page brief |
 | Teacher | Claude · Sonnet 5.5 · high | Teaches Mario, on request or after he says yes to an offer from the Principal or Claude |
-| Security Lead | Codex · gpt-6.1 Sol · high | Leads the security agents: fans a review out (per task or per milestone), consolidates one verdict for whoever asked (surfacing dissent, never flattening it), owns the threat model and the Red Team's scope; the round ends at its verdict |
-| Security·Codex, Security·Claude | Codex · gpt-6-astra · high; Claude · Sonnet 5.5 · high | Independent threat models of specs, plans and code, with Security·DeepSeek |
+| Security Lead | Codex · gpt-6.2 Sol · high | Leads the security agents: fans a review out (per task or per milestone), consolidates one verdict for whoever asked (surfacing dissent, never flattening it), owns the threat model and the Red Team's scope; the round ends at its verdict |
+| Security·Codex, Security·Claude | Codex · gpt-6.2-astra · high; Claude · Sonnet 5.5 · high | Independent threat models of specs, plans and code, with Security·DeepSeek |
 | Security·DeepSeek | OpenCode · Ollama deepseek-v4-pro · high | Third independent security reviewer (third model family) |
 | Red Team Engineer | OpenCode · Ollama glm-5.3 · high | Stands a solution up in a throwaway local Docker sandbox and attacks the running deployment; confirms or refutes the reviewers' threats and finds new ones |
 | Security QA | Claude · Sonnet 5.5 · high | Writes the tests that prove each security control holds and a regression test for every security finding to fix; security acceptance after the Refactorer |
@@ -56,7 +56,7 @@ tests and nobody else may change them.
 | Cloud Architect | Claude · Sonnet 5.5 · high | Reviews specs and code for cloud-native fit (8 skills); a Review lens |
 | DDD Reviewer | Claude · Sonnet 5.5 · high | Reviews specs and code for the domain model; a Review lens |
 | Disprover·Claude, Disprover·Open | Claude · Sonnet 5.5 · high; OpenCode · Ollama deepseek-v4-pro · high | Try to kill each finding (keep, drop or downgrade, with evidence; when unsure, keep). Never on the family of the critic whose finding they judge |
-| Critic·Sol | Codex · gpt-6.1 Sol · high | The fallback: stands in for any Ollama role (critic or Disprover) when Ollama is down or out of credits |
+| Critic·Sol | Codex · gpt-6.2 Sol · high | The fallback: stands in for any Ollama role (critic or Disprover) when Ollama is down or out of credits |
 | Chronicle Lead | Claude · Opus 5.5 · high | Twice per milestone: `Chronicle: <milestone>` (the documents, before the milestone PR) and `Chronicle record: <milestone>` (the Notion record and the Mentor's finished sync, after the merge). Fans out to the writers, has Delivery QA fact-check each document; writes nothing itself |
 | Technical Writer | Claude · Opus 5.5 · high | Writes and edits every client document — solution architecture, migration plans, runbooks, handover guides — to one house standard; other agents supply the facts. The Delivery Lead still hands it client-document plan tasks during the build |
 | Audit Writer | Claude · Opus 5.5 · high | Was Security Writer. After the build: `docs/security/<milestone>/` (internal test report, exposures, risks, client exposure report) and `docs/review/<milestone>/` (review audit: findings per task, outcomes, what was tracked, residual concerns) |
